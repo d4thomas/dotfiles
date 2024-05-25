@@ -1,0 +1,53 @@
+theme = "tokyonight_storm"
+
+[editor]
+mouse = true
+true-color = true
+undercurl = true
+color-modes = true
+cursorline = true
+
+[editor.soft-wrap]
+enable = true
+wrap-indicator = "↩ "
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.lsp]
+display-messages = true
+display-inlay-hints = true
+
+[editor.file-picker]
+hidden = false
+
+[editor.indent-guides]
+render = true
+
+[editor.whitespace.render]
+space = "none"
+trailing = "all"
+tab = "all"
+nbsp = "all"
+nnbsp = "all"
+newline = "none"
+
+[editor.whitespace.characters]
+space = "·"
+trailing = "·"
+nbsp = "⍽"
+nnbsp = "␣"
+tab = "→"
+newline = "⏎"
+tabpad = "·"
+
+[editor.statusline]
+left = ["mode", "file-name", "version-control", "spinner"]
+center = ["read-only-indicator"]
+right = ["diagnostics", "selections", "position", "file-encoding", "file-line-ending", "file-type"]
+separator = "|"
+mode.normal = "NORMAL"
+mode.insert = "INSERT"
+mode.select = "SELECT"
