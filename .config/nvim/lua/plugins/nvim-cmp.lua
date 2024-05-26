@@ -1,3 +1,11 @@
+vim.g.cmptoggle = false
+vim.keymap.set(
+  "n",
+  "<leader>ua",
+  "<cmd>lua vim.g.cmptoggle = not vim.g.cmptoggle<CR>",
+  { desc = "Toggle Autocompletion" }
+)
+
 return {
   {
     "hrsh7th/nvim-cmp",
@@ -11,7 +19,29 @@ return {
 
       local cmp = require("cmp")
 
+      cmp.setup({
+        enabled = function()
+          return vim.g.cmptoggle
+        end,
+      })
+
       opts.mapping = vim.tbl_extend("force", opts.mapping, {
+        ["<C-k>"] = cmp.mapping({
+          i = function()
+            if cmp.visible() then
+              cmp.abort()
+            else
+              cmp.complete()
+            end
+          end,
+          c = function()
+            if cmp.visible() then
+              cmp.close()
+            else
+              cmp.complete()
+            end
+          end,
+        }),
         ["<CR>"] = cmp.mapping({
           i = function(fallback)
             if cmp.visible() and cmp.get_active_entry() then

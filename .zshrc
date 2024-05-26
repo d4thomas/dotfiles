@@ -26,6 +26,15 @@ if [ -d "$HOME/.local/bin" ]; then
   export PATH="$HOME/.local/bin:$PATH"
 fi
 
+# Ruby environment
+if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
+  export PATH="/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby/bin:$PATH"
+fi
+
+if [ -d "/opt/homebrew/opt/openjdk/bin" ]; then
+  export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+fi
+
 # Load Starship prompt if installed
 if command -v starship &> /dev/null; then
   eval "$(starship init zsh)"
