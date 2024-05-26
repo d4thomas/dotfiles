@@ -1,4 +1,4 @@
-vim.keymap.set("n", "<leader>vs", "<cmd>VenvSelect<cr>", { desc = "Select virtual environment", remap = true })
+vim.keymap.set("n", "<leader>vs", "<cmd>VenvSelect<cr>", { desc = "Select Virtual Environment", remap = true })
 
 return {
   {
