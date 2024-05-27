@@ -2,6 +2,9 @@ return {
   {
     "R-nvim/R.nvim",
     lazy = false,
+    config = {
+      pdfviewer = "/System/Applications/Preview.app/Contents/MacOS/Preview",
+    },
   },
   {
     "nvim-treesitter/nvim-treesitter",
