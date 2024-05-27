@@ -1,5 +1,3 @@
-vim.keymap.set("n", "<leader>vs", "<cmd>VenvSelect<cr>", { desc = "Select Virtual Environment", remap = true })
-
 return {
   {
     "linux-cultist/venv-selector.nvim",
