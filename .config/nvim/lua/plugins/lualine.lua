@@ -6,7 +6,6 @@ return {
 
     opts = function(_, opts)
       opts.sections.lualine_c = {
-        LazyVim.lualine.root_dir(),
         {
           "diagnostics",
           symbols = {
