@@ -28,7 +28,6 @@ isl
 jbig2dec
 jpeg-turbo
 jq
-lf
 libevent
 libgit2
 libidn
@@ -89,6 +88,7 @@ xorgproto
 xz
 yadm
 yarn
+yazi
 z3
 zstd
 arduino-ide
