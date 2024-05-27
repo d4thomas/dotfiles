@@ -15,12 +15,10 @@ return {
             hint = icons.diagnostics.Hint,
           },
         },
-        { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
         {},
       }
       opts.sections.lualine_z = {
-        "searchcount",
-        "selectioncount",
+        { "filetype", icon_only = true, colored = false, separator = "", padding = { left = 1, right = 0 } },
       }
     end,
   },
