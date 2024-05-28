@@ -5,8 +5,8 @@
 	"color_scheme": "Packages/User/Colorsublime-Themes/Tokyo Night Storm.tmTheme",
 
 	// Controls the "color_scheme" when set to "auto"
-	"light_color_scheme": "Breakers.sublime-color-scheme",
-	"dark_color_scheme": "Mariana.sublime-color-scheme",
+	"light_color_scheme": "Packages/User/Colorsublime-Themes/Tokyo Night Day.tmTheme",
+	"dark_color_scheme": "Packages/User/Colorsublime-Themes/Tokyo Night Storm.tmTheme",
 
 	// Note that the font_face and font_size are overridden in the platform
 	// specific settings file, for example, "Preferences (Linux).sublime-settings".
