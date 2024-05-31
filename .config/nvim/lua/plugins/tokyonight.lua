@@ -1,8 +1,4 @@
 return {
-  "folke/tokyonight.nvim",
-  lazy = false,
-  priority = 1000,
-  opts = {},
   require("tokyonight").setup({
     -- your configuration comes here
     -- or leave it empty to use the default settings
