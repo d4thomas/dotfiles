@@ -16,11 +16,6 @@ fi
 autoload -Uz compinit && compinit
 zstyle ':completion:*' rehash true
 
-# Add Mason tools to PATH
-if [ -d "$HOME/.local/share/nvim/mason/bin" ]; then
-  export PATH="$HOME/.local/share/nvim/mason/bin:$PATH"
-fi
-
 # User specific environment
 if [ -d "$HOME/.local/bin" ]; then
   export PATH="$HOME/.local/bin:$PATH"
