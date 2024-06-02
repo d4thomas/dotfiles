@@ -1,5 +1,4 @@
 vim.keymap.set("n", "<F2>", "<cmd>Copilot toggle<cr>", { desc = "Toggle CoPilot", remap = true })
-vim.keymap.set("n", "<F12>", "<cmd>CopilotChatToggle<cr>", { desc = "Toggle CoPilot Chat", remap = true })
 
 return {
   {
@@ -25,14 +24,5 @@ return {
     config = function()
       require("copilot_cmp").setup()
     end,
-  },
-  {
-    "CopilotC-Nvim/CopilotChat.nvim",
-    branch = "canary",
-    dependencies = { "zbirenbaum/copilot.lua", "nvim-lua/plenary.nvim" },
-    opts = {
-      debug = false,
-      window = { layout = "float" },
-    },
   },
 }
