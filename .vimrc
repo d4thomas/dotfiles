@@ -3,7 +3,7 @@ set nocompatible
 " Plugins
 call plug#begin()
 
-Plug 'ghifarit53/tokyonight-vim'
+Plug  'catppuccin/vim', { 'as': 'catppuccin' }
 Plug 'tpope/vim-sensible'
 Plug 'sheerun/vim-polyglot'
 
@@ -70,9 +70,7 @@ set background=dark
 " Set colorscheme
 set t_Co=256
 set termguicolors
-let g:tokyonight_style = 'storm'
-let g:tokyonight_enable_italic = 1
-colorscheme tokyonight
+colorscheme catppuccin_macchiato
 
 " Enable autoindenting
 set ai
