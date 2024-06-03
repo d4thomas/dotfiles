@@ -2,11 +2,11 @@
 	// Sets the colors used within the text area.
 	// The value "auto" will switch between the "light_color_scheme" and
 	// "dark_color_scheme" based on the operating system appearance.
-	"color_scheme": "Packages/User/Colorsublime-Themes/Tokyo Night Storm.tmTheme",
+	"color_scheme": "Catppuccin Macchiato.sublime-color-scheme",
 
 	// Controls the "color_scheme" when set to "auto"
-	"light_color_scheme": "Packages/User/Colorsublime-Themes/Tokyo Night Day.tmTheme",
-	"dark_color_scheme": "Packages/User/Colorsublime-Themes/Tokyo Night Storm.tmTheme",
+	"light_color_scheme": "Catppuccin Latte.sublime-color-scheme",
+	"dark_color_scheme": "Catppuccin Macchiato.sublime-color-scheme",
 
 	// Note that the font_face and font_size are overridden in the platform
 	// specific settings file, for example, "Preferences (Linux).sublime-settings".
@@ -574,7 +574,7 @@
 	// bars, etc)
 	// The value "auto" will switch between the "light_theme" and "dark_theme"
 	// based on the operating system appearance.
-	"theme": "auto",
+	"theme": "Adaptive.sublime-theme",
 
 	// Controls the "theme" when to "auto"
 	"light_theme": "Default.sublime-theme",
