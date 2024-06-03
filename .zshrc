@@ -8,8 +8,8 @@ if command -v brew &> /dev/null; then
   export HOMEBREW_NO_EMOJI=1
 
   # Add aliases for backup/restore
-  alias brew_backup='brew bundle dump --file=~/.config/brew/Brewfile --force'
-  alias brew_restore='brew bundle --file=~/.config/brew/Brewfile'
+  alias brew-backup='brew bundle dump --file=~/.config/brew/Brewfile --force'
+  alias brew-restore='brew bundle --file=~/.config/brew/Brewfile'
 fi
 
 # Enable autocompletion
