@@ -46,11 +46,6 @@ if command -v starship &> /dev/null; then
   eval "$(starship init zsh)"
 fi
 
-# Load CoPilot CLI aliases
-if command -v gh &> /dev/null; then
-  eval "$(gh copilot alias -- zsh)"
-fi
-
 # Configure fzf
 if command -v fzf &> /dev/null; then
   # CTRL-t (fzf), CTRL-r (shell), Option-c (cd ...)
@@ -61,6 +56,11 @@ if command -v fzf &> /dev/null; then
     --color=bg+:#363a4f,bg:#24273a,spinner:#f4dbd6,hl:#ed8796 \
     --color=fg:#cad3f5,header:#ed8796,info:#c6a0f6,pointer:#f4dbd6 \
     --color=marker:#f4dbd6,fg+:#cad3f5,prompt:#c6a0f6,hl+:#ed8796"
+fi
+
+# Load CoPilot CLI aliases
+if command -v gh &> /dev/null; then
+  eval "$(gh copilot alias -- zsh)"
 fi
 
 # Set aliases
