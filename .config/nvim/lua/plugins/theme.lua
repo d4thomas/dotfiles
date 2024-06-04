@@ -1,3 +1,5 @@
+vim.api.nvim_set_hl(0, "BufferlineFill", { bg = "#24273a" })
+
 return {
   {
     "catppuccin/nvim",
