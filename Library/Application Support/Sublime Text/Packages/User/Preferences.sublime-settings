@@ -873,11 +873,11 @@
 	// When Vintage, the vi emulation package, is enabled
 	// (see ignored_packages, below), this setting controls if files are opened
 	// in command mode or insert mode by default
-	"vintage_start_in_command_mode": false,
+	"vintage_start_in_command_mode": true,
 
 	// Yank commands can place the text in either an internal register, or in
 	// the system clipboard.
-	"vintage_use_clipboard": false,
+	"vintage_use_clipboard": true,
 
 	// By default Vintage will interpret all ctrl+<key> key bindings as
 	// regular Sublime Text key bindings. Set this to true to make ctrl keys
@@ -890,6 +890,6 @@
 
 	// List any packages to ignore here. When removing entries from this list,
 	// a restart may be required if the package contains plugins.
-	"ignored_packages": ["Vintage",
+	"ignored_packages": [
 	],
 }
