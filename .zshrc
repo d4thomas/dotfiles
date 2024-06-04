@@ -23,19 +23,25 @@ fi
 
 # Ruby environment
 if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
-  export PATH="/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby/bin:$PATH"
+  export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 fi
 
+# Ruby gems environment
+if which ruby >/dev/null && which gem >/dev/null; then
+    PATH="$(ruby -r rubygems -e 'puts Gem.user_dir')/bin:$PATH"
+fi
+
+# Java environment
 if [ -d "/opt/homebrew/opt/openjdk/bin" ]; then
   export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
 fi
 
-# Load Starship prompt if installed
+# Load Starship prompt
 if command -v starship &> /dev/null; then
   eval "$(starship init zsh)"
 fi
 
-# Load CoPilot CLI aliases if installed
+# Load CoPilot CLI aliases
 if command -v gh &> /dev/null; then
   eval "$(gh copilot alias -- zsh)"
 fi
@@ -52,9 +58,9 @@ if command -v fzf &> /dev/null; then
     --color=marker:#f4dbd6,fg+:#cad3f5,prompt:#c6a0f6,hl+:#ed8796"
 fi
 
-# Set aliases if specific programs installed
+# Set aliases
 if command -v eza &> /dev/null; then
-  alias ls='eza --icons --ignore-glob=".DS_Store|NOSYNC.tmp|go|"'
+  alias ls='eza --icons --ignore-glob=".DS_Store|NOSYNC.tmp|go"'
 fi
 if command -v nvim &> /dev/null; then
   alias vi='nvim'
@@ -62,3 +68,12 @@ fi
 if command -v trash &> /dev/null; then
   alias rm='trash'
 fi
+
+# Function to render Rmd files to html
+renderrmd() {
+  if [ -z "$1" ]; then
+    echo "Usage: renderrmd <file>"
+    return 1
+  fi
+  Rscript -e "rmarkdown::render('$1')"
+}
