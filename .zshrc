@@ -75,7 +75,7 @@ if command -v trash &> /dev/null; then
   alias rm='trash'
 fi
 if command -v bat &> /dev/null; then
-  alias cat='bat'
+  alias cat='bat -p'
 fi
 
 # Quickly render Rmd files to html
