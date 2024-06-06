@@ -1,4 +1,3 @@
-# Configure Homebrew
 if command -v brew &> /dev/null; then
   # Add autocomletions
   FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
@@ -67,12 +66,16 @@ fi
 # Set aliases
 if command -v eza &> /dev/null; then
   alias ls='eza --icons --ignore-glob=".DS_Store|NOSYNC.tmp|go"'
+  alias lst='eza --long --classify --all --header --git --no-user --tree --icons --git --level'
 fi
 if command -v nvim &> /dev/null; then
   alias vi='nvim'
 fi
 if command -v trash &> /dev/null; then
   alias rm='trash'
+fi
+if command -v bat &> /dev/null; then
+  alias cat='bat'
 fi
 
 # Quickly render Rmd files to html
