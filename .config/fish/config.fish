@@ -10,6 +10,15 @@ if type -q /opt/homebrew/bin/brew
     /opt/homebrew/bin/brew shellenv | source
 end
 
+# Setup tmux environment
+if test "$TERM_PROGRAM" = WezTerm
+    if type -q tmux
+        if not tmux attach -d >/dev/null 2>&1
+            tmux new
+        end
+    end
+end
+
 # Configure Homebrew
 if type -q brew
     # Add autocompletions
