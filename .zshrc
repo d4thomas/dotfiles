@@ -12,7 +12,7 @@ if command -v brew &> /dev/null; then
   # Add autocomletions
   FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 
-  # Setup preferences 
+  # Setup preferences
   export HOMEBREW_NO_ENV_HINTS=1
   export HOMEBREW_NO_EMOJI=1
 
@@ -22,8 +22,16 @@ if command -v brew &> /dev/null; then
 fi
 
 # Configure Zsh autocompletion
+if [ -d "$(brew --prefix)/share/zsh-completions" ]; then
+  FPATH="$(brew --prefix)/share/zsh-completions:$FPATH"
+fi
 autoload -Uz compinit && compinit
 zstyle ':completion:*' rehash true
+
+# Configure Zsh autosuggestions
+if [ -f "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+  source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+fi
 
 # Configure Zsh syntax highlighting
 if [ -f "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
@@ -37,8 +45,7 @@ fi
 
 # Configure fzf
 if command -v fzf &> /dev/null; then
-  # Setup keybindings
-  # CTRL-t (fzf), CTRL-r (shell), Option-c (cd ...)
+  # Setup keybindings: CTRL-t (fzf), CTRL-r (shell), Option-c (cd ...)
    eval "$(fzf --zsh)"
 
   # Configure colors
