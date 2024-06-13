@@ -67,8 +67,8 @@ fi
 ########################
 
 if command -v eza &> /dev/null; then
-  alias ls='eza --icons --ignore-glob=".DS_Store|NOSYNC.tmp|go"'
-  alias lst='eza --long --classify --all --header --git --no-user --tree --icons --git --level'
+  alias ls='eza --icons --group-directories-first --ignore-glob=".DS_Store|NOSYNC.tmp|go"'
+  alias lst='eza --long --classify --all --header --git --no-user --tree --icons --group-directories-first --git --level'
 fi
 if command -v nvim &> /dev/null; then
   alias vi='nvim'
