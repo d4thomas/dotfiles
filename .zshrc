@@ -41,6 +41,8 @@ fi
 # Configure prompt (Starship)
 if command -v starship &> /dev/null; then
   eval "$(starship init zsh)"
+  # Let Starship handle virtual environment status
+  export VIRTUAL_ENV_DISABLE_PROMPT=1
 fi
 
 # Configure fzf
@@ -77,6 +79,10 @@ fi
 if command -v bat &> /dev/null; then
   alias cat='bat -p'
 fi
+if command -v rg &> /dev/null; then
+  alias grep='rg'
+fi
+
 
 ########################
 ### Custom Functions ###

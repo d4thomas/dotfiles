@@ -9,8 +9,6 @@ Plug 'sheerun/vim-polyglot'
 
 call plug#end()
 
-" Main configuration
-"
 " Filetype settings
 filetype on
 filetype indent on
