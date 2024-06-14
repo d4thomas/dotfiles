@@ -23,7 +23,7 @@ fi
 
 # Configure Zsh autocompletion
 if [ -d "$(brew --prefix)/share/zsh-completions" ]; then
-  FPATH="$(brew --prefix)/share/zsh-completions:$FPATH"
+  FPATH="$(brew --prefix)/share/zsh-completions:${FPATH}"
 fi
 autoload -Uz compinit && compinit
 zstyle ':completion:*' rehash true
