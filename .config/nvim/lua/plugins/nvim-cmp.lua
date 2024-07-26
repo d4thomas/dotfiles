@@ -1,7 +1,7 @@
 vim.g.cmptoggle = false
 vim.keymap.set(
   "n",
-  "<leader>ua",
+  "<leader>uA",
   "<cmd>lua vim.g.cmptoggle = not vim.g.cmptoggle<CR>",
   { desc = "Toggle Autocompletion" }
 )
