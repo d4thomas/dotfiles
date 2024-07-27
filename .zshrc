@@ -53,9 +53,9 @@ if command -v fzf &> /dev/null; then
 
   # Configure colors
   export FZF_DEFAULT_OPTS=" \
-    --color=bg+:#363a4f,bg:#24273a,spinner:#f4dbd6,hl:#ed8796 \
-    --color=fg:#cad3f5,header:#ed8796,info:#c6a0f6,pointer:#f4dbd6 \
-    --color=marker:#f4dbd6,fg+:#cad3f5,prompt:#c6a0f6,hl+:#ed8796"
+    --color=bg+:#2d2a2e,bg:#2d2a2e,spinner:#ffd866,hl:#ff6188 \
+    --color=fg:#78dce8,header:#ff6188,info:#FF5C57,pointer:#ffd866 \
+    --color=marker:#ffd866,fg+:#78dce8,prompt:#FF5C57,hl+:#ff6188"
 fi
 
 # Configure CoPilot CLI
@@ -80,8 +80,8 @@ fi
 if command -v trash &> /dev/null; then
   alias rm='trash'
 fi
-if command -v bat &> /dev/null; then
-  alias cat='bat -p'
+if command -v ccat &> /dev/null; then
+  alias cat='ccat'
 fi
 if command -v rg &> /dev/null; then
   alias grep='rg'

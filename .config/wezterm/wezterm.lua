@@ -2,7 +2,10 @@ local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 config.font = wezterm.font("MonoLisa Nerd Font")
 config.font_size = 11
-config.color_scheme = "Catppuccin Macchiato"
+config.color_scheme = "Monokai Pro (Gogh)"
+config.colors = {
+	background = "#2d2a2e",
+}
 config.enable_tab_bar = false
 config.default_cursor_style = "BlinkingBlock"
 config.animation_fps = 5
