@@ -1,12 +1,3 @@
-# Attach/create tmux sessions if shell opened in WezTerm
-if [[ $TERM_PROGRAM = WezTerm ]]; then
-   if command -v tmux &> /dev/null; then
-      if ! tmux attach -d > /dev/null 2>&1; then
-        tmux new
-      fi
-   fi
-fi
-
 # Configure Homebrew
 if command -v brew &> /dev/null; then
   # Add autocomletions
@@ -50,12 +41,6 @@ fi
 if command -v fzf &> /dev/null; then
   # Setup keybindings: CTRL-t (fzf), CTRL-r (shell), Option-c (cd ...)
    eval "$(fzf --zsh)"
-
-  # Configure colors
-  export FZF_DEFAULT_OPTS=" \
-    --color=bg+:#2d2a2e,bg:#2d2a2e,spinner:#ffd866,hl:#ff6188 \
-    --color=fg:#78dce8,header:#ff6188,info:#FF5C57,pointer:#ffd866 \
-    --color=marker:#ffd866,fg+:#78dce8,prompt:#FF5C57,hl+:#ff6188"
 fi
 
 # Configure CoPilot CLI
