@@ -1,3 +1,12 @@
+# Setup tmux environment
+if [[ $TERM_PROGRAM = WezTerm ]]; then
+   if command -v tmux &> /dev/null; then
+      if ! tmux attach -d > /dev/null 2>&1; then
+        tmux new
+      fi
+   fi
+fi
+
 # Configure Homebrew
 if command -v brew &> /dev/null; then
   # Add autocomletions
@@ -41,6 +50,12 @@ fi
 if command -v fzf &> /dev/null; then
   # Setup keybindings: CTRL-t (fzf), CTRL-r (shell), Option-c (cd ...)
    eval "$(fzf --zsh)"
+
+  # Set theme
+  export FZF_DEFAULT_OPTS=" \
+    --color=bg+:#363a4f,bg:#24273a,spinner:#f4dbd6,hl:#ed8796 \
+    --color=fg:#cad3f5,header:#ed8796,info:#c6a0f6,pointer:#f4dbd6 \
+    --color=marker:#f4dbd6,fg+:#cad3f5,prompt:#c6a0f6,hl+:#ed8796"
 fi
 
 # Configure CoPilot CLI
@@ -65,8 +80,8 @@ fi
 if command -v trash &> /dev/null; then
   alias rm='trash'
 fi
-if command -v ccat &> /dev/null; then
-  alias cat='ccat'
+if command -v bat &> /dev/null; then
+  alias cat='bat -p'
 fi
 if command -v rg &> /dev/null; then
   alias grep='rg'
