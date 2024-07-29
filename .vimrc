@@ -3,11 +3,17 @@ set nocompatible
 " Plugins
 call plug#begin()
 
-Plug 'phanviet/vim-monokai-pro'
+Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 Plug 'tpope/vim-sensible'
 Plug 'sheerun/vim-polyglot'
 
 call plug#end()
+
+" Set colorscheme
+set t_Co=256
+set termguicolors
+colorscheme catppuccin_macchiato
+
 
 " Filetype settings
 filetype on
@@ -64,11 +70,6 @@ syntax on
 
 " Set dark background
 set background=dark
-
-" Set colorscheme
-set t_Co=256
-set termguicolors
-colorscheme monokai_pro
 
 " Enable autoindenting
 set ai
