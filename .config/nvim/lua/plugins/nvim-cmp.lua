@@ -62,7 +62,7 @@ return {
               vim.snippet.jump(1)
             end)
           elseif has_words_before() then
-            cmp.complete()
+            fallback()
           else
             fallback()
           end
