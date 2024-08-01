@@ -12,7 +12,7 @@ call plug#end()
 " Set colorscheme
 set t_Co=256
 set termguicolors
-colorscheme catppuccin_macchiato
+colorscheme catppuccin_mocha
 
 
 " Filetype settings
