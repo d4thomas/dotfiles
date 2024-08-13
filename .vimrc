@@ -14,7 +14,6 @@ set t_Co=256
 set termguicolors
 colorscheme catppuccin_mocha
 
-
 " Filetype settings
 filetype on
 filetype indent on
