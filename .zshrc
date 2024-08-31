@@ -50,13 +50,10 @@ fi
 # Configure fzf
 if command -v fzf &> /dev/null; then
   # Setup keybindings: CTRL-t (fzf), CTRL-r (shell), Option-c (cd ...)
-   eval "$(fzf --zsh)"
+  eval "$(fzf --zsh)"
 
-  # Set theme
-  export FZF_DEFAULT_OPTS=" \
-    --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
-    --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
-    --color=marker:#f5e0dc,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8"
+  # Alias to remove theme
+  alias fzf='fzf --no-color'
 fi
 
 # Configure CoPilot CLI
@@ -81,13 +78,9 @@ fi
 if command -v trash &> /dev/null; then
   alias rm='trash'
 fi
-if command -v bat &> /dev/null; then
-  alias cat='bat -p'
-fi
 if command -v rg &> /dev/null; then
   alias grep='rg'
 fi
-
 
 ########################
 ### Custom Functions ###

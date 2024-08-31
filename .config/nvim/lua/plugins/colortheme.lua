@@ -1,52 +1,29 @@
-vim.api.nvim_set_hl(0, "BufferlineFill", { bg = "#24273a" })
+vim.api.nvim_set_hl(0, "BufferlineFill", { bg = "#2d2a2e" })
 
 return {
+  "loctvl842/monokai-pro.nvim",
+  config = function()
+    require("monokai-pro").setup({
+      transparent_background = false,
+      terminal_colors = true,
+      devicons = true,
+      styles = {
+        comment = { italic = true },
+        keyword = { italic = true },
+        type = { italic = true },
+        storageclass = { italic = true },
+        structure = { italic = true },
+        parameter = { italic = true },
+        annotation = { italic = true },
+        tag_attribute = { italic = true },
+      },
+      filter = "pro",
+    })
+  end,
   {
-    "catppuccin/nvim",
-    lazy = true,
-    name = "catppuccin",
+    "LazyVim/LazyVim",
     opts = {
-      integrations = {
-        aerial = true,
-        alpha = true,
-        cmp = true,
-        dashboard = true,
-        flash = true,
-        gitsigns = true,
-        headlines = true,
-        illuminate = true,
-        indent_blankline = { enabled = true },
-        leap = true,
-        lsp_trouble = true,
-        mason = true,
-        markdown = true,
-        mini = true,
-        native_lsp = {
-          enabled = true,
-          underlines = {
-            errors = { "undercurl" },
-            hints = { "undercurl" },
-            warnings = { "undercurl" },
-            information = { "undercurl" },
-          },
-        },
-        navic = { enabled = true, custom_bg = "lualine" },
-        neotest = true,
-        neotree = true,
-        noice = true,
-        notify = true,
-        semantic_tokens = true,
-        telescope = true,
-        treesitter = true,
-        treesitter_context = true,
-        which_key = true,
-      },
-    },
-    {
-      "LazyVim/LazyVim",
-      opts = {
-        colorscheme = "catppuccin-mocha",
-      },
+      colorscheme = "monokai-pro",
     },
   },
 }
