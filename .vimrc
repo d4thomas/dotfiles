@@ -4,6 +4,7 @@ set nocompatible
 call plug#begin()
 
 Plug 'catppuccin/vim', { 'as': 'catppuccin' }
+Plug 'phanviet/vim-monokai-pro'
 Plug 'tpope/vim-sensible'
 Plug 'sheerun/vim-polyglot'
 
@@ -12,7 +13,7 @@ call plug#end()
 " Set colorscheme
 set t_Co=256
 set termguicolors
-colorscheme catppuccin_mocha
+colorscheme monokai_pro
 
 " Filetype settings
 filetype on
