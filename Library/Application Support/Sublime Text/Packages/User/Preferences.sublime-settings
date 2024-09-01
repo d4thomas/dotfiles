@@ -48,7 +48,7 @@
 	"font_options": [],
 	// Font options for theme text. Valid options are the same as
 	// "font_options", except "no_bold" and "no_italic" are not supported
-	"theme_font_options": ["font_face"],
+	"theme_font_options": [],
 
 	// Characters that are considered to separate words
 	"word_separators": "./\\()\"'-:,.;<>~!@#$%^&*|+=[]{}`~?",
@@ -86,7 +86,7 @@
 	// Columns in which to display vertical rulers. Each entry may also be a
 	// list of the column, the ruler style and optionally the ruler width, for
 	// example: [[80, "solid", 2], 78, [90, "dotted"]]
-	"rulers": [[80, "dotted"], [120, "dotted"]],
+	"rulers": [],
 
 	// Controls how ruler lines are drawn
 	// - "dotted": Drawn as a dotted line

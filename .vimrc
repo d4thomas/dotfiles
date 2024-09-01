@@ -3,7 +3,6 @@ set nocompatible
 " Plugins
 call plug#begin()
 
-Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 Plug 'phanviet/vim-monokai-pro'
 Plug 'tpope/vim-sensible'
 Plug 'sheerun/vim-polyglot'

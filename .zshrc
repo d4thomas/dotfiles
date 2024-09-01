@@ -1,3 +1,7 @@
+########################
+### Program Config   ###
+########################
+
 # Setup tmux environment
 if [[ $TERM_PROGRAM = WezTerm ]]; then
    if command -v tmux &> /dev/null; then
@@ -52,8 +56,12 @@ if command -v fzf &> /dev/null; then
   # Setup keybindings: CTRL-t (fzf), CTRL-r (shell), Option-c (cd ...)
   eval "$(fzf --zsh)"
 
-  # Alias to remove theme
-  alias fzf='fzf --no-color'
+  # Set theme
+  export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS"
+    --color=fg:-1,bg:-1,hl:#ffd866
+    --color=fg+:,bg+:,hl+:#ff6188
+    --color=info:#939293,prompt:#a9dc76,pointer:#ab9df2
+    --color=marker:#78dce8,spinner:#ff6188,header:#fcfcfa"
 fi
 
 # Configure CoPilot CLI
@@ -94,3 +102,29 @@ renderrmd() {
   fi
   Rscript -e "rmarkdown::render('$1')"
 }
+
+########################
+### Monokai Colors   ###
+########################
+
+# Primary colors
+# red #ff6188
+# orange #fc9867
+# yellow #ffd866
+# green #a9dc76
+# blue #78dce8
+# purple #ab9df2
+#
+# Base colors
+# base0 #19181a
+# base1 #221f22
+# base2 #2d2a2e
+# base3 #403e41
+# base4 #5b595c
+# base5 #727072
+# base6 #939293
+# base7 #c1c0c0
+# base8 #fcfcfa
+#
+# Variants
+# base8x0c #363337
