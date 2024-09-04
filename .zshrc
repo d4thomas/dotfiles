@@ -57,11 +57,19 @@ if command -v fzf &> /dev/null; then
   eval "$(fzf --zsh)"
 
   # Set theme
+  RED="#ff6188"
+  ORANGE="#fc9867"
+  YELLOW="#ffd866"
+  GREEN="#a9dc76"
+  BLUE="#78dce8"
+  PURPLE="#ab9df2"
+
   export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS"
-    --color=fg:-1,bg:-1,hl:#ffd866
-    --color=fg+:,bg+:,hl+:#ff6188
-    --color=info:#939293,prompt:#a9dc76,pointer:#ab9df2
-    --color=marker:#78dce8,spinner:#ff6188,header:#fcfcfa"
+    --pointer=""
+    --color=fg:-1,bg:-1,hl:$YELLOW
+    --color=fg+:,bg+:,hl+:$RED
+    --color=info:$PURPLE,prompt:$GREEN,pointer:$ORANGE
+    --color=marker:$RED,spinner:$BLUE,header:-1"
 fi
 
 # Configure CoPilot CLI
