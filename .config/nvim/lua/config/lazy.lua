@@ -21,7 +21,7 @@ require("lazy").setup({
     lazy = false,
     version = false,
   },
-  install = { colorscheme = { "catppuccin-mocha" } },
+  install = { colorscheme = { "monokai-pro" } },
   checker = { enabled = true },
   performance = {
     rtp = {
