@@ -1,45 +1,45 @@
 {
-    "github.copilot.enable": {
-        "*": false,
-    },
-    "window.titleBarStyle": "custom",
-    "editor.parameterHints.enabled": false,
-    "editor.fontFamily": "MonoLisa Nerd Font",
-    "terminal.integrated.fontFamily": "MonoLisa Nerd Font",
-    "terminal.integrated.fontWeight": "normal",
-    "terminal.integrated.fontWeightBold": "normal",
-    "editor.fontLigatures": true,
-    "editor.rulers": [80, 120],
-    "security.workspace.trust.untrustedFiles": "open",
-    "problems.showCurrentInStatus": true,
-    "git.autofetch": true,
-    "security.workspace.trust.enabled": false,
-    "window.zoomPerWindow": false,
-    "platformio-ide.autoOpenPlatformIOIniFile": false,
-    "editor.accessibilitySupport": "off",
-    "github.copilot.editor.enableAutoCompletions": true,
-    "workbench.colorTheme": "Monokai Pro",
-    "workbench.iconTheme": "Monokai Pro Icons",
-    "extensions.ignoreRecommendations": true,
-    "editor.wordWrap": "on",
-    "r.plot.useHttpgd": true,
-    "rubyLsp.rubyVersionManager": {
-        "identifier": "rbenv"
-    },
-    "[ruby]": {
-        "editor.defaultFormatter": "Shopify.ruby-lsp",
-        "editor.formatOnSave": true,
-        "editor.formatOnType": true,
-        "editor.tabSize": 2,
-        "editor.insertSpaces": true,
-        "files.trimTrailingWhitespace": true,
-        "files.insertFinalNewline": true,
-        "files.trimFinalNewlines": true,
-        "editor.rulers": [
-            120
-        ],
-        "editor.semanticHighlighting.enabled": true
-    },
-    "workbench.activityBar.location": "top",
-    "editor.fontSize": 11,
+  "security.workspace.trust.enabled": false,
+  "security.workspace.trust.untrustedFiles": "open",
+
+  "window.titleBarStyle": "custom",
+  "problems.showCurrentInStatus": true,
+
+  "workbench.colorTheme": "Monokai Pro",
+  "workbench.iconTheme": "Monokai Pro Icons",
+  "workbench.activityBar.location": "top",
+
+  "editor.parameterHints.enabled": false,
+  "editor.fontFamily": "MonoLisa Nerd Font",
+  "editor.fontSize": 11,
+  "editor.fontLigatures": true,
+  "editor.rulers": [80, 120],
+  "editor.wordWrap": "on",
+  "editor.accessibilitySupport": "off",
+
+  "terminal.integrated.fontFamily": "MonoLisa Nerd Font",
+  "terminal.integrated.fontSize": 11,
+
+  "extensions.ignoreRecommendations": true,
+  "platformio-ide.autoOpenPlatformIOIniFile": false,
+  "github.copilot.editor.enableAutoCompletions": true,
+  "r.plot.useHttpgd": true,
+  "rubyLsp.rubyVersionManager": {
+    "identifier": "rbenv"
+  },
+  "[ruby]": {
+    "editor.defaultFormatter": "Shopify.ruby-lsp",
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "editor.rulers": [120],
+    "editor.semanticHighlighting.enabled": true
+  },
+  "github.copilot.enable": {
+    "*": false
+  },
 }

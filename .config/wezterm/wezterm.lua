@@ -1,5 +1,6 @@
 local wezterm = require("wezterm")
 local config = wezterm.config_builder()
+
 config.font = wezterm.font("MonoLisa Nerd Font")
 config.font_size = 11
 config.color_scheme = "Monokai Pro (Gogh)"
