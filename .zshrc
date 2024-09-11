@@ -56,7 +56,7 @@ if command -v fzf &> /dev/null; then
   # Setup keybindings: CTRL-t (fzf), CTRL-r (shell), Option-c (cd ...)
   eval "$(fzf --zsh)"
 
-  # Set theme
+  # Set colors
   RED="#ff6188"
   ORANGE="#fc9867"
   YELLOW="#ffd866"

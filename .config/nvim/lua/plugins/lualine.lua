@@ -19,6 +19,7 @@ return {
         { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
         { LazyVim.lualine.pretty_path() },
       }
+
       opts.sections.lualine_z = {
         {
           function()
@@ -30,6 +31,11 @@ return {
             return "󱣪"
           end,
         },
+      }
+
+      opts.options = {
+        component_separators = { left = "|", right = "|" },
+        section_separators = { left = "", right = "" },
       }
     end,
   },
