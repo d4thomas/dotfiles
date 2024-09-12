@@ -61,7 +61,7 @@ set showbreak=»»»
 " Highlight search matches
 set incsearch hlsearch
 
-" Shwo line numbers
+" Show line numbers
 set nu
 
 " Enable syntax highlighting
@@ -72,6 +72,10 @@ set background=dark
 
 " Enable autoindenting
 set ai
+
+" Switch cursor when in insert mode
+let &t_SI = "\e[5 q"
+let &t_EI = "\e[1 q"
 
 " Highlight line when in insert mode
 autocmd InsertEnter * set cul
