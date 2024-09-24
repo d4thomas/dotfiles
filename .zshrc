@@ -116,6 +116,8 @@ renderrmd() {
 ########################
 
 # Primary colors
+# background #2d2a2e
+# foreground #fcfcfa
 # red #ff6188
 # orange #fc9867
 # yellow #ffd866
