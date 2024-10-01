@@ -1,4 +1,31 @@
 ########################
+### Color Config     ###
+########################
+
+BLACK="#363537"         # Black
+RED="#ff6188"           # Red
+GREEN="#a9dc76"         # Green
+YELLO="#ffd866"         # Yellow
+BLUE="#fc9867"          # Blue
+MAGENTA="#ab9df2"       # Magenta
+CYAN="#78dce8"          # Cyan
+WHITE="#fdf9f3"         # White
+
+BBLACK="#908e8f"        # Bright Black
+BRED="#ff6188"          # Bright Red
+BGREEN="#a9dc76"        # Bright Green
+BYELLOW="#ffd866"       # Bright Yellow
+BBLUE="#fc9867"         # Bright Blue
+BMAGENTA="#ab9df2"      # Bright Magenta
+BCYAN="#78dce8"         # Bright Cyan
+BWHITE="#fdf9f3"        # Bright White
+
+BACKGROUND="#2d2a2e"    # Background
+FOREGROUND="#fcfcfa"    # Foreground
+
+CURSOR="#fcfcfa"        # Cursor
+
+########################
 ### Program Config   ###
 ########################
 
@@ -56,20 +83,13 @@ if command -v fzf &> /dev/null; then
   # Setup keybindings: CTRL-t (fzf), CTRL-r (shell), Option-c (cd ...)
   eval "$(fzf --zsh)"
 
-  # Set colors
-  RED="#ff6188"
-  ORANGE="#fc9867"
-  YELLOW="#ffd866"
-  GREEN="#a9dc76"
-  BLUE="#78dce8"
-  PURPLE="#ab9df2"
-
+  # Configure fzf theme
   export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS"
     --pointer=""
     --color=fg:-1,bg:-1,hl:$YELLOW
     --color=fg+:,bg+:,hl+:$RED
-    --color=info:$PURPLE,prompt:$GREEN,pointer:$ORANGE
-    --color=marker:$RED,spinner:$BLUE,header:-1"
+    --color=info:$MAGENTA,prompt:$GREEN,pointer:$BLUE
+    --color=marker:$RED,spinner:$CYAN,header:-1"
 fi
 
 # Configure CoPilot CLI
@@ -110,31 +130,3 @@ renderrmd() {
   fi
   Rscript -e "rmarkdown::render('$1')"
 }
-
-########################
-### Monokai Colors   ###
-########################
-
-# Primary colors
-# background #2d2a2e
-# foreground #fcfcfa
-# red #ff6188
-# orange #fc9867
-# yellow #ffd866
-# green #a9dc76
-# blue #78dce8
-# purple #ab9df2
-#
-# Base colors
-# base0 #19181a
-# base1 #221f22
-# base2 #2d2a2e
-# base3 #403e41
-# base4 #5b595c
-# base5 #727072
-# base6 #939293
-# base7 #c1c0c0
-# base8 #fcfcfa
-#
-# Variants
-# base8x0c #363337

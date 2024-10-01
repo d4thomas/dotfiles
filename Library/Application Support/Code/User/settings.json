@@ -42,4 +42,5 @@
   "github.copilot.enable": {
     "*": false
   },
+  "redhat.telemetry.enabled": false,
 }
