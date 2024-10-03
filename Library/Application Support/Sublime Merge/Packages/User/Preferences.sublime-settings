@@ -1,9 +1,0 @@
-// Settings in here override those in "Default/Preferences.sublime-settings",
-// and are overridden in turn by syntax-specific settings.
-{
-    "theme": "Monokai Plus.sublime-theme",
-    "font_face": "MonoLisa Nerd Font",
-    "font_size": 11,
-    "translate_tabs_to_spaces": true,
-    "side_bar_layout": "locations_as_column",
-}

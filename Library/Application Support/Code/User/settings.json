@@ -1,11 +1,10 @@
 {
+  
   "security.workspace.trust.enabled": false,
   "security.workspace.trust.untrustedFiles": "open",
 
   "window.titleBarStyle": "custom",
   "problems.showCurrentInStatus": true,
-  "workbench.colorTheme": "Monokai Pro",
-  "workbench.iconTheme": "Monokai Pro Icons",
   "workbench.activityBar.location": "top",
 
   "editor.parameterHints.enabled": false,
@@ -15,6 +14,40 @@
   "editor.rulers": [80, 120],
   "editor.wordWrap": "on",
   "editor.accessibilitySupport": "off",
+
+  "workbench.colorTheme": "Default Dark+",
+  "editor.tokenColorCustomizations": {
+  "textMateRules": [
+    {
+      "scope": [
+        //following will be in italic (=FlottFlott)
+        "comment",
+        "entity.name.type.class", //class names
+        "keyword", //import, export, return…
+        "constant", //String, Number, Boolean…, this, super
+        "storage.modifier", //static keyword
+        "storage.type.class.js", //class keyword
+      ],
+      "settings": {
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "scope": [
+        //following will be excluded from italics (VSCode has some defaults for italics)
+        "invalid",
+        "keyword.operator",
+        "constant.numeric.css",
+        "keyword.other.unit.px.css",
+        "constant.numeric.decimal.js",
+        "constant.numeric.json"
+      ],
+      "settings": {
+        "fontStyle": ""
+      }
+    }
+  ]
+},
 
   "terminal.integrated.fontFamily": "MonoLisa Nerd Font",
   "terminal.integrated.fontSize": 11,

@@ -2,28 +2,28 @@
 ### Color Config     ###
 ########################
 
-BLACK="#363537"         # Black
-RED="#ff6188"           # Red
-GREEN="#a9dc76"         # Green
-YELLO="#ffd866"         # Yellow
-BLUE="#fc9867"          # Blue
-MAGENTA="#ab9df2"       # Magenta
-CYAN="#78dce8"          # Cyan
-WHITE="#fdf9f3"         # White
+COLOR_01="#6a787a"    # Black
+COLOR_02="#e9653b"    # Red
+COLOR_03="#39e9a8"    # Green
+COLOR_04="#e5b684"    # Yellow
+COLOR_05="#44aae6"    # Blue
+COLOR_06="#e17599"    # Magenta
+COLOR_07="#3dd5e7"    # Cyan
+COLOR_08="#c3dde1"    # White
 
-BBLACK="#908e8f"        # Bright Black
-BRED="#ff6188"          # Bright Red
-BGREEN="#a9dc76"        # Bright Green
-BYELLOW="#ffd866"       # Bright Yellow
-BBLUE="#fc9867"         # Bright Blue
-BMAGENTA="#ab9df2"      # Bright Magenta
-BCYAN="#78dce8"         # Bright Cyan
-BWHITE="#fdf9f3"        # Bright White
+COLOR_09="#598489"    # Bright Black
+COLOR_10="#e65029"    # Bright Red
+COLOR_11="#00ff9a"    # Bright Green
+COLOR_12="#e89440"    # Bright Yellow
+COLOR_13="#009afb"    # Bright Blue
+COLOR_14="#ff578f"    # Bright Magenta
+COLOR_15="#5fffff"    # Bright Cyan
+COLOR_16="#d9fbff"    # Bright White
 
-BACKGROUND="#2d2a2e"    # Background
-FOREGROUND="#fcfcfa"    # Foreground
+BACKGROUND="#1e1e1e"  # Background
+FOREGROUND="#cccccc"  # Foreground
 
-CURSOR="#fcfcfa"        # Cursor
+CURSOR="#cccccc"      # Cursor
 
 ########################
 ### Program Config   ###
@@ -86,10 +86,10 @@ if command -v fzf &> /dev/null; then
   # Configure fzf theme
   export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS"
     --pointer=""
-    --color=fg:-1,bg:-1,hl:$YELLOW
-    --color=fg+:,bg+:,hl+:$RED
-    --color=info:$MAGENTA,prompt:$GREEN,pointer:$BLUE
-    --color=marker:$RED,spinner:$CYAN,header:-1"
+    --color=fg:-1,bg:-1,hl:$COLOR_04
+    --color=fg+:,bg+:,hl+:$COLOR_02
+    --color=info:$COLOR_06,prompt:$COLOR_03,pointer:$COLOR_05
+    --color=marker:$COLOR_02,spinner:$COLOR_07,header:-1"
 fi
 
 # Configure CoPilot CLI
