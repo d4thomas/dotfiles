@@ -4,7 +4,6 @@
 
   "window.titleBarStyle": "custom",
   "problems.showCurrentInStatus": true,
-
   "workbench.colorTheme": "Monokai Pro",
   "workbench.iconTheme": "Monokai Pro Icons",
   "workbench.activityBar.location": "top",
