@@ -6,7 +6,8 @@
   "window.titleBarStyle": "custom",
   "problems.showCurrentInStatus": true,
   "workbench.activityBar.location": "top",
-
+  "workbench.editor.empty.hint": "hidden",
+  
   "editor.parameterHints.enabled": false,
   "editor.fontFamily": "MonoLisa Nerd Font",
   "editor.fontSize": 11,
