@@ -50,7 +50,7 @@ if command -v brew &> /dev/null; then
   # Add aliases for backup/restore
   alias brew-backup='brew bundle dump --file=~/.config/brew/Brewfile --force'
   alias brew-restore='brew bundle --file=~/.config/brew/Brewfile --force'
-  alias brew-cleanup='brew cleanup --prune=all; brew cleanup -s'
+  alias brew-cleanup='brew autoremove; brew cleanup --prune=all; brew cleanup -s'
   alias brew-upgrade='brew upgrade; brew-cleanup'
 fi
 
