@@ -3,7 +3,7 @@ set nocompatible
 " Plugins
 call plug#begin()
 
-Plug 'tomasiser/vim-code-dark'
+Plug 'wojciechkepka/vim-github-dark'
 Plug 'tpope/vim-sensible'
 Plug 'sheerun/vim-polyglot'
 
@@ -12,7 +12,7 @@ call plug#end()
 " Set colorscheme
 set t_Co=256
 set termguicolors
-colorscheme codedark
+colorscheme ghdark
 
 " Filetype settings
 filetype on

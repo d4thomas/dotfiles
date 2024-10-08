@@ -2,28 +2,28 @@
 ### Color Config     ###
 ########################
 
-COLOR_01="#6a787a"    # Black
-COLOR_02="#e9653b"    # Red
-COLOR_03="#39e9a8"    # Green
-COLOR_04="#e5b684"    # Yellow
-COLOR_05="#44aae6"    # Blue
-COLOR_06="#e17599"    # Magenta
-COLOR_07="#3dd5e7"    # Cyan
-COLOR_08="#c3dde1"    # White
+COLOR_01="#000000"    # Black
+COLOR_02="#f78166"    # Red
+COLOR_03="#56d364"    # Green
+COLOR_04="#e3b341"    # Yellow
+COLOR_05="#6ca4f8"    # Blue
+COLOR_06="#db61a2"    # Magenta
+COLOR_07="#2b7489"    # Cyan
+COLOR_08="#ffffff"    # White
 
-COLOR_09="#598489"    # Bright Black
-COLOR_10="#e65029"    # Bright Red
-COLOR_11="#00ff9a"    # Bright Green
-COLOR_12="#e89440"    # Bright Yellow
-COLOR_13="#009afb"    # Bright Blue
-COLOR_14="#ff578f"    # Bright Magenta
-COLOR_15="#5fffff"    # Bright Cyan
-COLOR_16="#d9fbff"    # Bright White
+COLOR_09="#4d4d4d"    # Bright Black
+COLOR_10="#f78166"    # Bright Red
+COLOR_11="#56d364"    # Bright Green
+COLOR_12="#e3b341"    # Bright Yellow
+COLOR_13="#6ca4f8"    # Bright Blue
+COLOR_14="#db61a2"    # Bright Magenta
+COLOR_15="#2b7489"    # Bright Cyan
+COLOR_16="#ffffff"    # Bright White
 
-BACKGROUND="#1e1e1e"  # Background
-FOREGROUND="#cccccc"  # Foreground
+BACKGROUND="#101216"  # Background
+FOREGROUND="#8b949e"  # Foreground
 
-CURSOR="#cccccc"      # Cursor
+CURSOR="#c9d1d9"      # Cursor
 
 ########################
 ### Program Config   ###
