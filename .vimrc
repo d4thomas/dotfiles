@@ -9,9 +9,28 @@ Plug 'sheerun/vim-polyglot'
 
 call plug#end()
 
-" Set colorscheme
+" Setup Vim for colorscheme
 set t_Co=256
 set termguicolors
+
+" Enable italic
+augroup Vimrc
+  autocmd!
+augroup END
+function Hi()
+  hi Comment cterm=italic
+  hi Conditional cterm=italic
+  hi Identifier cterm=italic
+  hi Repeat cterm=italic
+  hi Statement cterm=italic
+  hi Type cterm=italic
+  hi htmItalic cterm=italic
+  hi markdownItalic cterm=italic
+endfunction
+syntax on
+autocmd Vimrc colorscheme * call Hi()
+
+" Set colorscheme
 colorscheme ghdark
 
 " Filetype settings
