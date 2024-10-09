@@ -6,6 +6,6 @@ return {
   config = function()
     require("github-theme").setup({})
     vim.cmd("colorscheme github_dark_default")
-    vim.cmd("highlight @operator.python guifg=#ca5857 guibg=NONE")
+    vim.api.nvim_set_hl(0, "@operator.python", { fg = "#ca5857" })
   end,
 }
