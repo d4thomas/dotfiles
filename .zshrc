@@ -2,28 +2,28 @@
 ### Color Config     ###
 ########################
 
-BLACK="#000000"
-RED="#f78166"
-GREEN="#56d364"
-YELLOW="#e3b341"
-BLUE="#6ca4f8"
-MAGENTA="#db61a2"
-CYAN="#2b7489"
-WHITE="#ffffff"
+BLACK="#0a0e14"
+RED="#ff3333"
+GREEN="#c2d94c"
+YELLOW="#ff8f40"
+BLUE="#59c2ff"
+MAGENTA="#ffee99"
+CYAN="#95e6cb"
+WHITE="#b3b1ad"
 
-BRIGHTBLACK="#4d4d4d"
-BRIGHTRED="#f78166"
-BRIGHTGREEN="#56d364"
-BRIGHTYELLOW="#e3b341"
-BRIGHTBLUE="#6ca4f8"
-BRIGHTMAGENTA="#db61a2"
-BRIGHTCYAN="#2b7489"
-BRIGHTWHITE="#ffffff"
+BRIGHTBLACK="#4d5566"
+BRIGHTRED="#ff3333"
+BRIGHTGREEN="#c2d94c"
+BRIGHTYELLOW="#ff8f40"
+BRIGHTBLUE="#59c2ff"
+BRIGHTMAGENTA="#ffee99"
+BRIGHTCYAN="#95e6cb"
+BRIGHTWHITE="#b3b1ad"
 
-BACKGROUND="#101216"
-FOREGROUND="#8b949e"
+BACKGROUND="#0a0e14"
+FOREGROUND="#b3b1ad"
 
-CURSOR="#c9d1d9"
+CURSOR="#e6b450"
 
 ########################
 ### Program Config   ###

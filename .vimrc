@@ -3,6 +3,7 @@ set nocompatible
 " Plugins
 call plug#begin()
 
+Plug 'ayu-theme/ayu-vim'
 Plug 'wojciechkepka/vim-github-dark'
 Plug 'tpope/vim-sensible'
 Plug 'sheerun/vim-polyglot'
@@ -13,11 +14,12 @@ call plug#end()
 set t_Co=256
 set termguicolors
 
-" Enable italic
+" Configure highlights
 augroup Vimrc
   autocmd!
 augroup END
 function Hi()
+  " Add italics
   hi Comment cterm=italic
   hi Conditional cterm=italic
   hi Identifier cterm=italic
@@ -26,12 +28,15 @@ function Hi()
   hi Type cterm=italic
   hi htmItalic cterm=italic
   hi markdownItalic cterm=italic
+  " Set background color to terminal background
+  hi Normal guibg=#0a0e14
 endfunction
 syntax on
 autocmd Vimrc colorscheme * call Hi()
 
 " Set colorscheme
-colorscheme ghdark
+let ayucolor="dark"
+colorscheme ayu
 
 " Filetype settings
 filetype on
