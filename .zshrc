@@ -130,3 +130,12 @@ renderrmd() {
   fi
   Rscript -e "rmarkdown::render('$1')"
 }
+
+########################
+### Fix Cursor       ###
+########################
+
+fix_cursor() {
+    echo -ne '\e[1 q'
+}
+precmd_functions+=(fix_cursor)
