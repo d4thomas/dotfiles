@@ -1,7 +1,7 @@
 (
-    command_fg: Some("#B3B1AD"),
-    selection_bg: Some("#4D5566"),
+    command_fg: Some("#b3b1ad"),
+    selection_bg: Some("#4d5566"),
 
     selection_fg: Some("#cdd6f4"),
-    cmdbar_bg: Some("#0A0E14"),
+    cmdbar_bg: Some("#0a0e14"),
 )
