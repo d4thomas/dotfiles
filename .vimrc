@@ -64,6 +64,9 @@ set statusline +=%2*0x%04B\ %* " Character under cursor
 " Enable mouse support
 set mouse=a
 
+" Share clipboard
+set clipboard^=unnamed
+
 " Always show status line
 set laststatus=2
 
