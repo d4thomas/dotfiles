@@ -4,7 +4,6 @@ set nocompatible
 call plug#begin()
 
 Plug 'ayu-theme/ayu-vim'
-Plug 'wojciechkepka/vim-github-dark'
 Plug 'tpope/vim-sensible'
 Plug 'sheerun/vim-polyglot'
 
@@ -68,10 +67,11 @@ set mouse=a
 " Always show status line
 set laststatus=2
 
-" Buftabline key maps
-set hidden
-nnoremap <C-n> :bnext<CR>
-nnoremap <C-p> :bprev<CR>
+" Buffer key maps
+map gn :bnext<cr>
+map gp :bprevious<cr>
+map gd :bdelete<cr>
+map gc :enew<cr>
 
 " When wrapping, try to break at characters in breakat
 set linebreak
@@ -85,8 +85,14 @@ set showbreak=»»»
 " Highlight search matches
 set incsearch hlsearch
 
-" Show line numbers
-set nu
+" Configure line numbers
+set number
+
+augroup numbertoggle
+  autocmd!
+  autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu && mode() != "i" | set rnu   | endif
+  autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu                  | set nornu | endif
+augroup END
 
 " Enable syntax highlighting
 syntax on

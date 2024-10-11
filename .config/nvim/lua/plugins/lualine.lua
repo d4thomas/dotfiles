@@ -3,7 +3,6 @@ local icons = require("lazyvim.config").icons
 return {
   {
     "nvim-lualine/lualine.nvim",
-
     opts = function(_, opts)
       opts.sections.lualine_c = {
         LazyVim.lualine.root_dir(),
@@ -31,7 +30,6 @@ return {
           end,
         },
       }
-
       opts.options = {
         component_separators = { left = "|", right = "|" },
         section_separators = { left = "", right = "" },

@@ -1,3 +1,3 @@
 return {
-  { "lewis6991/spaceless.nvim" },
+  "lewis6991/spaceless.nvim",
 }
