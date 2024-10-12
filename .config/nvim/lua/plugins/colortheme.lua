@@ -6,7 +6,10 @@ return {
   config = function()
     require("ayu").setup({})
     vim.cmd("colorscheme ayu")
-    vim.api.nvim_set_hl(0, "LspInlayHint", { fg = "#636A72" })
+    -- Fix colors
+    local colors = require("ayu.colors")
+    vim.api.nvim_set_hl(0, "LspInlayHint", { fg = colors.comment })
+    vim.api.nvim_set_hl(0, "LineNr", { fg = colors.guide_active })
     -- vim.api.nvim_set_hl(0, "@operator.python", { fg = "#ca5857" })
   end,
 }

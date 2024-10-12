@@ -1,0 +1,27 @@
+
+########################
+### Color Config     ###
+########################
+
+BLACK="#0a0e14"
+RED="#ff3333"
+GREEN="#c2d94c"
+YELLOW="#ff8f40"
+BLUE="#59c2ff"
+MAGENTA="#ffee99"
+CYAN="#95e6cb"
+WHITE="#b3b1ad"
+
+BRIGHTBLACK="#4d5566"
+BRIGHTRED="#ff3333"
+BRIGHTGREEN="#c2d94c"
+BRIGHTYELLOW="#ff8f40"
+BRIGHTBLUE="#59c2ff"
+BRIGHTMAGENTA="#ffee99"
+BRIGHTCYAN="#95e6cb"
+BRIGHTWHITE="#b3b1ad"
+
+BACKGROUND="#0a0e14"
+FOREGROUND="#b3b1ad"
+
+CURSOR="#e6b450"

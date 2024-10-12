@@ -1,31 +1,4 @@
 ########################
-### Color Config     ###
-########################
-
-BLACK="#0a0e14"
-RED="#ff3333"
-GREEN="#c2d94c"
-YELLOW="#ff8f40"
-BLUE="#59c2ff"
-MAGENTA="#ffee99"
-CYAN="#95e6cb"
-WHITE="#b3b1ad"
-
-BRIGHTBLACK="#4d5566"
-BRIGHTRED="#ff3333"
-BRIGHTGREEN="#c2d94c"
-BRIGHTYELLOW="#ff8f40"
-BRIGHTBLUE="#59c2ff"
-BRIGHTMAGENTA="#ffee99"
-BRIGHTCYAN="#95e6cb"
-BRIGHTWHITE="#b3b1ad"
-
-BACKGROUND="#0a0e14"
-FOREGROUND="#b3b1ad"
-
-CURSOR="#e6b450"
-
-########################
 ### Program Config   ###
 ########################
 
@@ -47,7 +20,7 @@ if command -v brew &> /dev/null; then
   export HOMEBREW_NO_ENV_HINTS=1
   export HOMEBREW_NO_EMOJI=1
 
-  # Add aliases for backup/restore
+  # Add aliases
   alias brew-backup='brew bundle dump --file=~/.config/brew/Brewfile --force'
   alias brew-restore='brew bundle --file=~/.config/brew/Brewfile --force'
   alias brew-cleanup='brew autoremove; brew cleanup --prune=all; brew cleanup -s'
@@ -84,6 +57,7 @@ if command -v fzf &> /dev/null; then
   eval "$(fzf --zsh)"
 
   # Configure fzf theme
+  source ~/.config/colors
   export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS"
     --pointer=""
     --color=fg:-1,bg:-1,hl:$YELLOW

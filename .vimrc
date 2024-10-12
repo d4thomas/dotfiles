@@ -75,6 +75,7 @@ map gn :bnext<cr>
 map gp :bprevious<cr>
 map gd :bdelete<cr>
 map gc :enew<cr>
+map gl :ls<cr>
 
 " When wrapping, try to break at characters in breakat
 set linebreak
