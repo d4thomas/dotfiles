@@ -4,6 +4,7 @@ set nocompatible
 call plug#begin()
 
 Plug 'ayu-theme/ayu-vim'
+Plug 'vim-airline/vim-airline'
 Plug 'tpope/vim-sensible'
 Plug 'sheerun/vim-polyglot'
 
@@ -36,6 +37,17 @@ autocmd Vimrc colorscheme * call Hi()
 " Set colorscheme
 let ayucolor="dark"
 colorscheme ayu
+
+" Airline configuration
+let g:airline_powerline_fonts=1
+let g:airline#extensions#whitespace#enabled='0'
+let g:airline_theme='ayu'
+let g:airline_section_a='%n'
+let g:airline_section_b='%{&ff}'
+let g:airline_section_c='%y'
+let g:airline_section_x='%<%F'
+let g:airline_section_y='%m %l/%L:%v'
+let g:airline_section_z='0x%04B'
 
 " Filetype settings
 filetype on
