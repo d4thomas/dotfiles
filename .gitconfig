@@ -10,3 +10,5 @@
 	ui = auto
 [credential]
 	helper = osxkeychain
+[core]
+	excludesfile = ~/.gitignore
