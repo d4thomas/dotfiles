@@ -7,8 +7,10 @@ Plug 'ayu-theme/ayu-vim'
 Plug 'vim-airline/vim-airline'
 Plug 'tpope/vim-sensible'
 Plug 'sheerun/vim-polyglot'
+
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'airblade/vim-gitgutter'
+Plug 'github/copilot.vim'
 
 call plug#end()
 
@@ -30,7 +32,7 @@ function Hi()
   hi Type cterm=italic
   hi htmItalic cterm=italic
   hi markdownItalic cterm=italic
-  " Set background color to terminal background
+  " Set background colors to terminal background
   hi Normal guibg=#0a0e14
   hi SignColumn guibg=bg
 endfunction
@@ -42,9 +44,9 @@ let ayucolor="dark"
 colorscheme ayu
 
 " Airline configuration
-let g:airline_powerline_fonts=1
-let g:airline_extensions=[]
 let g:airline_theme='ayu'
+let g:airline_extensions=[]
+let g:airline_powerline_fonts=1
 let g:airline_section_a='%n'
 let g:airline_section_b='%{&ff}'
 let g:airline_section_c='%y %<%F'
@@ -57,8 +59,12 @@ filetype on
 filetype indent on
 filetype plugin on
 
+" Disable comment formatting
+au BufEnter * set fo-=c fo-=r fo-=o
+
 " Enable omni completion
 set omnifunc=syntaxcomplete#Complete
+set completeopt=menu,menuone,noinsert,noselect
 
 " Show white spaces
 set listchars=tab:>·,trail:·,extends:>,precedes:<
@@ -133,5 +139,36 @@ autocmd InsertLeave * set nocul
 " Backspace over anything
 set backspace=indent,eol,start
 
+" Return to last edit position
+autocmd BufReadPost *
+  \ let line = line("'\"")
+  \ | if line >= 1 && line <= line("$") && &filetype !~# 'commit'
+  \      && index(['xxd', 'gitrebase'], &filetype) == -1
+  \ |    execute "normal! g`\""
+  \ | endif
+
+" Persistent undo
+if !isdirectory($HOME."/.vim/undodir")
+  call mkdir($HOME."/.vim/undodir", "", 0700)
+endif
+set undodir=~/.vim/undodir
+set undofile
+
+" CoPilot config
+let g:copilot_enabled=0
+imap <silent><script><expr> <C-A> copilot#Accept("\<cr>")
+let g:copilot_no_tab_map=v:true
+function! ToggleCopilot()
+  if g:copilot_enabled
+    let g:copilot_enabled=0
+    echo "Copilot Disabled"
+  else
+    let g:copilot_enabled=1
+    echo "Copilot Enabled"
+  endif
+endfunction
+nnoremap cp :call ToggleCopilot()<cr>
+
 " CoC config
 source ~/.vim/coc.vim
+set pumheight=7
