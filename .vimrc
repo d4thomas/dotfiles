@@ -8,6 +8,7 @@ Plug 'vim-airline/vim-airline'
 Plug 'tpope/vim-sensible'
 Plug 'sheerun/vim-polyglot'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'airblade/vim-gitgutter'
 
 call plug#end()
 
@@ -42,7 +43,7 @@ colorscheme ayu
 
 " Airline configuration
 let g:airline_powerline_fonts=1
-let g:airline_extensions = []
+let g:airline_extensions=[]
 let g:airline_theme='ayu'
 let g:airline_section_a='%n'
 let g:airline_section_b='%{&ff}'

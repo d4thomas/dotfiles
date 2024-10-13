@@ -1,6 +1,7 @@
 {
   "suggest.autoTrigger": "trigger"
   "suggest.noselect": true,
+  "signature.enable": false,
   "pyright.inlayHints.functionReturnTypes": false,
   "pyright.inlayHints.variableTypes": false,
   "pyright.inlayHints.parameterTypes": false,
