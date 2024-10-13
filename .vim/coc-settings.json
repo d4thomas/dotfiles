@@ -1,0 +1,8 @@
+{
+  "suggest.autoTrigger": "trigger"
+  "suggest.noselect": true,
+  "pyright.inlayHints.functionReturnTypes": false,
+  "pyright.inlayHints.variableTypes": false,
+  "pyright.inlayHints.parameterTypes": false,
+  "coc.preferences.extensionUpdateCheck": "daily"
+}

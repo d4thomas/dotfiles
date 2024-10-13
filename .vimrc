@@ -7,6 +7,7 @@ Plug 'ayu-theme/ayu-vim'
 Plug 'vim-airline/vim-airline'
 Plug 'tpope/vim-sensible'
 Plug 'sheerun/vim-polyglot'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 call plug#end()
 
@@ -30,6 +31,7 @@ function Hi()
   hi markdownItalic cterm=italic
   " Set background color to terminal background
   hi Normal guibg=#0a0e14
+  hi SignColumn guibg=bg
 endfunction
 syntax on
 autocmd Vimrc colorscheme * call Hi()
@@ -120,8 +122,8 @@ set background=dark
 set ai
 
 " Switch cursor when in insert mode
-let &t_SI = "\e[6 q"
-let &t_EI = "\e[2 q"
+let &t_SI="\e[6 q"
+let &t_EI="\e[2 q"
 
 " Highlight line when in insert mode
 autocmd InsertEnter * set cul
@@ -129,3 +131,6 @@ autocmd InsertLeave * set nocul
 
 " Backspace over anything
 set backspace=indent,eol,start
+
+" CoC config
+source ~/.vim/coc.vim
