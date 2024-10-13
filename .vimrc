@@ -40,13 +40,13 @@ colorscheme ayu
 
 " Airline configuration
 let g:airline_powerline_fonts=1
-let g:airline#extensions#whitespace#enabled='0'
+let g:airline_extensions = []
 let g:airline_theme='ayu'
 let g:airline_section_a='%n'
 let g:airline_section_b='%{&ff}'
-let g:airline_section_c='%y'
-let g:airline_section_x='%<%F'
-let g:airline_section_y='%m %l/%L:%v'
+let g:airline_section_c='%y %<%F'
+let g:airline_section_x='%m %l/%L'
+let g:airline_section_y='%v'
 let g:airline_section_z='0x%04B'
 
 " Filetype settings
@@ -83,11 +83,11 @@ set clipboard^=unnamed
 set laststatus=2
 
 " Buffer key maps
-map gn :bnext<cr>
-map gp :bprevious<cr>
-map gd :bdelete<cr>
-map gc :enew<cr>
-map gl :ls<cr>
+map bn :bnext<cr>
+map bp :bprevious<cr>
+map bd :bdelete<cr>
+map bc :enew<cr>
+map bl :ls<cr>
 
 " When wrapping, try to break at characters in breakat
 set linebreak
@@ -120,8 +120,8 @@ set background=dark
 set ai
 
 " Switch cursor when in insert mode
-let &t_SI = "\e[5 q"
-let &t_EI = "\e[1 q"
+let &t_SI = "\e[6 q"
+let &t_EI = "\e[2 q"
 
 " Highlight line when in insert mode
 autocmd InsertEnter * set cul
