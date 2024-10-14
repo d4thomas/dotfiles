@@ -4,11 +4,11 @@
 
 # Setup tmux environment
 if [[ $TERM_PROGRAM = WezTerm ]]; then
-   if command -v tmux &> /dev/null; then
-      if ! tmux attach -d > /dev/null 2>&1; then
-        tmux new
-      fi
-   fi
+  if command -v tmux &> /dev/null; then
+    if ! tmux attach -d > /dev/null 2>&1; then
+      tmux new
+    fi
+  fi
 fi
 
 # Configure Homebrew
@@ -83,7 +83,7 @@ if command -v eza &> /dev/null; then
   alias lst='eza --long --classify --all --header --git --no-user --tree --icons --ignore-glob="$HIDDEN" --git --level'
 fi
 if command -v nvim &> /dev/null; then
-  alias vi='nvim'
+  alias nv='nvim'
 fi
 if command -v trash &> /dev/null; then
   alias rm='trash'

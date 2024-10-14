@@ -9,7 +9,6 @@ Plug 'tpope/vim-sensible'
 Plug 'sheerun/vim-polyglot'
 
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'airblade/vim-gitgutter'
 Plug 'github/copilot.vim'
 
 call plug#end()
@@ -72,37 +71,40 @@ set list
 
 " Status line
 set statusline=
-set statusline +=%1*\ %n\ %*   " Buffer number
-set statusline +=%5*%{&ff}%*   " File format
-set statusline +=%3*%y%*       " File type
-set statusline +=%4*\ %<%F%*   " Full path
-set statusline +=%2*%m%*       " Modified flag
-set statusline +=%1*%=%5l%*    " Current line
-set statusline +=%2*/%L%*      " Total lines
-set statusline +=%1*%4v\ %*    " Virtual column number
-set statusline +=%2*0x%04B\ %* " Character under cursor
+set statusline+=%1*\ %n\ %*   " Buffer number
+set statusline+=%5*%{&ff}%*   " File format
+set statusline+=%3*%y%*       " File type
+set statusline+=%4*\ %<%F%*   " Full path
+set statusline+=%2*%m%*       " Modified flag
+set statusline+=%1*%=%5l%*    " Current line
+set statusline+=%2*/%L%*      " Total lines
+set statusline+=%1*%4v\ %*    " Virtual column number
+set statusline+=%2*0x%04B\ %* " Character under cursor
 
 " Enable mouse support
 set mouse=a
 
-" Share clipboard
+" Share clipboard with OS
 set clipboard^=unnamed
 
 " Always show status line
 set laststatus=2
 
-" Buffer key maps
-map bn :bnext<cr>
-map bp :bprevious<cr>
-map bd :bdelete<cr>
-map bc :enew<cr>
-map bl :ls<cr>
+" Set leader keymap
+let mapleader =" "
+
+" Buffer keymaps
+map <leader>bn :bnext<cr>
+map <leader>bp :bprevious<cr>
+map <leader>bd :bdelete<cr>
+map <leader>bc :enew<cr>
+map <leader>bl :ls<cr>
 
 " When wrapping, try to break at characters in breakat
 set linebreak
 
 " When wrapping, break at these characters
-set breakat=\ ^I!@*-+;:,./?
+set breakat=\^I!@*-+;:,./?
 
 " Character to show that a line is wrapped
 set showbreak=»»»
@@ -147,28 +149,47 @@ autocmd BufReadPost *
   \ |    execute "normal! g`\""
   \ | endif
 
-" Persistent undo
+" Enable persistent undo
 if !isdirectory($HOME."/.vim/undodir")
   call mkdir($HOME."/.vim/undodir", "", 0700)
 endif
 set undodir=~/.vim/undodir
 set undofile
 
-" CoPilot config
+" CoC configuration
+source ~/.vim/coc.vim
+let g:coc_start_at_startup=0
+set pumheight=7
+
+" Toggle CoC
+function! ToggleCoc()
+  if coc#rpc#ready()
+    call coc#rpc#stop()
+    echo "CoC Disabled"
+  else
+    execute 'CocStart'
+    echo "CoC Enabled"
+  endif
+endfunction
+
+" CoC keymaps
+nnoremap <leader>coc :call ToggleCoc()<cr>
+
+" Copilot configuration
 let g:copilot_enabled=0
-imap <silent><script><expr> <C-A> copilot#Accept("\<cr>")
 let g:copilot_no_tab_map=v:true
+
+" Toggle Copilot
 function! ToggleCopilot()
   if g:copilot_enabled
     let g:copilot_enabled=0
-    echo "Copilot Disabled"
+    echo "CoPilot Disabled"
   else
     let g:copilot_enabled=1
     echo "Copilot Enabled"
   endif
 endfunction
-nnoremap cp :call ToggleCopilot()<cr>
 
-" CoC config
-source ~/.vim/coc.vim
-set pumheight=7
+" Copilot keymaps
+nnoremap <leader>cp :call ToggleCopilot()<cr>
+imap <silent><script><expr> <c-a> copilot#Accept("\<cr>")
