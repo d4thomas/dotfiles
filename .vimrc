@@ -193,3 +193,4 @@ endfunction
 " Copilot keymaps
 nnoremap <leader>cp :call ToggleCopilot()<cr>
 imap <silent><script><expr> <c-a> copilot#Accept("\<cr>")
+imap <C-]> <Plug>(copilot-next)
