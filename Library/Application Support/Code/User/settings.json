@@ -7,7 +7,9 @@
   "problems.showCurrentInStatus": true,
   "workbench.activityBar.location": "top",
   "workbench.editor.empty.hint": "hidden",
-  
+  "workbench.startupEditor": "newUntitledFile",
+  "explorer.autoReveal": false,
+
   "editor.parameterHints.enabled": false,
   "editor.fontFamily": "MonoLisa Nerd Font",
   "editor.fontSize": 11,

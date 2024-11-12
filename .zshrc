@@ -84,6 +84,7 @@ if command -v eza &> /dev/null; then
 fi
 if command -v nvim &> /dev/null; then
   alias vi='nvim'
+  alias lvi='NVIM_APPNAME=nvim_lazy nvim'
 fi
 if command -v trash &> /dev/null; then
   alias rm='trash'
