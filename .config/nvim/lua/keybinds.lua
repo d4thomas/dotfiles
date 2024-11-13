@@ -2,8 +2,8 @@ local map = vim.keymap.set
 
 map("n", "<ESC><ESC>", "<cmd>nohlsearch<CR>")
 map("n", "<F3>", "<cmd>Files<CR>", { desc = "Find files" })
-map({ "n", "v" }, "H", "<S-Left>", { desc = "Move one word to the left" })
-map({ "n", "v" }, "L", "<S-Right>", { desc = "Move one word to the right" })
+map({ "n", "v" }, "H", "<S-Left>", { desc = "Move 1 word to the left" })
+map({ "n", "v" }, "L", "<S-Right>", { desc = "Move 1 word to the right" })
 map("n", "!", "<C-w>w")
 map("n", "bd", "<cmd>bdel<CR>", { desc = "Delete current buffer" })
 map("n", "<Tab>", "<cmd>bnext<CR>", { desc = "Previous buffer" })

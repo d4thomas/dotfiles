@@ -17,7 +17,10 @@ add({
 
 add({
 	source = "nvimdev/lspsaga.nvim",
-	depends = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+	depends = {
+		"nvim-treesitter/nvim-treesitter",
+		"nvim-tree/nvim-web-devicons",
+	},
 })
 
 add({
@@ -85,7 +88,7 @@ add({
 require("config.mini")
 require("config.colorscheme")
 require("config.dressing")
-require("config.neodev") -- NOTE: Load before nvim-lspconfig
+require("config.neodev") -- NOTE: Load before lspconfig
 require("config.lspconfig")
 require("config.mason")
 require("config.treesitter")

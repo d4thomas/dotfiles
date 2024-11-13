@@ -9,7 +9,6 @@ Plug 'tpope/vim-sensible'
 Plug 'sheerun/vim-polyglot'
 
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'github/copilot.vim'
 
 call plug#end()
 
@@ -177,23 +176,3 @@ endfunction
 
 " CoC keymaps
 nnoremap <leader>coc :call ToggleCoc()<cr>
-
-" Copilot configuration
-let g:copilot_enabled=0
-let g:copilot_no_tab_map=v:true
-
-" Toggle Copilot
-function! ToggleCopilot()
-  if g:copilot_enabled
-    let g:copilot_enabled=0
-    echo "CoPilot Disabled"
-  else
-    let g:copilot_enabled=1
-    echo "Copilot Enabled"
-  endif
-endfunction
-
-" Copilot keymaps
-nnoremap <leader>cp :call ToggleCopilot()<cr>
-imap <silent><script><expr> <c-a> copilot#Accept("\<cr>")
-imap <C-]> <Plug>(copilot-next)
