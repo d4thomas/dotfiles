@@ -1,4 +1,10 @@
-require("ayu").setup({})
+local ok, colorscheme = pcall(require, "ayu")
+if not ok then
+  return print("Colorscheme failed to load!")
+end
+
+colorscheme.setup({})
+
 vim.cmd("colorscheme ayu")
 
 -- Fix colors

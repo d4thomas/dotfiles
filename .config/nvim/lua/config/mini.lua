@@ -137,7 +137,12 @@ miniclue.setup({
 require("mini.cursorword").setup()
 
 -- MiniFiles
-require("mini.files").setup()
+require("mini.files").setup({
+	mappings = {
+		go_in = "<right>",
+		go_out = "<left>",
+	},
+})
 
 -- MiniFuzzy
 require("mini.fuzzy").setup()
@@ -196,7 +201,6 @@ require("mini.starter").setup({
 	header = function()
 		return vim.fn.strftime("%a %b %d %I:%M %p")
 	end,
-	footer = "iiixio",
 })
 
 -- MiniSurround
