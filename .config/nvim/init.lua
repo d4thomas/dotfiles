@@ -44,7 +44,7 @@ for k, v in pairs(options) do
 	vim.opt[k] = v
 end
 
--- Bootstrap Mini.nvim
+-- Bootstrap Mini
 local path_package = vim.fn.stdpath("data") .. "/site"
 local mini_path = path_package .. "/pack/deps/start/mini.nvim"
 if not vim.loop.fs_stat(mini_path) then
@@ -62,8 +62,10 @@ if not vim.loop.fs_stat(mini_path) then
 	vim.cmd("packadd mini.nvim | helptags ALL")
 end
 
--- Setup Mini.deps
+-- Setup MiniDeps
 require("mini.deps").setup({ path = { package = path_package } })
+
+-- Load configuration files
 require("plugins")
 require("keybinds")
 require("macros")

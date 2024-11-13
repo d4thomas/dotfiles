@@ -39,9 +39,9 @@ require("mini.statusline").setup({
 			return MiniStatusline.combine_groups({
 				{ hl = mode_hl, strings = { mode } },
 				{ hl = "MiniStatuslineDevinfo", strings = { git, diff, diagnostics, lsp } },
-				"%<", -- Mark general truncate point
+				"%<",
 				{ hl = "MiniStatuslineFilename", strings = { filename } },
-				"%=", -- End left alignment
+				"%=",
 				{ hl = "MiniStatuslineFileinfo", strings = { fileinfo } },
 				{ hl = mode_hl, strings = { search, location } },
 			})
@@ -116,7 +116,6 @@ miniclue.setup({
 	},
 
 	clues = {
-		-- Enhance this by adding descriptions for <Leader> mapping groups
 		miniclue.gen_clues.builtin_completion(),
 		miniclue.gen_clues.g(),
 		miniclue.gen_clues.marks(),
@@ -208,3 +207,6 @@ require("mini.tabline").setup()
 
 -- MiniComment
 require("mini.comment").setup()
+
+-- MiniTrailspce
+require("mini.trailspace").setup()

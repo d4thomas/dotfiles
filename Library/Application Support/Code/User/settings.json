@@ -12,11 +12,11 @@
 
   "editor.parameterHints.enabled": false,
   "editor.fontFamily": "MonoLisa Nerd Font",
-  "editor.fontSize": 11,
   "editor.fontLigatures": true,
   "editor.rulers": [80, 120],
   "editor.wordWrap": "on",
   "editor.accessibilitySupport": "off",
+  "editor.renderWhitespace": "trailing",
   "editor.tokenColorCustomizations": {
   "textMateRules": [
     {

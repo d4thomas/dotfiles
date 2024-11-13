@@ -2,7 +2,7 @@ local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 
 config.font = wezterm.font("MonoLisa Nerd Font")
-config.font_size = 11
+config.font_size = 12
 config.color_scheme = "Ayu Dark (Gogh)"
 config.enable_tab_bar = false
 config.default_cursor_style = "BlinkingBlock"

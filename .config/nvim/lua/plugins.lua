@@ -82,13 +82,13 @@ add({
 })
 
 -- Source configurations
-require("config.mini-modules")
+require("config.mini")
 require("config.colorscheme")
 require("config.dressing")
-require("config.neodev") -- IMPORTANT: Load before nvim-lspconfig
-require("config.nvim-lspconfig")
+require("config.neodev") -- NOTE: Load before nvim-lspconfig
+require("config.lspconfig")
 require("config.mason")
-require("config.nvim-treesitter")
+require("config.treesitter")
 require("config.lspsaga")
 require("config.conform")
 require("config.navic")

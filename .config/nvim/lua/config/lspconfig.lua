@@ -16,11 +16,6 @@ lspconfig.lua_ls.setup({
 	on_attach = on_attach,
 })
 
-lspconfig.clangd.setup({
-	capabilities = capabilities,
-	on_attach = on_attach,
-})
-
 lspconfig.pyright.setup({
 	capabilities = capabilities,
 	on_attach = on_attach,
