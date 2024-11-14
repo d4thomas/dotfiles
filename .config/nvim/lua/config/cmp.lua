@@ -1,6 +1,6 @@
 local ok, cmp = pcall(require, "cmp")
 if not ok then
-	return print(print("nvim-cmp failed to load!"))
+	return print(print("CMP failed to load!"))
 end
 
 local ok_2, lspkind = pcall(require, "lspkind")

@@ -81,6 +81,20 @@ add({
 })
 
 add({
+	source = "linux-cultist/venv-selector.nvim",
+	checkout = "regexp",
+	depends = {
+		"neovim/nvim-lspconfig",
+		"mfussenegger/nvim-dap",
+		"mfussenegger/nvim-dap-python",
+	},
+})
+
+add({
+	source = "brenton-leighton/multiple-cursors.nvim",
+})
+
+add({
 	source = "Shatur/neovim-ayu",
 })
 
@@ -100,6 +114,8 @@ require("config.luasnip")
 require("config.toggleterm")
 require("config.grug-far")
 require("config.telescope")
+require("config.venv")
+require("config.multiple-cursors")
 require("config.colorscheme")
 
 -- Setup Undotree

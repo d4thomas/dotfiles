@@ -1,6 +1,8 @@
 local map = vim.keymap.set
 
 map("n", "<ESC><ESC>", "<cmd>nohlsearch<CR>")
+map({ "n", "v", "i" }, "<M-Down>", "<cmd>MultipleCursorsAddDown<CR>")
+map({ "n", "v", "i" }, "<M-Up>", "<cmd>MultipleCursorsAddUp<CR>")
 map("n", "<F3>", "<cmd>Files<CR>", { desc = "Find files" })
 map({ "n", "v" }, "H", "<S-Left>", { desc = "Move 1 word to the left" })
 map({ "n", "v" }, "L", "<S-Right>", { desc = "Move 1 word to the right" })
@@ -41,3 +43,4 @@ map("n", ";r", function()
 		},
 	})
 end, { desc = "Grug-Far" })
+map("n", ";v", "<cmd>VenvSelect<CR>", { desc = "Select Python virtual environment" })

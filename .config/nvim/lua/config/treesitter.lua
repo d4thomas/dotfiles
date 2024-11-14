@@ -1,6 +1,6 @@
 local ok, treesitter = pcall(require, "nvim-treesitter.configs")
 if not ok then
-	return print("Treesitterl failed to load!")
+	return print("Treesitter failed to load!")
 end
 
 ---@diagnostic disable-next-line: missing-fields
