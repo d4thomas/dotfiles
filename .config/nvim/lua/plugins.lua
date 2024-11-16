@@ -115,6 +115,7 @@ require("config.toggleterm")
 require("config.grug-far")
 require("config.telescope")
 require("config.venv")
+require("config.dap")
 require("config.multiple-cursors")
 require("config.colorscheme")
 

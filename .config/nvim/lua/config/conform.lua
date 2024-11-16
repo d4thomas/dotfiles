@@ -6,8 +6,6 @@ end
 conform.setup({
 	formatters_by_ft = {
 		lua = { "stylua" },
-		python = { "black" },
-		java = { "clang-format" },
 		javascript = { "prettier" },
 		typescript = { "prettier" },
 		css = { "prettier" },
