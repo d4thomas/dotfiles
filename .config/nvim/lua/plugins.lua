@@ -112,11 +112,11 @@ require("config.navic")
 require("config.cmp")
 require("config.luasnip")
 require("config.toggleterm")
-require("config.grug-far")
+require("config.grugfar")
 require("config.telescope")
 require("config.venv")
 require("config.dap")
-require("config.multiple-cursors")
+require("config.multiplecursors")
 require("config.colorscheme")
 
 -- Setup Undotree
