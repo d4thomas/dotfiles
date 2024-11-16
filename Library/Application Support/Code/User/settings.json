@@ -1,8 +1,6 @@
 {
   "security.workspace.trust.enabled": false,
   "security.workspace.trust.untrustedFiles": "open",
-
-  "workbench.colorTheme": "Ayu Dark",
   "window.titleBarStyle": "custom",
   "problems.showCurrentInStatus": true,
   "workbench.activityBar.location": "top",
@@ -74,4 +72,5 @@
     "*": false
   },
   "redhat.telemetry.enabled": false,
+  "workbench.colorTheme": "Ayu Dark",
 }
