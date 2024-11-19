@@ -6,6 +6,7 @@
   "workbench.activityBar.location": "top",
   "workbench.editor.empty.hint": "hidden",
   "workbench.startupEditor": "newUntitledFile",
+  "workbench.colorTheme": "Ayu Dark",
   "explorer.autoReveal": false,
 
   "editor.parameterHints.enabled": false,
@@ -50,27 +51,9 @@
   "terminal.integrated.fontSize": 11,
 
   "extensions.ignoreRecommendations": true,
-  "platformio-ide.autoOpenPlatformIOIniFile": false,
+  "redhat.telemetry.enabled": false,
   "github.copilot.editor.enableAutoCompletions": true,
-  "r.plot.useHttpgd": true,
-  "rubyLsp.rubyVersionManager": {
-    "identifier": "rbenv"
-  },
-  "[ruby]": {
-    "editor.defaultFormatter": "Shopify.ruby-lsp",
-    "editor.formatOnSave": true,
-    "editor.formatOnType": true,
-    "editor.tabSize": 2,
-    "editor.insertSpaces": true,
-    "files.trimTrailingWhitespace": true,
-    "files.insertFinalNewline": true,
-    "files.trimFinalNewlines": true,
-    "editor.rulers": [120],
-    "editor.semanticHighlighting.enabled": true
-  },
   "github.copilot.enable": {
     "*": false
   },
-  "redhat.telemetry.enabled": false,
-  "workbench.colorTheme": "Ayu Dark",
 }

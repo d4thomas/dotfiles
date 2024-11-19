@@ -93,19 +93,6 @@ if command -v rg &> /dev/null; then
 fi
 
 ########################
-### Custom Functions ###
-########################
-
-# Render Rmd files to html
-renderrmd() {
-  if [ -z "$1" ]; then
-    echo "Usage: renderrmd <file>"
-    return 1
-  fi
-  Rscript -e "rmarkdown::render('$1')"
-}
-
-########################
 ### Fix Cursor       ###
 ########################
 
