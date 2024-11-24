@@ -83,10 +83,10 @@ cmp.setup({
 		}),
 	}),
 	sources = cmp.config.sources({
-		{ name = "nvim_lsp" },
-		{ name = "nvim_lsp_signature_help" },
-		{ name = "luasnip" },
-		{ name = "path" },
+		{ name = "nvim_lsp", keyword_length = 3 },
+		{ name = "nvim_lsp_signature_help", keyword_length = 3 },
+		{ name = "luasnip", keyword_length = 3 },
+		{ name = "path", keyword_length = 3 },
 	}),
 	enabled = function()
 		local buftype = vim.api.nvim_buf_get_option(0, "buftype")
