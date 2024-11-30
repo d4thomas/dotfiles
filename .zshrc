@@ -76,7 +76,7 @@ fi
 ########################
 
 if command -v eza &> /dev/null; then
-  HIDDEN=".DS_Store|go"
+  HIDDEN=".DS_Store"
   alias ls='eza --icons --ignore-glob="$HIDDEN"'
   alias lsa='eza --icons -a'
   alias lsg='eza --icons --group-directories-first --ignore-glob="$HIDDEN"'
