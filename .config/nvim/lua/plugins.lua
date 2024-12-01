@@ -2,7 +2,10 @@ local add = MiniDeps.add
 
 add({
 	source = "neovim/nvim-lspconfig",
-	depends = { "williamboman/mason.nvim" },
+	depends = {
+    "williamboman/mason.nvim",
+    "williamboman/mason-lspconfig.nvim",
+  },
 })
 
 add({
@@ -103,8 +106,8 @@ require("config.mini")
 require("config.colorscheme")
 require("config.dressing")
 require("config.neodev") -- NOTE: Load before lspconfig
-require("config.lspconfig")
 require("config.mason")
+require("config.lspconfig")
 require("config.treesitter")
 require("config.lspsaga")
 require("config.conform")
