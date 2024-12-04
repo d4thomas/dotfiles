@@ -1,8 +1,4 @@
-########################
-### Program Config   ###
-########################
-
-# Setup tmux environment
+# Setup TMUX environment
 if [[ $TERM_PROGRAM = WezTerm ]]; then
   if command -v tmux &> /dev/null; then
     if ! tmux attach -d > /dev/null 2>&1; then
@@ -80,10 +76,7 @@ if command -v gh &> /dev/null; then
   eval "$(gh copilot alias -- zsh)"
 fi
 
-########################
-### Custom Aliases   ###
-########################
-
+# Set aliases
 if command -v eza &> /dev/null; then
   HIDDEN=".DS_Store"
   alias ls='eza --icons --ignore-glob="$HIDDEN"'
@@ -100,12 +93,3 @@ fi
 if command -v rg &> /dev/null; then
   alias grep='rg'
 fi
-
-########################
-### Fix Cursor       ###
-########################
-
-fix_cursor() {
-    echo -ne '\e[1 q'
-}
-precmd_functions+=(fix_cursor)

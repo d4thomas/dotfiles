@@ -1,6 +1,7 @@
 local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 
+-- Configure display settings
 config.font = wezterm.font("MonoLisa Nerd Font")
 config.font_size = 12
 config.color_scheme = "Catppuccin Mocha"
@@ -14,6 +15,7 @@ config.initial_cols = 132
 config.audible_bell = "Disabled"
 config.window_close_confirmation = "NeverPrompt"
 
+-- Configure multiplexing
 config.leader = { key = "n", mods = "CTRL", timeout_milliseconds = 1000 }
 config.keys = {
 	{ key = "%", mods = "LEADER", action = wezterm.action({ SplitVertical = { domain = "CurrentPaneDomain" } }) },
@@ -42,6 +44,7 @@ config.keys = {
 	{ key = "d", mods = "LEADER", action = wezterm.action({ CloseCurrentPane = { confirm = true } }) },
 }
 
+-- Configure hyperlink support
 config.bypass_mouse_reporting_modifiers = "ALT"
 config.mouse_bindings = {
 	{
