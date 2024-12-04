@@ -3,9 +3,16 @@ local add = MiniDeps.add
 add({
 	source = "neovim/nvim-lspconfig",
 	depends = {
-    "williamboman/mason.nvim",
-    "williamboman/mason-lspconfig.nvim",
-  },
+		"williamboman/mason.nvim",
+		"williamboman/mason-lspconfig.nvim",
+		"neovim/nvim-lspconfig",
+		"mfussenegger/nvim-dap",
+		"mfussenegger/nvim-dap-python",
+		"theHamsta/nvim-dap-virtual-text",
+		"mfussenegger/nvim-dap",
+		"nvim-neotest/nvim-nio",
+		"rcarriga/nvim-dap-ui",
+	},
 })
 
 add({
@@ -86,11 +93,6 @@ add({
 add({
 	source = "linux-cultist/venv-selector.nvim",
 	checkout = "regexp",
-	depends = {
-		"neovim/nvim-lspconfig",
-		"mfussenegger/nvim-dap",
-		"mfussenegger/nvim-dap-python",
-	},
 })
 
 add({
@@ -99,6 +101,10 @@ add({
 
 add({
 	source = "catppuccin/nvim",
+})
+
+add({
+	source = "j-hui/fidget.nvim",
 })
 
 -- Source configurations
@@ -121,6 +127,7 @@ require("config.venv")
 require("config.dap")
 require("config.multiplecursors")
 require("config.colorscheme")
+require("config.fidget")
 
 -- Setup Undotree
 vim.g.undotree_SetFocusWhenToggle = 1

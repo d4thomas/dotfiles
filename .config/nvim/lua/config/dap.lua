@@ -48,3 +48,5 @@ dap.configurations.python = {
 		end,
 	},
 }
+
+require("dapui").setup()
