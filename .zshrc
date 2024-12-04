@@ -76,6 +76,9 @@ if command -v gh &> /dev/null; then
   eval "$(gh copilot alias -- zsh)"
 fi
 
+# Disable less history
+export LESSHISTFILE=-
+
 # Set aliases
 if command -v eza &> /dev/null; then
   HIDDEN=".DS_Store"
