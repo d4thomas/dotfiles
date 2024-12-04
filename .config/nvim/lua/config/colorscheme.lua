@@ -1,21 +1,38 @@
-local ok, colorscheme = pcall(require, "ayu")
+local ok, colorscheme = pcall(require, "catppuccin")
 if not ok then
 	return print("Colorscheme failed to load!")
 end
 
-local colors = require("ayu.colors")
-
 colorscheme.setup({
-    overrides = function()
-    return {
-      Statement = { fg = colors.keyword, italic = true },
-    }
-  end
+	flavour = "mocha",
+	styles = {
+		comments = { "italic" },
+		conditionals = { "italic" },
+		loops = { "italic" },
+		functions = { "italic" },
+		keywords = { "italic" },
+		strings = {},
+		variables = {},
+		numbers = {},
+		booleans = {},
+		properties = {},
+		types = { "italic" },
+		operators = {},
+	},
 })
 
-vim.cmd("colorscheme ayu")
+-- Load color scheme
+vim.cmd("colorscheme catppuccin")
 
--- Fix colors
-vim.api.nvim_set_hl(0, "LspInlayHint", { fg = colors.comment })
-vim.api.nvim_set_hl(0, "LineNr", { fg = colors.guide_active })
-vim.api.nvim_set_hl(0, "MiniTablineFill", { bg = colors.bg })
+-- Set custom colors
+local colors = require("catppuccin.palettes").get_palette("mocha")
+
+vim.api.nvim_set_hl(0, "LineNr", { fg = colors.surface1 })
+vim.api.nvim_set_hl(0, "LspInlayHint", { fg = colors.overlay0 })
+vim.api.nvim_set_hl(0, "MiniTablineCurrent", { fg = colors.text, bg = colors.base })
+vim.api.nvim_set_hl(0, "MiniTablineVisible", { fg = colors.text, bg = colors.base })
+vim.api.nvim_set_hl(0, "MiniTablineHidden", { fg = colors.overlay1, bg = colors.base })
+vim.api.nvim_set_hl(0, "MiniTablineModifiedCurrent", { fg = colors.text, bg = colors.base, italic = true })
+vim.api.nvim_set_hl(0, "MiniTablineModifiedVisible", { fg = colors.text, bg = colors.base, italic = true })
+vim.api.nvim_set_hl(0, "MiniTablineModifiedHidden", { fg = colors.overlay1, bg = colors.base, italic = true })
+vim.api.nvim_set_hl(0, "MiniTablineFill", { bg = colors.base })

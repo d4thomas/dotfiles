@@ -56,14 +56,23 @@ if command -v fzf &> /dev/null; then
   # Setup keybindings: CTRL-t (fzf), CTRL-r (shell), Option-c (cd ...)
   eval "$(fzf --zsh)"
 
-  # Configure fzf theme
-  source ~/.config/colors
-  export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS"
+  # Configure color theme
+  BG="#1E1E2E"
+  C1="#F9E2AF"
+  C2="#F38BA8"
+  C3="#F5C2E7"
+  C4="#A6E3A1"
+  C5="#89B4FA"
+  C6="#94E2D5"
+
+  export FZF_DEFAULT_OPTS="
+    --layout=reverse-list
+    --info=inline
     --pointer=""
-    --color=fg:-1,bg:-1,hl:$YELLOW
-    --color=fg+:,bg+:,hl+:$RED
-    --color=info:$MAGENTA,prompt:$GREEN,pointer:$BLUE
-    --color=marker:$RED,spinner:$CYAN,header:-1"
+    --color=fg:-1,bg:$BG,hl:$C1
+    --color=fg+:,bg+:$BG,hl+:$C2
+    --color=info:$C3,prompt:$C4,pointer:$C5
+    --color=marker:$C2,spinner:$C6,header:-1"
 fi
 
 # Configure CoPilot CLI

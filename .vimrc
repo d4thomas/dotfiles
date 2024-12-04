@@ -3,12 +3,10 @@ set nocompatible
 " Plugins
 call plug#begin()
 
-Plug 'ayu-theme/ayu-vim'
+Plug 'catppuccin/vim'
 Plug 'vim-airline/vim-airline'
 Plug 'tpope/vim-sensible'
 Plug 'sheerun/vim-polyglot'
-
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 call plug#end()
 
@@ -34,18 +32,17 @@ function Hi()
   hi htmItalic cterm=italic
   hi markdownItalic cterm=italic
   " Set background colors to terminal background
-  hi Normal guibg=#0a0e14
-  hi SignColumn guibg=bg
+"  hi Normal guibg=#0a0e14
+"  hi SignColumn guibg=bg
 endfunction
 syntax on
 autocmd Vimrc colorscheme * call Hi()
 
 " Set colorscheme
-let ayucolor="dark"
-colorscheme ayu
+colorscheme catppuccin_mocha
 
 " Airline configuration
-let g:airline_theme='ayu'
+let g:airline_theme='catppuccin_mocha'
 let g:airline_extensions=[]
 let g:airline_powerline_fonts=1
 let g:airline_section_a='%n'
@@ -117,12 +114,6 @@ set incsearch hlsearch
 " Configure line numbers
 set number
 
-augroup numbertoggle
-  autocmd!
-  autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu && mode() != "i" | set rnu   | endif
-  autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu                  | set nornu | endif
-augroup END
-
 " Enable syntax highlighting
 syntax on
 
@@ -157,22 +148,3 @@ if !isdirectory($HOME."/.vim/undodir")
 endif
 set undodir=~/.vim/undodir
 set undofile
-
-" CoC configuration
-source ~/.vim/coc.vim
-let g:coc_start_at_startup=0
-set pumheight=7
-
-" Toggle CoC
-function! ToggleCoc()
-  if coc#rpc#ready()
-    call coc#rpc#stop()
-    echo "CoC Disabled"
-  else
-    execute 'CocStart'
-    echo "CoC Enabled"
-  endif
-endfunction
-
-" CoC keymaps
-nnoremap <leader>coc :call ToggleCoc()<cr>

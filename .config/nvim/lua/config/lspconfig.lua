@@ -13,6 +13,7 @@ end
 
 local mason_lspconfig = require("mason-lspconfig")
 
+-- List LSP servers
 local servers = {
   "lua_ls",
   "pyright",
@@ -21,10 +22,12 @@ local servers = {
   "ts_ls",
 }
 
+-- Ensure the servers are installed
 mason_lspconfig.setup({
   ensure_installed = servers,
 })
 
+-- Setup each server
 mason_lspconfig.setup_handlers({
   function(server_name)
     lspconfig[server_name].setup({

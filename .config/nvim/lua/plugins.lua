@@ -98,7 +98,7 @@ add({
 })
 
 add({
-	source = "Shatur/neovim-ayu",
+	source = "catppuccin/nvim",
 })
 
 -- Source configurations
