@@ -59,4 +59,5 @@
   "github.copilot.enable": {
     "*": false
   },
+  "quokka.automaticRestart": true,
 }
