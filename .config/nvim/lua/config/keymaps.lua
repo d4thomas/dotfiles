@@ -1,0 +1,8 @@
+vim.keymap.set("n", "<ESC><ESC>", "<cmd>nohlsearch<CR>")
+vim.keymap.set({ "n", "v", "i" }, "<M-Down>", "<cmd>MultipleCursorsAddDown<CR>")
+vim.keymap.set({ "n", "v", "i" }, "<M-Up>", "<cmd>MultipleCursorsAddUp<CR>")
+vim.keymap.set("n", "bd", "<cmd>bdel<CR>", { desc = "Delete Current Buffer" })
+vim.keymap.set("n", "<Tab>", "<cmd>bnext<CR>", { desc = "Previous Buffer" })
+vim.keymap.set("n", "<S-Tab>", "<cmd>bprevious<CR>", { desc = "Next Buffer" })
+vim.keymap.set("n", "<leader>ac", "<cmd>Copilot toggle<cr>", { desc = "Toggle CoPilot", remap = true })
+vim.keymap.set("n", "<F1>", "<cmd>Telescope keymaps<cr>", { desc = "Search Keymaps", remap = true })
