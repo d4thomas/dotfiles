@@ -1,26 +1,22 @@
 return {
-  {
-    "zbirenbaum/copilot.lua",
-    cmd = "Copilot",
-    event = "InsertEnter",
-    config = function()
-      require("copilot").setup({
-        panel = {
-          enabled = false,
-          auto_refresh = false,
-        },
-        suggestion = {
-          enabled = false,
-          auto_trigger = true,
-        },
-      })
-    end,
-  },
-  {
-    "zbirenbaum/copilot-cmp",
-    after = { "copilot.lua" },
-    config = function()
-      require("copilot_cmp").setup()
-    end,
+  "zbirenbaum/copilot.lua",
+  cmd = "Copilot",
+  build = ":Copilot auth",
+  event = "InsertEnter",
+  opts = {
+    suggestion = {
+      enabled = not vim.g.ai_cmp,
+      auto_trigger = true,
+      keymap = {
+        accept = false,
+        next = "<M-]>",
+        prev = "<M-[>",
+      },
+    },
+    panel = { enabled = false },
+    filetypes = {
+      markdown = true,
+      help = true,
+    },
   },
 }
