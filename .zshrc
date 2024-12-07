@@ -87,6 +87,9 @@ if command -v eza &> /dev/null; then
   alias lsg='eza --icons --group-directories-first --ignore-glob="$HIDDEN"'
   alias lst='eza --long --classify --all --header --git --no-user --tree --icons --ignore-glob="$HIDDEN" --git --level'
 fi
+if command -v nvim &> /dev/null; then
+  alias vi='nvim'
+fi
 if command -v trash &> /dev/null; then
   alias rm='trash'
 fi
