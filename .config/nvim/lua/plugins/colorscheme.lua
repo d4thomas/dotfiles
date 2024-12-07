@@ -23,6 +23,6 @@ return {
     })
     vim.cmd("colorscheme catppuccin")
     local colors = require("catppuccin.palettes").get_palette("mocha")
-    vim.api.nvim_set_hl(0, "BufferLineFill", { bg = colors.base })
+    -- vim.api.nvim_set_hl(0, "BufferLineFill", { bg = colors.base })
   end,
 }
