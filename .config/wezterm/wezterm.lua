@@ -1,11 +1,25 @@
 local wezterm = require("wezterm")
 local config = wezterm.config_builder()
+local scheme = "Catppuccin Mocha"
+local scheme_def = wezterm.color.get_builtin_schemes()[scheme]
 
 -- Configure display settings
+config.color_scheme = scheme
+config.colors = {
+	tab_bar = {
+		background = scheme_def.background,
+		inactive_tab = {
+			bg_color = scheme_def.background,
+			fg_color = scheme_def.foreground,
+		},
+	},
+}
+config.enable_tab_bar = true
+config.use_fancy_tab_bar = false
+config.hide_tab_bar_if_only_one_tab = true
+config.show_new_tab_button_in_tab_bar = false
 config.font = wezterm.font("MonoLisa Nerd Font")
 config.font_size = 12
-config.color_scheme = "Catppuccin Mocha"
-config.enable_tab_bar = false
 config.default_cursor_style = "BlinkingBlock"
 config.animation_fps = 5
 config.cursor_blink_ease_in = "Constant"
@@ -16,7 +30,7 @@ config.audible_bell = "Disabled"
 config.window_close_confirmation = "NeverPrompt"
 
 -- Configure multiplexing
-config.leader = { key = "n", mods = "CTRL", timeout_milliseconds = 1000 }
+config.leader = { key = "b", mods = "CTRL", timeout_milliseconds = 1000 }
 config.keys = {
 	{ key = "%", mods = "LEADER", action = wezterm.action({ SplitVertical = { domain = "CurrentPaneDomain" } }) },
 	{ key = '"', mods = "LEADER", action = wezterm.action({ SplitHorizontal = { domain = "CurrentPaneDomain" } }) },

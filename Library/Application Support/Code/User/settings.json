@@ -54,9 +54,7 @@
 
   "extensions.ignoreRecommendations": true,
   "redhat.telemetry.enabled": false,
-  "github.copilot.editor.enableAutoCompletions": true,
-  "github.copilot.enable": {
-    "*": false
-  },
+  "github.copilot.editor.enableAutoCompletions": false,
   "quokka.automaticRestart": true,
+  "editor.tabSize": 2,
 }

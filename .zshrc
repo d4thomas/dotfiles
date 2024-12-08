@@ -56,10 +56,11 @@ if command -v fzf &> /dev/null; then
     --layout=reverse-list
     --info=inline
     --pointer=""
-    --color=fg:-1,bg:$BG,hl:$C1
-    --color=fg+:,bg+:$BG,hl+:$C2
-    --color=info:$C3,prompt:$C4,pointer:$C5
-    --color=marker:$C2,spinner:$C6,header:-1"
+    --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
+    --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
+    --color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
+    --color=selected-bg:#45475a \
+    --multi"
 fi
 
 # Disable less history
