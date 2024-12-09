@@ -44,14 +44,6 @@ if command -v fzf &> /dev/null; then
   eval "$(fzf --zsh)"
 
   # Configure color theme
-  BG="#1E1E2E"
-  C1="#F9E2AF"
-  C2="#F38BA8"
-  C3="#F5C2E7"
-  C4="#A6E3A1"
-  C5="#89B4FA"
-  C6="#94E2D5"
-
   export FZF_DEFAULT_OPTS="
     --layout=reverse-list
     --info=inline
