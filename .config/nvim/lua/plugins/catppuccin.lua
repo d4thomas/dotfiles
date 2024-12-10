@@ -23,7 +23,7 @@ return {
         operators = {},
       },
       color_overrides = {
-        all = {
+        mocha = {
           mantle = colors.base,
         },
       },

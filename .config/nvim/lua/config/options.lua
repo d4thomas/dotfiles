@@ -5,3 +5,4 @@
 local opt = vim.opt
 
 opt.relativenumber = false
+opt.guicursor = "n-v-c:block-blinkon1,i-ci-ve:ver25-blinkon1,r-cr:hor20-blinkon1"
