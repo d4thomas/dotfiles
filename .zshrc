@@ -38,7 +38,7 @@ if command -v starship &> /dev/null; then
   export VIRTUAL_ENV_DISABLE_PROMPT=1
 fi
 
-# # Configure fzf
+# Configure fzf
 if command -v fzf &> /dev/null; then
   # Setup keybindings: CTRL-t (fzf), CTRL-r (shell), Option-c (cd ...)
   eval "$(fzf --zsh)"
@@ -53,6 +53,12 @@ if command -v fzf &> /dev/null; then
     --color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
     --color=selected-bg:#45475a \
     --multi"
+fi
+
+# Configure bat
+if command -v bat &> /dev/null; then
+  export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+  alias cat='bat -pp'
 fi
 
 # Disable less history
@@ -74,10 +80,6 @@ if command -v trash &> /dev/null; then
 fi
 if command -v rg &> /dev/null; then
   alias grep='rg'
-fi
-if command -v bat &> /dev/null; then
-  export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-  alias cat='bat -pp'
 fi
 
 # TMUX environment

@@ -10,9 +10,11 @@
   "workbench.iconTheme": "catppuccin-mocha",
   "explorer.autoReveal": false,
 
-  "editor.parameterHints.enabled": false,
   "editor.fontFamily": "MonoLisa Nerd Font",
+  "terminal.integrated.fontFamily": "MonoLisa Nerd Font",
+  "terminal.integrated.fontSize": 11,
   "editor.fontLigatures": true,
+  "editor.tabSize": 2,
   "editor.rulers": [80, 120],
   "editor.wordWrap": "on",
   "editor.stickyScroll.enabled": false,
@@ -49,12 +51,8 @@
   ]
 },
 
-  "terminal.integrated.fontFamily": "MonoLisa Nerd Font",
-  "terminal.integrated.fontSize": 11,
-
   "extensions.ignoreRecommendations": true,
-  "redhat.telemetry.enabled": false,
   "github.copilot.editor.enableAutoCompletions": false,
+  "redhat.telemetry.enabled": false,
   "quokka.automaticRestart": true,
-  "editor.tabSize": 2,
 }
