@@ -61,8 +61,9 @@ if command -v bat &> /dev/null; then
   alias cat='bat -pp'
 fi
 
-# Disable less history
+# Clean ~ directory
 export LESSHISTFILE=-
+export GNUPGHOME="~/.config/gnupg"
 
 # Set aliases
 if command -v eza &> /dev/null; then

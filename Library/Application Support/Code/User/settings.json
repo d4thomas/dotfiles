@@ -13,6 +13,7 @@
   "editor.fontFamily": "MonoLisa Nerd Font",
   "terminal.integrated.fontFamily": "MonoLisa Nerd Font",
   "terminal.integrated.fontSize": 11,
+  "terminal.integrated.fontLigatures": true,
   "editor.fontLigatures": true,
   "editor.tabSize": 2,
   "editor.rulers": [80, 120],
