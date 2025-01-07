@@ -1,3 +1,12 @@
+# Setup TMUX environment
+if [[ $TERM_PROGRAM = ghostty ]]; then
+  if command -v tmux &> /dev/null; then
+    if ! tmux attach -d > /dev/null 2>&1; then
+      tmux new
+    fi
+  fi
+fi
+
 # Configure Homebrew
 if command -v brew &> /dev/null; then
   # Add autocomletions
@@ -29,6 +38,9 @@ fi
 # # Configure Zsh syntax highlighting
 if [ -f "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
   source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+  (( ${+ZSH_HIGHLIGHT_STYLES} )) || typeset -A ZSH_HIGHLIGHT_STYLES
+  ZSH_HIGHLIGHT_STYLES[path]=none
+  ZSH_HIGHLIGHT_STYLES[path_prefix]=none
 fi
 
 # # Configure prompt (Starship)
