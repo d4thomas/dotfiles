@@ -11,10 +11,15 @@ font-feature = "liga"
 
 cursor-style = block
 cursor-style-blink = true
+shell-integration = zsh
 shell-integration-features = no-cursor
 
+macos-titlebar-style = tabs
 macos-titlebar-proxy-icon = hidden
-title = " "
+macos-option-as-alt = true
+window-vsync = true
+window-colorspace = display-p3
+quick-terminal-screen = macos-menu-bar
 
 window-width = 132
 window-height = 53
