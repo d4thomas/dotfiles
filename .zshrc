@@ -1,12 +1,3 @@
-# # Setup TMUX environment
-# if [[ $TERM_PROGRAM = ghostty ]]; then
-#   if command -v tmux &> /dev/null; then
-#     if ! tmux attach -d > /dev/null 2>&1; then
-#       tmux new
-#     fi
-#   fi
-# fi
-
 # Configure Homebrew
 if command -v brew &> /dev/null; then
   # Add autocomletions
@@ -94,10 +85,3 @@ fi
 if command -v rg &> /dev/null; then
   alias grep='rg'
 fi
-
-# TMUX environment
-tm() {
-  if ! tmux attach -d > /dev/null 2>&1; then
-    tmux new
-  fi
-}
