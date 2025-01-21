@@ -15,7 +15,6 @@
   "terminal.integrated.fontSize": 11,
   "terminal.integrated.fontLigatures": true,
   "editor.fontLigatures": true,
-  "editor.tabSize": 2,
   "editor.detectIndentation": false,
   "editor.rulers": [80, 120],
   "editor.wordWrap": "on",
