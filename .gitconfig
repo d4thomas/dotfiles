@@ -1,14 +1,14 @@
 [user]
-	email = 152221911+iiixio@users.noreply.github.com
-	name = iiixio
+    email = 152221911+iiixio@users.noreply.github.com
+    name = iiixio
 [filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
 [color]
-	ui = auto
+    ui = auto
 [credential]
-	helper = osxkeychain
+    helper = osxkeychain
 [core]
-	excludesfile = ~/.gitignore
+    excludesfile = ~/.gitignore

@@ -12,17 +12,17 @@ colorscheme catppuccin_mocha
 
 " Add italics
 augroup Vimrc
-  autocmd!
+    autocmd!
 augroup END
 function Hi()
-  hi Comment cterm=italic
-  hi Conditional cterm=italic
-  hi Identifier cterm=italic
-  hi Repeat cterm=italic
-  hi Statement cterm=italic
-  hi Type cterm=italic
-  hi htmItalic cterm=italic
-  hi markdownItalic cterm=italic
+    hi Comment cterm=italic
+    hi Conditional cterm=italic
+    hi Identifier cterm=italic
+    hi Repeat cterm=italic
+    hi Statement cterm=italic
+    hi Type cterm=italic
+    hi htmItalic cterm=italic
+    hi markdownItalic cterm=italic
 endfunction
 syntax on
 autocmd Vimrc colorscheme * call Hi()
@@ -115,19 +115,20 @@ set backspace=indent,eol,start
 
 " Return to last edit position
 autocmd BufReadPost *
-  \ let line = line("'\"")
-  \ | if line >= 1 && line <= line("$") && &filetype !~# 'commit'
-  \      && index(['xxd', 'gitrebase'], &filetype) == -1
-  \ |    execute "normal! g`\""
-  \ | endif
+    \ let line = line("'\"")
+    \ | if line >= 1 && line <= line("$") && &filetype !~# 'commit'
+    \      && index(['xxd', 'gitrebase'], &filetype) == -1
+    \ |    execute "normal! g`\""
+    \ | endif
 
 " Enable persistent undo
 if !isdirectory($HOME."/.vim/undodir")
-  call mkdir($HOME."/.vim/undodir", "", 0700)
+    call mkdir($HOME."/.vim/undodir", "", 0700)
 endif
 set undodir=~/.vim/undodir
 set undofile
 
 " Set tab width
-set tabstop=2
-set shiftwidth=2
+set tabstop=4
+set shiftwidth=4
+set expandtab
