@@ -117,8 +117,8 @@ set backspace=indent,eol,start
 autocmd BufReadPost *
     \ let line = line("'\"")
     \ | if line >= 1 && line <= line("$") && &filetype !~# 'commit'
-    \      && index(['xxd', 'gitrebase'], &filetype) == -1
-    \ |    execute "normal! g`\""
+    \       && index(['xxd', 'gitrebase'], &filetype) == -1
+    \ |     execute "normal! g`\""
     \ | endif
 
 " Enable persistent undo
