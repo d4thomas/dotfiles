@@ -8,7 +8,7 @@ set termguicolors
 set rtp+=/opt/homebrew/opt/fzf
 
 " Set colorscheme
-colorscheme catppuccin_mocha
+colorscheme colors
 
 " Add italics
 augroup Vimrc

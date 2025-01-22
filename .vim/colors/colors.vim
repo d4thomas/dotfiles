@@ -1,5 +1,3 @@
-" Name: catppuccin_mocha.vim
-
 set background=dark
 hi clear
 
@@ -7,7 +5,7 @@ if exists('syntax on')
     syntax reset
 endif
 
-let g:colors_name='catppuccin_mocha'
+let g:colors_name='colors'
 set t_Co=256
 
 let s:rosewater = "#F5E0DC"
