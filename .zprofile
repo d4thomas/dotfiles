@@ -12,3 +12,8 @@ fi
 if [ -d "$(brew --prefix)/opt/openjdk/bin" ]; then
     export PATH="$(brew --prefix)/opt/openjdk/bin:${PATH}"
 fi
+
+# Setup dotNET environment
+if [ -d "$HOME/.dotnet/tools" ]; then
+    export PATH="$HOME/.dotnet/tools:${PATH}"
+fi
