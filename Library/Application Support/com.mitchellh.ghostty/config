@@ -1,4 +1,4 @@
-font-family = MonoLisa Nerd Font
+font-family = MesloLGL Nerd Font
 font-style = Regular
 font-size = 12
 font-thicken = false
@@ -21,8 +21,8 @@ window-vsync = true
 window-colorspace = display-p3
 quick-terminal-screen = macos-menu-bar
 
-window-width = 132
-window-height = 53
+window-width = 125
+window-height = 45
 
 confirm-close-surface = false
 clipboard-paste-protection = false
