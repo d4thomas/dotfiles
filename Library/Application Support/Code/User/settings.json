@@ -50,9 +50,8 @@
   ]
 },
 
-  "extensions.ignoreRecommendations": true,
-  "github.copilot.editor.enableAutoCompletions": false,  
-  "redhat.telemetry.enabled": false,
+"extensions.ignoreRecommendations": true,
+"github.copilot.editor.enableAutoCompletions": false,  
+"redhat.telemetry.enabled": false,
 "quokka.automaticRestart": true,
-"editor.fontSize": 13,
 }
