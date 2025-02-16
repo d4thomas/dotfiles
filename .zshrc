@@ -69,11 +69,11 @@ fi
 
 # Clean home directory
 export LESSHISTFILE=-
-export GNUPGHOME="~/.config/gnupg"
+export GNUPGHOME="$HOME/.config/gnupg"
 
 # Set aliases
 if command -v eza &> /dev/null; then
-    HIDDEN=".DS_Store"
+    HIDDEN=".DS_Store|~"
     alias ls='eza --icons --ignore-glob="$HIDDEN"'
     alias lsa='eza --icons -a'
     alias lsg='eza --icons --group-directories-first --ignore-glob="$HIDDEN"'
