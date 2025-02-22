@@ -9,7 +9,7 @@ for dir in */; do
     # Remove non-image files
     for file in "$dir"*; do
         if [[ -f "$file" && ! "$file" =~ \.(jpg|jpeg|png|gif|bmp|tiff|webp)$ ]]; then
-            rm "$file"
+            trash "$file"
             echo "Deleted $file"
         fi
     done
@@ -17,7 +17,7 @@ for dir in */; do
     # Remove tag images
     for file in "$dir"/*; do
         if [[ -f "$file" && "$(basename "$file")" =~ ^[zZ].* ]]; then
-            rm "$file"
+            trash "$file"
             echo "Deleted $file"
         fi
     done
