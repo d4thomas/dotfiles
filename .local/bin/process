@@ -1,0 +1,41 @@
+#!/bin/bash
+
+echo "Processing directories..."
+
+for dir in */; do
+    dir_name="${dir%/}"
+    echo "Cleaning up $dir..."
+
+    # Remove non-image files
+    for file in "$dir"*; do
+        if [[ -f "$file" && ! "$file" =~ \.(jpg|jpeg|png|gif|bmp|tiff|webp)$ ]]; then
+            rm "$file"
+            echo "Deleted $file"
+        fi
+    done
+
+    # Remove tag images
+    for file in "$dir"/*; do
+        if [[ -f "$file" && "$(basename "$file")" =~ ^[zZ].* ]]; then
+            rm "$file"
+            echo "Deleted $file"
+        fi
+    done
+
+    # Create temporary PDF
+    if [[ -n $(find "$dir" -maxdepth 1 -type f | grep -Ei '\.(jpg|jpeg|png|gif|bmp|tiff|webp)$') ]]; then
+        echo "Generating temp.pdf in $dir..."
+        img2pdf "$dir"/* -o "$dir/temp.pdf"
+    else
+        echo "No images left to convert in $dir. Skipping..."
+        continue
+    fi
+
+    # Rename and move PDF
+    if [[ -f "$dir/temp.pdf" ]]; then
+        mv "$dir/temp.pdf" "${dir_name}.pdf"
+        echo "Renamed and moved ${dir_name}.pdf to parent directory"
+    fi
+done
+
+echo "Process complete!"
