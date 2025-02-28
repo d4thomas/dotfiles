@@ -20,9 +20,21 @@
   "editor.stickyScroll.enabled": false,
   "editor.accessibilitySupport": "off",
   "editor.renderWhitespace": "trailing",
+  "editor.tokenColorCustomizations": {
+  "textMateRules": [
+    {
+      "scope": [
+        "comment",
+      ],
+      "settings": {
+        "fontStyle": "italic"
+      }
+    }
+  ]
+},
 
-  "extensions.ignoreRecommendations": true,
-  "github.copilot.editor.enableAutoCompletions": false,  
-  "redhat.telemetry.enabled": false,
-  "quokka.automaticRestart": true,
+"extensions.ignoreRecommendations": true,
+"github.copilot.editor.enableAutoCompletions": false,  
+"redhat.telemetry.enabled": false,
+"quokka.automaticRestart": true,
 }
