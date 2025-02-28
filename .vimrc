@@ -10,23 +10,17 @@ set rtp+=/opt/homebrew/opt/fzf
 " Set colorscheme
 colorscheme colors
 
-" Add italics
+" Add italics to comments
 augroup Vimrc
     autocmd!
 augroup END
 function Hi()
     hi Comment cterm=italic
-    hi Conditional cterm=italic
-    hi Identifier cterm=italic
-    hi Repeat cterm=italic
-    hi Statement cterm=italic
-    hi Type cterm=italic
-    hi htmItalic cterm=italic
-    hi markdownItalic cterm=italic
 endfunction
 syntax on
 autocmd Vimrc colorscheme * call Hi()
 
+hi Comment cterm=italic
 " Filetype settings
 filetype on
 filetype indent on

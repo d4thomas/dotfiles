@@ -9,6 +9,7 @@
   "workbench.startupEditor": "newUntitledFile",
   "workbench.colorTheme": "Catppuccin Mocha",
   "workbench.iconTheme": "catppuccin-mocha",
+  "catppuccin.italicKeywords": false,
   "explorer.autoReveal": false,
 
   "editor.fontFamily": "MesloLGL Nerd Font",
@@ -19,39 +20,9 @@
   "editor.stickyScroll.enabled": false,
   "editor.accessibilitySupport": "off",
   "editor.renderWhitespace": "trailing",
-  "editor.tokenColorCustomizations": {
-  "textMateRules": [
-    {
-      "scope": [
-        "comment",
-        "entity.name.type.class",
-        "keyword",
-        "constant",
-        "storage.modifier",
-        "storage.type.class.js",
-      ],
-      "settings": {
-        "fontStyle": "italic"
-      }
-    },
-    {
-      "scope": [
-        "invalid",
-        "keyword.operator",
-        "constant.numeric.css",
-        "keyword.other.unit.px.css",
-        "constant.numeric.decimal.js",
-        "constant.numeric.json"
-      ],
-      "settings": {
-        "fontStyle": ""
-      }
-    }
-  ]
-},
 
-"extensions.ignoreRecommendations": true,
-"github.copilot.editor.enableAutoCompletions": false,  
-"redhat.telemetry.enabled": false,
-"quokka.automaticRestart": true,
+  "extensions.ignoreRecommendations": true,
+  "github.copilot.editor.enableAutoCompletions": false,  
+  "redhat.telemetry.enabled": false,
+  "quokka.automaticRestart": true,
 }
