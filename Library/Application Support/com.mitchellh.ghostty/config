@@ -1,13 +1,7 @@
-font-family = MesloLGL Nerd Font
+font-family = BlexMono Nerd Font Mono
 font-style = Regular
 font-size = 12
 font-thicken = false
-
-font-feature = "ss01"
-font-feature = "ss02"
-font-feature = "ss03"
-font-feature = "ss04"
-font-feature = "liga"
 
 cursor-style = block
 cursor-style-blink = true

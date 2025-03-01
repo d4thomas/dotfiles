@@ -20,7 +20,6 @@ endfunction
 syntax on
 autocmd Vimrc colorscheme * call Hi()
 
-hi Comment cterm=italic
 " Filetype settings
 filetype on
 filetype indent on
