@@ -1,19 +1,5 @@
 command_timeout = 10000
-
 palette = "catppuccin_mocha"
-
-[character]
-success_symbol = "[❯](green)"
-error_symbol = "[❯](red)"
-vimcmd_symbol = "[❮](subtext1)"
-
-[directory]
-style = "bold lavender"
-read_only = " 󰌾"
-
-[git_branch]
-style = "bold mauve"
-symbol = " "
 
 [palettes.catppuccin_mocha]
 rosewater = "#f5e0dc"
@@ -43,86 +29,131 @@ base = "#1e1e2e"
 mantle = "#181825"
 crust = "#11111b"
 
+[character]
+success_symbol = "[❯](green)"
+error_symbol = "[❯](red)"
+vimcmd_symbol = "[❮](subtext1)"
+
+[directory]
+read_only = " 󰌾"
+style = "lavender"
+
+[hostname]
+ssh_symbol = " "
+style = "yellow"
+
 [aws]
 symbol = "  "
+style = "yellow"
+
+[git_branch]
+symbol = " "
+style = "mauve"
+
+[fossil_branch]
+symbol = " "
+style = "mauve"
+
+[hg_branch]
+symbol = " "
+style = "mauve"
 
 [buf]
 symbol = " "
+style = "peach"
 
 [c]
 symbol = " "
+style = "peach"
 
 [conda]
 symbol = " "
+style = "peach"
 
 [crystal]
 symbol = " "
+style = "peach"
 
 [dart]
 symbol = " "
+style = "peach"
 
 [docker_context]
 symbol = " "
 
+[dotnet]
+symbol = "󰪮 "
+style = "peach"
+format = '(via [$symbol($version )(󰁔 $tfm )]($style))'
+
 [elixir]
 symbol = " "
+style = "peach"
 
 [elm]
 symbol = " "
+style = "peach"
 
 [fennel]
 symbol = " "
-
-[fossil_branch]
-symbol = " "
+style = "peach"
 
 [golang]
 symbol = " "
+style = "peach"
 
 [guix_shell]
 symbol = " "
+style = "peach"
 
 [haskell]
 symbol = " "
+style = "peach"
 
 [haxe]
 symbol = " "
+style = "peach"
 
-[hg_branch]
-symbol = " "
-
-[hostname]
-ssh_symbol = " "
 
 [java]
 symbol = " "
+style = "peach"
 
 [julia]
 symbol = " "
+style = "peach"
 
 [kotlin]
 symbol = " "
+style = "peach"
 
 [lua]
 symbol = " "
+style = "peach"
 
 [memory_usage]
 symbol = "󰍛 "
+style = "peach"
 
 [meson]
 symbol = "󰔷 "
+style = "peach"
 
 [nim]
 symbol = "󰆥 "
+style = "peach"
 
 [nix_shell]
 symbol = " "
+style = "peach"
 
 [nodejs]
 symbol = " "
+style = "peach"
 
 [ocaml]
 symbol = " "
+style = "peach"
 
 [os.symbols]
 Alpaquita = " "
@@ -171,33 +202,46 @@ Windows = "󰍲 "
 
 [package]
 symbol = "󰏗 "
+style = "peach"
 
 [perl]
 symbol = " "
+style = "peach"
 
 [php]
 symbol = " "
+style = "peach"
 
 [pijul_channel]
 symbol = " "
+style = "peach"
 
 [python]
 symbol = " "
+style = "peach"
+
 
 [rlang]
 symbol = "󰟔 "
+style = "peach"
 
 [ruby]
 symbol = " "
+style = "peach"
 
 [rust]
 symbol = " "
+style = "peach"
 
 [scala]
 symbol = " "
+style = "peach"
 
 [swift]
 symbol = " "
+style = "peach"
 
 [zig]
 symbol = " "
+style = "peach"
+format = '(via [$symbol($version )]($style))'

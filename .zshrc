@@ -44,6 +44,11 @@ if command -v starship &> /dev/null; then
     export VIRTUAL_ENV_DISABLE_PROMPT=1
 fi
 
+# Configure LS_COLORS
+if command -v vivid &> /dev/null; then
+    export LS_COLORS="$(vivid generate catppuccin-mocha)"
+fi
+
 # Configure fzf
 if command -v fzf &> /dev/null; then
     # Setup keybindings: CTRL-t (fzf), CTRL-r (shell), Option-c (cd ...)
