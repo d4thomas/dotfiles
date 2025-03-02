@@ -38,6 +38,9 @@ vimcmd_symbol = "[❮](subtext1)"
 read_only = " 󰌾"
 style = "lavender"
 
+[cmd_duration]
+style = "yellow"
+
 [hostname]
 ssh_symbol = " "
 style = "yellow"
@@ -244,4 +247,3 @@ style = "peach"
 [zig]
 symbol = " "
 style = "peach"
-format = '(via [$symbol($version )]($style))'
