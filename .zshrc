@@ -91,6 +91,7 @@ if command -v rg &> /dev/null; then
     alias grep='rg'
 fi
 
+# Zsh functions
 commit() {
   if [[ -z "$1" || -z "$2" ]]; then
     echo "Usage: commit [-g|-y] commit message"
@@ -103,7 +104,7 @@ commit() {
     *) echo "Error: First argument must be '-g' for git or '-y' for yadm."; return 1 ;;
   esac
 
-  shift  # Remove the first argument (-g or -y) so $1 is now the commit message
+  shift
   $cmd add -u
   $cmd commit -m "$*"
 }
