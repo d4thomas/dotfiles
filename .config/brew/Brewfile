@@ -20,7 +20,6 @@ brew "trash", link: true
 brew "unar"
 brew "vivid"
 brew "wget"
-brew "yadm"
 brew "zsh-autosuggestions"
 brew "zsh-completions"
 brew "zsh-syntax-highlighting"
