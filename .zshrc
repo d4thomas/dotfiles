@@ -113,14 +113,3 @@ restore-dotfiles() {
     git --git-dir='$HOME/.dotfiles' --work-tree='$HOME' config --local status.showUntrackedFiles no
     git --git-dir='$HOME/.dotfiles' --work-tree='$HOME' checkout -f
 }
-
-# Zsh functions
-commit() {
-  if [[ -z "$1" ]]; then
-    echo "Usage: commit commit_message"
-    return 1
-  fi
-
-  git add -u
-  git commit -m "$*"
-}
