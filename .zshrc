@@ -91,20 +91,36 @@ if command -v rg &> /dev/null; then
     alias grep='rg'
 fi
 
+# Setup dot files maintenance
+if command -v git &> /dev/null; then
+    alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+fi
+
+init-dotfiles() {
+    mkdir -p "$HOME/.dotfiles"
+    git init --bare "$HOME/.dotfiles"
+    git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" config --local status.showUntrackedFiles no
+    git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" branch -M main
+}
+
+restore-dotfiles() {
+    if [ -z '$1' ]; then
+        echo 'Usage: init-dotfiles <github-repo-url>'
+        return 1
+    fi
+
+    git clone --bare '$1' '$HOME/.dotfiles'
+    git --git-dir='$HOME/.dotfiles' --work-tree='$HOME' config --local status.showUntrackedFiles no
+    git --git-dir='$HOME/.dotfiles' --work-tree='$HOME' checkout -f
+}
+
 # Zsh functions
 commit() {
-  if [[ -z "$1" || -z "$2" ]]; then
-    echo "Usage: commit [-g|-y] commit message"
+  if [[ -z "$1" ]]; then
+    echo "Usage: commit commit_message"
     return 1
   fi
 
-  case "$1" in
-    -g) cmd="git" ;;
-    -y) cmd="yadm" ;;
-    *) echo "Error: First argument must be '-g' for git or '-y' for yadm."; return 1 ;;
-  esac
-
-  shift
-  $cmd add -u
-  $cmd commit -m "$*"
+  git add -u
+  git commit -m "$*"
 }
