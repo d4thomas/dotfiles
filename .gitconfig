@@ -1,6 +1,6 @@
 [user]
-    email = 152221911+iiixio@users.noreply.github.com
-    name = iiixio
+    email = 152221911+d4thomas@users.noreply.github.com
+    name = d4thomas
 [filter "lfs"]
     clean = git-lfs clean -- %f
     smudge = git-lfs smudge -- %f
