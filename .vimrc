@@ -70,6 +70,8 @@ map <leader>bd :bdelete<cr>
 map <leader>bc :enew<cr>
 map <leader>bl :ls<cr>
 nnoremap <Esc><Esc> :nohlsearch<CR>
+nmap <silent> <up> gk
+nmap <silent> <down> gj
 
 " When wrapping, try to break at characters in breakat
 set linebreak
@@ -94,10 +96,6 @@ set background=dark
 
 " Enable autoindenting
 set ai
-
-" Switch cursor when in insert mode
-let &t_SI="\e[5 q"
-let &t_EI="\e[1 q"
 
 " Highlight line when in insert mode
 autocmd InsertEnter * set cul
