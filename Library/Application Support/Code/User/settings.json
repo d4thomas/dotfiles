@@ -38,7 +38,7 @@
 },
 
 "extensions.ignoreRecommendations": true,
-"github.copilot.editor.enableAutoCompletions": false,  
+"github.copilot.editor.enableAutoCompletions": false,
 "redhat.telemetry.enabled": false,
 "quokka.automaticRestart": true,
 "mdb.confirmRunAll": false,

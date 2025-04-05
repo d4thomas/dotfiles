@@ -2,6 +2,8 @@
 
 echo "Processing directories..."
 
+source ~/.venv/bin/activate
+
 for dir in */; do
     dir_name="${dir%/}"
     echo "Cleaning up $dir..."
@@ -37,5 +39,7 @@ for dir in */; do
         echo "Renamed and moved ${dir_name}.pdf to parent directory"
     fi
 done
+
+deactivate
 
 echo "Process complete!"
