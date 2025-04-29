@@ -80,7 +80,7 @@ export GNUPGHOME="$HOME/.config/gnupg"
 if command -v eza &> /dev/null; then
     HIDDEN=".DS_Store"
     alias ls='eza --no-quotes --ignore-glob="$HIDDEN"'
-    alias lsa='eza --no-quotes -a'
+    alias lsa='eza -a'
     alias lsg='eza --no-quotes --group-directories-first --ignore-glob="$HIDDEN"'
     alias lst='eza --no-quotes --long --classify --all --header --git --no-user --tree --ignore-glob="$HIDDEN" --git --level'
 fi
