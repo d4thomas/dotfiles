@@ -37,7 +37,7 @@ if [ -f "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.
         ZSH_HIGHLIGHT_STYLES[precommand]=none
 fi
 
-# Configure Starshi prompt
+# Configure Starship prompt
 if command -v starship &> /dev/null; then
     eval "$(starship init zsh)"
     # Let Starship handle virtual environment status
