@@ -104,12 +104,12 @@ init-dotfiles() {
 }
 
 restore-dotfiles() {
-    if [ -z '$1' ]; then
-        echo 'Usage: init-dotfiles <github-repo-url>'
+    if [ -z "$1" ]; then
+        echo "Usage: init-dotfiles <github-repo-url>"
         return 1
     fi
 
-    git clone --bare '$1' '$HOME/.dotfiles'
-    git --git-dir='$HOME/.dotfiles' --work-tree='$HOME' config --local status.showUntrackedFiles no
-    git --git-dir='$HOME/.dotfiles' --work-tree='$HOME' checkout -f
+    git clone --bare "$1" "$HOME/.dotfiles"
+    git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" config --local status.showUntrackedFiles no
+    git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" checkout -f
 }
