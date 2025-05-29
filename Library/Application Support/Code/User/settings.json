@@ -7,8 +7,8 @@
     "workbench.editor.empty.hint": "hidden",
     "inlineChat.lineNaturalLanguageHint": false,
     "workbench.startupEditor": "newUntitledFile",
-    "workbench.iconTheme": "catppuccin-mocha",
-    "workbench.colorTheme": "Catppuccin Mocha",
+    "workbench.iconTheme": "catppuccin-latte",
+    "workbench.colorTheme": "Catppuccin Latte",
         "workbench.colorCustomizations": {
             "focusBorder": "#23263400",
         },
