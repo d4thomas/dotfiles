@@ -117,7 +117,6 @@ style = "peach"
 symbol = " "
 style = "peach"
 
-
 [java]
 symbol = " "
 style = "peach"
@@ -222,7 +221,6 @@ style = "peach"
 [python]
 symbol = " "
 style = "peach"
-
 
 [rlang]
 symbol = "󰟔 "
