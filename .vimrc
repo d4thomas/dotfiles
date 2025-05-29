@@ -8,7 +8,7 @@ set termguicolors
 set rtp+=/opt/homebrew/opt/fzf
 
 " Set colorscheme
-colorscheme colors
+colorscheme catppuccin_latte
 
 " Add italics to comments
 augroup Vimrc

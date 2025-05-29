@@ -1,3 +1,5 @@
+" Name: catppuccin_latte.vim
+
 set background=dark
 hi clear
 
@@ -5,7 +7,7 @@ if exists('syntax on')
     syntax reset
 endif
 
-let g:colors_name='colors'
+let g:colors_name='catppuccin_latte'
 set t_Co=256
 
 let s:rosewater = "#DC8A78"
@@ -36,7 +38,6 @@ let s:surface0 = "#CCD0DA"
 let s:base = "#EFF1F5"
 let s:mantle = "#E6E9EF"
 let s:crust = "#DCE0E8"
-
 
 function! s:hi(group, guisp, guifg, guibg, gui, cterm)
   let cmd = ""
@@ -157,6 +158,6 @@ hi link Ignore Comment
 
 " Set terminal colors for playing well with plugins like fzf
 let g:terminal_ansi_colors = [
-  \ s:surface1, s:red, s:green, s:yellow, s:blue, s:pink, s:teal, s:subtext1,
-  \ s:surface2, s:red, s:green, s:yellow, s:blue, s:pink, s:teal, s:subtext0
+  \ s:subtext1, s:red, s:green, s:yellow, s:blue, s:pink, s:teal, s:surface2,
+  \ s:subtext0, s:red, s:green, s:yellow, s:blue, s:pink, s:teal, s:surface1
 \ ]
