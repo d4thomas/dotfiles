@@ -8,7 +8,7 @@ set termguicolors
 set rtp+=/opt/homebrew/opt/fzf
 
 " Set colorscheme
-colorscheme catppuccin_latte
+colorscheme github-light-default
 
 " Add italics to comments
 augroup Vimrc
@@ -91,15 +91,11 @@ set number
 " Enable syntax highlighting
 syntax on
 
-" Set dark background
-set background=dark
-
 " Enable autoindenting
 set ai
 
 " Highlight line when in insert mode
-autocmd InsertEnter * set cul
-autocmd InsertLeave * set nocul
+set cursorline
 
 " Backspace over anything
 set backspace=indent,eol,start

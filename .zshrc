@@ -45,9 +45,9 @@ if command -v starship &> /dev/null; then
 fi
 
 # Configure LS_COLORS
-if command -v vivid &> /dev/null; then
-    export LS_COLORS="$(vivid generate catppuccin-latte)"
-fi
+# if command -v vivid &> /dev/null; then
+    export LS_COLORS="$(vivid generate github-light-default)"
+# fi
 
 # Configure fzf
 if command -v fzf &> /dev/null; then
@@ -59,10 +59,10 @@ if command -v fzf &> /dev/null; then
         --layout=reverse-list
         --info=inline
         --pointer=""
-        --color=bg+:#ccd0da,bg:#eff1f5,spinner:#dc8a78,hl:#d20f39 \
-        --color=fg:#4c4f69,header:#d20f39,info:#8839ef,pointer:#dc8a78 \
-        --color=marker:#7287fd,fg+:#4c4f69,prompt:#8839ef,hl+:#d20f39 \
-        --color=selected-bg:#bcc0cc \
+        --color=bg+:#d1d5da,bg:#ffffff,spinner:#be3535,hl:#be3535 \
+        --color=fg:#4488f6,header:#be3535,info:#7a52d7,pointer:#be3535 \
+        --color=marker:#9c76f1,fg+:#4488f6,prompt:#7a52d7,hl+:#be3535 \
+        --color=selected-bg:#c3c7ce \
         --multi"
 fi
 
@@ -78,6 +78,7 @@ export GNUPGHOME="$HOME/.config/gnupg"
 
 # Set aliases
 if command -v eza &> /dev/null; then
+    export EZA_CONFIG_DIR="$HOME/.config"
     HIDDEN=".DS_Store"
     alias ls='eza --no-quotes --ignore-glob="$HIDDEN"'
     alias lsa='eza -a'

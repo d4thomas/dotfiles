@@ -1,0 +1,136 @@
+colors:
+  background: 'ffffff'
+  text: '4488f6'
+  foreground: '8d949e'
+  muted: '585f69'
+  red: 'be3535'
+  green: '2d612f'
+  yellow: '482e0a'
+  blue: '2e67d2'
+  purple: '7a52d7'
+  orange: '96222b'
+  cyan: '3b7a81'
+  gray: '6f7680'
+  pink: '9c76f1'
+  link: '4e90a7'
+  light_green_bg: '3c7d3f'
+  light_red_bg: '5d3d11'
+
+core:
+  normal_text:
+    foreground: text
+
+  regular_file: {}
+  reset_to_normal: {}
+
+  directory:
+    foreground: blue
+
+  symlink:
+    foreground: pink
+
+  multi_hard_link:
+    foreground: orange
+
+  fifo:
+    foreground: foreground
+    background: gray
+
+  socket:
+    foreground: background
+    background: pink
+
+  door:
+    foreground: background
+    background: red
+
+  block_device:
+    foreground: cyan
+    background: gray
+
+  character_device:
+    foreground: red
+    background: gray
+
+  broken_symlink:
+    foreground: background
+    background: red
+
+  missing_symlink_target:
+    foreground: background
+    background: red
+
+  executable_file:
+    foreground: red
+    font-style: bold
+
+  setuid:
+    foreground: background
+    background: red
+
+  setgid:
+    foreground: background
+    background: orange
+
+  file_with_capability:
+    foreground: green
+
+  sticky_other_writable:
+    foreground: background
+    background: orange
+
+  other_writable:
+    foreground: background
+    background: yellow
+
+  sticky:
+    foreground: background
+    background: blue
+
+text:
+  special:
+    foreground: background
+    background: yellow
+
+  todo:
+    foreground: red
+    font-style: bold
+
+  licenses:
+    foreground: muted
+
+  configuration:
+    foreground: orange
+
+  other:
+    foreground: yellow
+
+markup:
+  foreground: green
+
+programming:
+  source:
+    foreground: green
+
+  tooling:
+    foreground: purple
+
+  continuous-integration:
+    foreground: purple
+
+media:
+  foreground: blue
+
+office:
+  foreground: red
+
+archives:
+  foreground: cyan
+  font-style: underline
+
+executable:
+  foreground: red
+  font-style: bold
+
+unimportant:
+  foreground: muted

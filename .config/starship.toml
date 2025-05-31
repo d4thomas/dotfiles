@@ -1,161 +1,196 @@
 command_timeout = 10000
-palette = "colors"
+palette = "github-light-default"
 
-[palettes.colors]
-rosewater = "#dc8a78"
-flamingo = "#dd7878"
-pink = "#ea76cb"
-mauve = "#8839ef"
-red = "#d20f39"
-maroon = "#e64553"
-peach = "#fe640b"
-yellow = "#df8e1d"
-green = "#40a02b"
-teal = "#179299"
-sky = "#04a5e5"
-sapphire = "#209fb5"
-blue = "#1e66f5"
-lavender = "#7287fd"
-text = "#4c4f69"
-subtext1 = "#5c5f77"
-subtext0 = "#6c6f85"
-overlay2 = "#7c7f93"
-overlay1 = "#8c8fa1"
-overlay0 = "#9ca0b0"
-surface2 = "#acb0be"
-surface1 = "#bcc0cc"
-surface0 = "#ccd0da"
-base = "#eff1f5"
-mantle = "#e6e9ef"
-crust = "#dce0e8"
+[palettes.github-light-default]
+fg = "#24292f"
+muted = "#6a737d"
+accent = "#0366d6"
+keyword = "#d73a49"
+function = "#6f42c1"
+string = "#032f62"
+number = "#005cc5"
+class = "#005cc5"
+variable = "#e36209"
+constant = "#005cc5"
+tag = "#22863a"
+attribute = "#6f42c1"
+punctuation = "#24292f"
+invalid = "#d73a49"
+bg = "#ffffff"
+selection = "#c8e1ff"
 
 [character]
-success_symbol = "[❯](green)"
-error_symbol = "[❯](red)"
-vimcmd_symbol = "[❮](subtext1)"
+success_symbol = "[❯](tag)"
+error_symbol = "[❯](keyword)"
+vimcmd_symbol = "[❮](muted)"
 
 [directory]
 read_only = " 󰌾"
-style = "lavender"
+style = "function"
 
 [cmd_duration]
-style = "yellow"
+style = "variable"
 
 [hostname]
 ssh_symbol = " "
-style = "yellow"
+style = "variable"
 
 [aws]
 symbol = "  "
-style = "yellow"
+style = "variable"
 
 [git_branch]
 symbol = " "
-style = "mauve"
+style = "keyword"
 
 [fossil_branch]
 symbol = " "
-style = "mauve"
+style = "keyword"
 
 [hg_branch]
 symbol = " "
-style = "mauve"
+style = "keyword"
 
 [buf]
 symbol = " "
-style = "peach"
+style = "class"
 
+# --- Language & Tools ---
 [c]
 symbol = " "
-style = "peach"
+style = "class"
 
 [conda]
 symbol = " "
-style = "peach"
+style = "class"
 
 [crystal]
 symbol = " "
-style = "peach"
+style = "class"
 
 [dart]
 symbol = " "
-style = "peach"
+style = "class"
 
 [docker_context]
 symbol = " "
 
 [dotnet]
 symbol = "󰪮 "
-style = "peach"
+style = "class"
 format = '(via [$symbol($version )(󰁔 $tfm )]($style))'
 
 [elixir]
 symbol = " "
-style = "peach"
+style = "class"
 
 [elm]
 symbol = " "
-style = "peach"
+style = "class"
 
 [fennel]
 symbol = " "
-style = "peach"
+style = "class"
 
 [golang]
 symbol = " "
-style = "peach"
+style = "class"
 
 [guix_shell]
 symbol = " "
-style = "peach"
+style = "class"
 
 [haskell]
 symbol = " "
-style = "peach"
+style = "class"
 
 [haxe]
 symbol = " "
-style = "peach"
+style = "class"
 
 [java]
 symbol = " "
-style = "peach"
+style = "class"
 
 [julia]
 symbol = " "
-style = "peach"
+style = "class"
 
 [kotlin]
 symbol = " "
-style = "peach"
+style = "class"
 
 [lua]
 symbol = " "
-style = "peach"
+style = "class"
 
 [memory_usage]
 symbol = "󰍛 "
-style = "peach"
+style = "class"
 
 [meson]
 symbol = "󰔷 "
-style = "peach"
+style = "class"
 
 [nim]
 symbol = "󰆥 "
-style = "peach"
+style = "class"
 
 [nix_shell]
 symbol = " "
-style = "peach"
+style = "class"
 
 [nodejs]
 symbol = " "
-style = "peach"
+style = "class"
 
 [ocaml]
 symbol = " "
-style = "peach"
+style = "class"
+
+[package]
+symbol = "󰏗 "
+style = "class"
+
+[perl]
+symbol = " "
+style = "class"
+
+[php]
+symbol = " "
+style = "class"
+
+[pijul_channel]
+symbol = " "
+style = "class"
+
+[python]
+symbol = " "
+style = "class"
+
+[rlang]
+symbol = "󰟔 "
+style = "class"
+
+[ruby]
+symbol = " "
+style = "class"
+
+[rust]
+symbol = " "
+style = "class"
+
+[scala]
+symbol = " "
+style = "class"
+
+[swift]
+symbol = " "
+style = "class"
+
+[zig]
+symbol = " "
+style = "class"
 
 [os.symbols]
 Alpaquita = " "
@@ -201,47 +236,3 @@ Ubuntu = " "
 Unknown = " "
 Void = " "
 Windows = "󰍲 "
-
-[package]
-symbol = "󰏗 "
-style = "peach"
-
-[perl]
-symbol = " "
-style = "peach"
-
-[php]
-symbol = " "
-style = "peach"
-
-[pijul_channel]
-symbol = " "
-style = "peach"
-
-[python]
-symbol = " "
-style = "peach"
-
-[rlang]
-symbol = "󰟔 "
-style = "peach"
-
-[ruby]
-symbol = " "
-style = "peach"
-
-[rust]
-symbol = " "
-style = "peach"
-
-[scala]
-symbol = " "
-style = "peach"
-
-[swift]
-symbol = " "
-style = "peach"
-
-[zig]
-symbol = " "
-style = "peach"

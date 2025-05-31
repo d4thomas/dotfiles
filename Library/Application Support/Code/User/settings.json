@@ -7,8 +7,6 @@
     "workbench.editor.empty.hint": "hidden",
     "inlineChat.lineNaturalLanguageHint": false,
     "workbench.startupEditor": "newUntitledFile",
-    "workbench.iconTheme": "catppuccin-latte",
-    "workbench.colorTheme": "Catppuccin Latte",
         "workbench.colorCustomizations": {
             "focusBorder": "#23263400",
         },
@@ -49,4 +47,5 @@
         "markdown": false,
         "scminput": false
     },
+    "workbench.colorTheme": "GitHub Light Default",
 }
