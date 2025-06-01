@@ -2,195 +2,184 @@ command_timeout = 10000
 palette = "github-light-default"
 
 [palettes.github-light-default]
-fg = "#24292f"
-muted = "#6a737d"
-accent = "#0366d6"
-keyword = "#d73a49"
-function = "#6f42c1"
-string = "#032f62"
-number = "#005cc5"
-class = "#005cc5"
-variable = "#e36209"
-constant = "#005cc5"
-tag = "#22863a"
-attribute = "#6f42c1"
-punctuation = "#24292f"
-invalid = "#d73a49"
-bg = "#ffffff"
-selection = "#c8e1ff"
+gray = "#6a737d"
+red = "#d73a49"
+blue = "#005cc5"
+purple = "#6f42c1"
+orange = "#e36209"
+green = "#22863a"
 
 [character]
-success_symbol = "[❯](tag)"
-error_symbol = "[❯](keyword)"
-vimcmd_symbol = "[❮](muted)"
+success_symbol = "[❯](green)"
+error_symbol = "[❯](red)"
+vimcmd_symbol = "[❮](gray)"
 
 [directory]
 read_only = " 󰌾"
-style = "function"
+style = "blue"
 
 [cmd_duration]
-style = "variable"
+style = "orange"
 
 [hostname]
 ssh_symbol = " "
-style = "variable"
+style = "orange"
 
 [aws]
 symbol = "  "
-style = "variable"
+style = "orange"
 
 [git_branch]
 symbol = " "
-style = "keyword"
+style = "red"
 
 [fossil_branch]
 symbol = " "
-style = "keyword"
+style = "red"
 
 [hg_branch]
 symbol = " "
-style = "keyword"
+style = "red"
 
 [buf]
 symbol = " "
-style = "class"
+style = "purple"
 
-# --- Language & Tools ---
 [c]
 symbol = " "
-style = "class"
+style = "purple"
 
 [conda]
 symbol = " "
-style = "class"
+style = "purple"
 
 [crystal]
 symbol = " "
-style = "class"
+style = "purple"
 
 [dart]
 symbol = " "
-style = "class"
+style = "purple"
 
 [docker_context]
 symbol = " "
 
 [dotnet]
 symbol = "󰪮 "
-style = "class"
+style = "purple"
 format = '(via [$symbol($version )(󰁔 $tfm )]($style))'
 
 [elixir]
 symbol = " "
-style = "class"
+style = "purple"
 
 [elm]
 symbol = " "
-style = "class"
+style = "purple"
 
 [fennel]
 symbol = " "
-style = "class"
+style = "purple"
 
 [golang]
 symbol = " "
-style = "class"
+style = "purple"
 
 [guix_shell]
 symbol = " "
-style = "class"
+style = "purple"
 
 [haskell]
 symbol = " "
-style = "class"
+style = "purple"
 
 [haxe]
 symbol = " "
-style = "class"
+style = "purple"
 
 [java]
 symbol = " "
-style = "class"
+style = "purple"
 
 [julia]
 symbol = " "
-style = "class"
+style = "purple"
 
 [kotlin]
 symbol = " "
-style = "class"
+style = "purple"
 
 [lua]
 symbol = " "
-style = "class"
+style = "purple"
 
 [memory_usage]
 symbol = "󰍛 "
-style = "class"
+style = "purple"
 
 [meson]
 symbol = "󰔷 "
-style = "class"
+style = "purple"
 
 [nim]
 symbol = "󰆥 "
-style = "class"
+style = "purple"
 
 [nix_shell]
 symbol = " "
-style = "class"
+style = "purple"
 
 [nodejs]
 symbol = " "
-style = "class"
+style = "purple"
 
 [ocaml]
 symbol = " "
-style = "class"
+style = "purple"
 
 [package]
 symbol = "󰏗 "
-style = "class"
+style = "purple"
 
 [perl]
 symbol = " "
-style = "class"
+style = "purple"
 
 [php]
 symbol = " "
-style = "class"
+style = "purple"
 
 [pijul_channel]
 symbol = " "
-style = "class"
+style = "purple"
 
 [python]
 symbol = " "
-style = "class"
+style = "purple"
 
 [rlang]
 symbol = "󰟔 "
-style = "class"
+style = "purple"
 
 [ruby]
 symbol = " "
-style = "class"
+style = "purple"
 
 [rust]
 symbol = " "
-style = "class"
+style = "purple"
 
 [scala]
 symbol = " "
-style = "class"
+style = "purple"
 
 [swift]
 symbol = " "
-style = "class"
+style = "purple"
 
 [zig]
 symbol = " "
-style = "class"
+style = "purple"
 
 [os.symbols]
 Alpaquita = " "

@@ -7,14 +7,12 @@
     "workbench.editor.empty.hint": "hidden",
     "inlineChat.lineNaturalLanguageHint": false,
     "workbench.startupEditor": "newUntitledFile",
-        "workbench.colorCustomizations": {
+    "workbench.colorTheme": "GitHub Light",
+    "workbench.colorCustomizations": {
             "focusBorder": "#23263400",
         },
-    "catppuccin.italicKeywords": false,
     "explorer.autoReveal": false,
     "editor.minimap.enabled": false,
-
-
     "editor.fontFamily": "BlexMono Nerd Font",
     "terminal.integrated.fontFamily": "BlexMono Nerd Font",
     "editor.detectIndentation": false,
@@ -47,5 +45,4 @@
         "markdown": false,
         "scminput": false
     },
-    "workbench.colorTheme": "GitHub Light Default",
 }
