@@ -1,9 +1,5 @@
 set nocompatible
 
-" Setup Vim for colorscheme
-set t_Co=256
-set termguicolors
-
 " Setup fzf
 set rtp+=/opt/homebrew/opt/fzf
 
