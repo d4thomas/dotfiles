@@ -14,9 +14,9 @@ hi Cursor       guifg=#ffffff guibg=#0969da ctermfg=231 ctermbg=26
 hi Visual       guibg=#cce5ff ctermbg=153
 hi LineNr       guifg=#d0d7de guibg=#ffffff ctermfg=252 ctermbg=231
 hi CursorLine   guibg=#f6f8fa ctermbg=254 gui=NONE cterm=NONE
-hi CursorLineNr guifg=#24292f guibg=#f6f8fa gui=NONE cterm=NONE
+hi CursorLineNr guifg=#6e7781 guibg=#f6f8fa gui=NONE ctermfg=243 ctermbg=254 cterm=NONE
 hi StatusLine   guifg=#57606a guibg=#f6f8fa gui=bold ctermfg=242 ctermbg=254
-hi StatusLineNC guifg=#d0d7de guibg=#f6f8fa ctermfg=252 ctermbg=254
+hi StatusLineNC guifg=#d8dee4 guibg=#f6f8fa ctermfg=252 ctermbg=254
 hi VertSplit    guifg=#d8dee4 guibg=#f6f8fa ctermfg=252 ctermbg=254
 hi Pmenu        guifg=#1f2328 guibg=#f6f8fa ctermfg=16 ctermbg=254
 hi PmenuSel     guifg=#ffffff guibg=#0969da ctermfg=231 ctermbg=26
@@ -58,7 +58,7 @@ hi Special      guifg=#24292f ctermfg=16
 hi Delimiter    guifg=#57606a ctermfg=242
 hi Underlined   guifg=#0969da gui=underline ctermfg=26
 hi Error        guifg=#ffffff guibg=#cf222e ctermfg=231 ctermbg=160
-hi Todo         guifg=#ffffff guibg=#bf8700 ctermfg=231 ctermbg=136
+hi Todo         guifg=#ffffff guibg=#9a6700 ctermfg=231 ctermbg=130
 
 " Diffs
 hi DiffAdd      guibg=#ddf4ff ctermbg=153
@@ -66,13 +66,13 @@ hi DiffChange   guibg=#fff8c5 ctermbg=229
 hi DiffDelete   guifg=#82071e guibg=#ffeef0 ctermfg=88 ctermbg=217
 hi DiffText     guibg=#c2e0ff ctermbg=153
 
-" GitGutter / SignColumn
+" GitGutter/SignColumn
 hi SignColumn   guibg=#ffffff ctermbg=231
 hi GitGutterAdd    guifg=#116329 ctermfg=28
 hi GitGutterChange guifg=#bf8700 ctermfg=136
 hi GitGutterDelete guifg=#82071e ctermfg=88
 
-" Markdown (Optional Enhancements)
+" Markdown
 hi markdownHeadingDelimiter guifg=#0550ae gui=bold ctermfg=25
 hi markdownCode             guifg=#24292f guibg=#f6f8fa ctermfg=16 ctermbg=254
 hi markdownCodeBlock        guifg=#24292f guibg=#f6f8fa ctermfg=16 ctermbg=254

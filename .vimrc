@@ -1,5 +1,8 @@
 set nocompatible
 
+" Set colors
+set termguicolors
+
 " Setup fzf
 set rtp+=/opt/homebrew/opt/fzf
 

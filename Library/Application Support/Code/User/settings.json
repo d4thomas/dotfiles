@@ -16,7 +16,6 @@
     "editor.fontFamily": "BlexMono Nerd Font",
     "terminal.integrated.fontFamily": "BlexMono Nerd Font",
     "editor.detectIndentation": false,
-    "editor.rulers": [80, 120],
     "editor.wordWrap": "on",
     "editor.links": false,
     "editor.stickyScroll.enabled": false,
