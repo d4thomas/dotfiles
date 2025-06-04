@@ -44,56 +44,15 @@ if command -v starship &> /dev/null; then
     export VIRTUAL_ENV_DISABLE_PROMPT=1
 fi
 
-# Configure LS_COLORS
-if command -v vivid &> /dev/null; then
-    export LS_COLORS="$(vivid generate github-light-default)"
-fi
-
-# Configure fzf
-if command -v fzf &> /dev/null; then
-    # Setup keybindings: CTRL-t (fzf), CTRL-r (shell), Option-c (cd ...)
-    eval "$(fzf --zsh)"
-
-    # Configure color theme
-    export FZF_DEFAULT_OPTS="
-        --layout=reverse-list
-        --info=inline
-        --pointer=""
-        --color=bg+:#d1d5da,bg:#ffffff,spinner:#be3535,hl:#be3535 \
-        --color=fg:#4488f6,header:#be3535,info:#7a52d7,pointer:#be3535 \
-        --color=marker:#9c76f1,fg+:#4488f6,prompt:#7a52d7,hl+:#be3535 \
-        --color=selected-bg:#c3c7ce \
-        --multi"
-fi
-
-# Configure bat
-if command -v bat &> /dev/null; then
-    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-    alias cat='bat -pp'
-fi
-
 # Clean home directory
 export LESSHISTFILE=-
 export GNUPGHOME="$HOME/.config/gnupg"
 
 # Set aliases
-if command -v eza &> /dev/null; then
-    export EZA_CONFIG_DIR="$HOME/.config"
-    HIDDEN=".DS_Store"
-    alias ls='eza --no-quotes --ignore-glob="$HIDDEN"'
-    alias lsa='eza -a'
-    alias lsg='eza --no-quotes --group-directories-first --ignore-glob="$HIDDEN"'
-    alias lst='eza --no-quotes --long --classify --all --header --git --no-user --tree --ignore-glob="$HIDDEN" --git --level'
-else
-    alias ls='ls --color'
-fi
+alias ls='ls --color'
+alias grep='grep --color'
 if command -v trash &> /dev/null; then
     alias rm='trash'
-fi
-if command -v rg &> /dev/null; then
-    alias grep='rg'
-else
-    alias grep='grep --color'
 fi
 
 # Setup dot files maintenance

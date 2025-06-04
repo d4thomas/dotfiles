@@ -7,9 +7,11 @@
     "workbench.editor.empty.hint": "hidden",
     "inlineChat.lineNaturalLanguageHint": false,
     "workbench.startupEditor": "newUntitledFile",
-    "workbench.colorTheme": "GitHub Light",
+    "workbench.colorTheme": "Monokai Pro Light",
+    "workbench.iconTheme": "Monokai Pro Light Icons",
     "workbench.colorCustomizations": {
             "focusBorder": "#23263400",
+            "editorInlayHint.background": "#23263400",
         },
     "explorer.autoReveal": false,
     "editor.minimap.enabled": false,
@@ -24,12 +26,12 @@
     "editor.tokenColorCustomizations": {
     "textMateRules": [
         {
-        "scope": [
-            "comment",
-        ],
-        "settings": {
-            "fontStyle": "italic"
-        }
+            "scope": [
+                "comment",
+            ],
+            "settings": {
+                "fontStyle": "italic"
+            }
         }
     ]
     },

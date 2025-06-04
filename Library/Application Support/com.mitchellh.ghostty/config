@@ -21,4 +21,4 @@ window-height = 45
 confirm-close-surface = false
 clipboard-paste-protection = false
 
-theme = github-light-default
+theme = "Monokai Pro Light"

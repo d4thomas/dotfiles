@@ -3,18 +3,17 @@ set nocompatible
 " Set colors
 set termguicolors
 
-" Set colorscheme
-colorscheme github-light-default
+" Set color scheme
+colorscheme colors
 
-" Add italics to comments
-augroup Vimrc
-    autocmd!
-augroup END
-function Hi()
-    hi Comment cterm=italic
-endfunction
+" Enable syntax highlighting
 syntax on
-autocmd Vimrc colorscheme * call Hi()
+
+" Italic comments
+augroup VimCommentStyle
+    autocmd!
+    autocmd Syntax * highlight Comment gui=italic cterm=italic
+augroup END
 
 " Filetype settings
 filetype on
@@ -34,6 +33,7 @@ set list
 
 " Hide EOB chatacters
 let &fillchars ..= ',eob: '
+set fillchars=eob:\ 
 
 " Status line
 set statusline=
@@ -89,9 +89,6 @@ syntax on
 
 " Enable autoindenting
 set ai
-
-" Highlight line when in insert mode
-set cursorline
 
 " Backspace over anything
 set backspace=indent,eol,start
