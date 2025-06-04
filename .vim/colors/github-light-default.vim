@@ -67,10 +67,10 @@ hi DiffDelete   guifg=#82071e guibg=#ffeef0 ctermfg=88 ctermbg=217
 hi DiffText     guibg=#c2e0ff ctermbg=153
 
 " GitGutter/SignColumn
-hi SignColumn   guibg=#ffffff ctermbg=231
-hi GitGutterAdd    guifg=#116329 ctermfg=28
-hi GitGutterChange guifg=#bf8700 ctermfg=136
-hi GitGutterDelete guifg=#82071e ctermfg=88
+hi SignColumn       guibg=#ffffff ctermbg=231
+hi GitGutterAdd     guifg=#116329 ctermfg=28
+hi GitGutterChange  guifg=#bf8700 ctermfg=136
+hi GitGutterDelete  guifg=#82071e ctermfg=88
 
 " Markdown
 hi markdownHeadingDelimiter guifg=#0550ae gui=bold ctermfg=25

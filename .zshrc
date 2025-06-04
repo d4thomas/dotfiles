@@ -45,9 +45,9 @@ if command -v starship &> /dev/null; then
 fi
 
 # Configure LS_COLORS
-# if command -v vivid &> /dev/null; then
+if command -v vivid &> /dev/null; then
     export LS_COLORS="$(vivid generate github-light-default)"
-# fi
+fi
 
 # Configure fzf
 if command -v fzf &> /dev/null; then
@@ -84,12 +84,16 @@ if command -v eza &> /dev/null; then
     alias lsa='eza -a'
     alias lsg='eza --no-quotes --group-directories-first --ignore-glob="$HIDDEN"'
     alias lst='eza --no-quotes --long --classify --all --header --git --no-user --tree --ignore-glob="$HIDDEN" --git --level'
+else
+    alias ls='ls --color'
 fi
 if command -v trash &> /dev/null; then
     alias rm='trash'
 fi
 if command -v rg &> /dev/null; then
     alias grep='rg'
+else
+    alias grep='grep --color'
 fi
 
 # Setup dot files maintenance
