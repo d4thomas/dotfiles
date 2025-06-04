@@ -4,7 +4,7 @@ set nocompatible
 set termguicolors
 
 " Set color scheme
-colorscheme colors
+colorscheme monokai-pro-light
 
 " Enable syntax highlighting
 syntax on
