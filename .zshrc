@@ -48,9 +48,45 @@ fi
 export LESSHISTFILE=-
 export GNUPGHOME="$HOME/.config/gnupg"
 
+# Configure fzf
+if command -v fzf &> /dev/null; then
+    # Setup keybindings: CTRL-t (fzf), CTRL-r (shell), Option-c (cd ...)
+    eval "$(fzf --zsh)"
+
+    # Configure color theme
+    export FZF_DEFAULT_OPTS="
+        --layout=reverse-list
+        --info=inline
+        --pointer=""
+        --color=bg+:#BEB9B9,bg:#FAF4F1,spinner:#E14674,hl:#1C8BA7 \
+        --color=fg:#28242A,header:#E14674,info:#7057BD,pointer:#E14674 \
+        --color=marker:#7057BD,fg+:#28242A,prompt:#7057BD,hl+:#1C8BA7 \
+        --color=selected-bg:#BEB9B9,selected-fg:#28242A \
+        --multi"
+fi
+
+# Configure bat
+if command -v bat &> /dev/null; then
+    export BAT_THEME="Monokai Pro Light"
+    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+    alias cat='bat -pp'
+fi
+
 # Set aliases
-alias ls='ls --color'
-alias grep='grep --color'
+if command -v eza &> /dev/null; then
+    HIDDEN=".DS_Store"
+    alias ls='eza --no-quotes --ignore-glob="$HIDDEN"'
+    alias lsa='eza -a'
+    alias lsg='eza --no-quotes --group-directories-first --ignore-glob="$HIDDEN"'
+    alias lst='eza --no-quotes --long --classify --all --header --git --no-user --tree --ignore-glob="$HIDDEN" --git --level'
+else
+    alias ls='ls --color'
+fi
+if command -v rg &> /dev/null; then
+    alias grep='rg'
+else
+    alias grep='grep --color'
+fi
 if command -v trash &> /dev/null; then
     alias rm='trash'
 fi
