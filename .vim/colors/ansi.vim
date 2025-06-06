@@ -105,8 +105,3 @@ hi StorageClass ctermfg=11
 hi Structure ctermfg=11
 hi Todo ctermfg=0 ctermbg=9
 hi Type ctermfg=11
-
-" Neovim-Specific
-hi NormalFloat ctermbg=0 ctermfg=15
-hi FloatBorder ctermbg=0 ctermfg=7
-hi FloatShadow ctermbg=0 ctermfg=15
