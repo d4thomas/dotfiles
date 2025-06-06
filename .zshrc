@@ -67,7 +67,7 @@ fi
 # Setup dot files maintenance
 if command -v git &> /dev/null; then
     dotfiles() {
-    GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME git "$@"
+        GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME git "$@"
     }
 
     init-dotfiles() {
