@@ -65,9 +65,16 @@ if command -v trash &> /dev/null; then
 fi
 
 # Setup dot files maintenance
-if command -v git &> /dev/null; then
-    alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
-fi
+# if command -v git &> /dev/null; then
+#     alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+#     compdef dotfiles=git
+# fi
+
+# Dotfiles git wrapper
+dotfiles() {
+  GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME git "$@"
+}
+
 
 init-dotfiles() {
     mkdir -p "$HOME/.dotfiles"

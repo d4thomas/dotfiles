@@ -65,7 +65,7 @@ hi ToolbarLine ctermbg=0 ctermfg=15
 hi ToolbarButton ctermbg=8 ctermfg=15
 hi debugPC ctermfg=7
 hi debugBreakpoint ctermfg=8
-hi ErrorMsg ctermfg=1 cterm=bold,italic
+hi ErrorMsg ctermfg=1 ctermbg=0 cterm=bold,italic
 hi WarningMsg ctermfg=11
 hi DiffAdd ctermbg=10 ctermfg=0
 hi DiffChange ctermbg=12 ctermfg=0
@@ -82,6 +82,13 @@ hi diffIndexLine ctermfg=14
 hi healthError ctermfg=1
 hi healthSuccess ctermfg=2
 hi healthWarning ctermfg=3
+hi InsertMode ctermfg=7 ctermbg=0 cterm=bold
+hi VisualMode ctermfg=7 ctermbg=0 cterm=bold
+hi ReplaceMode ctermfg=7 ctermbg=0 cterm=bold
+hi ModeMsg ctermfg=7 ctermbg=0 cterm=bold
+hi MsgArea ctermfg=15 ctermbg=0
+hi MsgSeparator ctermfg=7 ctermbg=0 cterm=NONE
+hi MoreMsg ctermfg=7 ctermbg=0 cterm=NONE
 
 " Syntax
 hi Comment ctermfg=8 cterm=italic

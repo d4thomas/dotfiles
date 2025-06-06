@@ -7,7 +7,9 @@
     "workbench.editor.empty.hint": "hidden",
     "inlineChat.lineNaturalLanguageHint": false,
     "workbench.startupEditor": "newUntitledFile",
-    "workbench.colorTheme": "Monokai Pro Light",
+    "window.autoDetectColorScheme": true,
+    "workbench.preferredLightColorTheme": "Monokai Pro Light",
+    "workbench.preferredDarkColorTheme": "Monokai Pro",
     "workbench.iconTheme": "Monokai Pro Light Icons",
     "workbench.colorCustomizations": {
             "focusBorder": "#23263400",
@@ -21,8 +23,10 @@
     "editor.wordWrap": "on",
     "editor.links": false,
     "editor.stickyScroll.enabled": false,
+    "editor.occurrencesHighlight": "off",
     "editor.accessibilitySupport": "off",
     "editor.renderWhitespace": "trailing",
+    "editor.semanticHighlighting.enabled": true,
     "editor.tokenColorCustomizations": {
     "textMateRules": [
         {
@@ -37,9 +41,7 @@
     },
 
     "redhat.telemetry.enabled": false,
-    "quokka.automaticRestart": true,
     "mdb.confirmRunAll": false,
-    "editor.occurrencesHighlight": "off",
     "github.copilot.enable": {
         "*": false,
         "plaintext": false,
