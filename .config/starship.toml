@@ -3,7 +3,6 @@ command_timeout = 10000
 [character]
 success_symbol = "[❯](green)"
 error_symbol = "[❯](red)"
-vimcmd_symbol = "[❮](gray)"
 
 [directory]
 read_only = " 󰌾"
