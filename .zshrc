@@ -1,13 +1,8 @@
 # Configure Homebrew
 if command -v brew &> /dev/null; then
-    # Add autocomletions
     FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-
-    # Setup preferences
     export HOMEBREW_NO_ENV_HINTS=1
     export HOMEBREW_NO_EMOJI=1
-
-    # Add aliases
     alias brew-backup='brew bundle dump --file=~/.config/brew/Brewfile --force'
     alias brew-restore='brew bundle --file=~/.config/brew/Brewfile --force'
     alias brew-cleanup='brew autoremove; brew cleanup --prune=all; brew cleanup -s'
@@ -40,8 +35,24 @@ fi
 # Configure Starship prompt
 if command -v starship &> /dev/null; then
     eval "$(starship init zsh)"
-    # Let Starship handle virtual environment status
     export VIRTUAL_ENV_DISABLE_PROMPT=1
+else
+    autoload -U colors && colors
+    local success="%{$fg[green]%}❯%{$reset_color%}"
+    local error="%{$fg[red]%}❯%{$reset_color%}"
+    build_prompt() {
+        local newline=$'\n'
+        local dir="%{$fg[blue]%}%~%{$reset_color%}"
+        PROMPT="${dir}${newline}${1} "
+    }
+    precmd() {
+    if [[ $? -eq 0 ]]; then
+        build_prompt "${success}"
+    else
+        build_prompt "${error}"
+    fi
+    }
+    build_prompt "${success}"
 fi
 
 # Clean home directory
