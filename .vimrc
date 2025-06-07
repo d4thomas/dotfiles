@@ -68,6 +68,9 @@ map <leader>bl :ls<cr>
 nnoremap <Esc><Esc> :nohlsearch<CR>
 nmap <silent> <up> gk
 nmap <silent> <down> gj
+nnoremap y "+y
+vnoremap y "+y
+nnoremap p "+p
 
 " When wrapping, try to break at characters in breakat
 set linebreak
