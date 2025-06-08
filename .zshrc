@@ -1,6 +1,7 @@
 # Configure Homebrew
 if command -v brew &> /dev/null; then
     FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+    export HOMEBREW_CASK_OPTS='--no-quarantine'
     export HOMEBREW_NO_ENV_HINTS=1
     export HOMEBREW_NO_EMOJI=1
     alias brew-backup='brew bundle dump --file=~/.config/brew/Brewfile --force'
@@ -69,6 +70,7 @@ alias man="env LESS_TERMCAP_mb=$'\e[1;31m' \
                LESS_TERMCAP_so=$'\e[1;43;30m' \
                LESS_TERMCAP_ue=$'\e[0m' \
                LESS_TERMCAP_us=$'\e[1;36m' man"
+alias rmgk='xattr -r -d com.apple.quarantine'
 if command -v eza &> /dev/null; then
     HIDDEN=".DS_Store"
     alias ls='eza --no-quotes --ignore-glob="$HIDDEN"'
