@@ -63,13 +63,13 @@ export GNUPGHOME="$HOME/.config/gnupg"
 # Set aliases
 alias grep='grep --color=always'
 alias less='less -R'
-alias man="env LESS_TERMCAP_mb=$'\e[1;31m' \
-               LESS_TERMCAP_md=$'\e[1;34m' \
+alias man="env LESS_TERMCAP_mb=$'\e[31m' \
+               LESS_TERMCAP_md=$'\e[34m' \
                LESS_TERMCAP_me=$'\e[0m' \
                LESS_TERMCAP_se=$'\e[0m' \
-               LESS_TERMCAP_so=$'\e[1;43;30m' \
+               LESS_TERMCAP_so=$'\e[43;30m' \
                LESS_TERMCAP_ue=$'\e[0m' \
-               LESS_TERMCAP_us=$'\e[1;36m' man"
+               LESS_TERMCAP_us=$'\e[36m' man"
 alias rmgk='xattr -r -d com.apple.quarantine'
 if command -v eza &> /dev/null; then
     HIDDEN=".DS_Store"

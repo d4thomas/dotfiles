@@ -12,8 +12,8 @@
     "workbench.preferredDarkColorTheme": "Monokai Pro",
     "workbench.iconTheme": "Monokai Pro Light Icons",
     "workbench.colorCustomizations": {
-            "focusBorder": "#23263400",
-            "editorInlayHint.background": "#23263400",
+            "focusBorder": "#00000000",
+            "editorInlayHint.background": "#00000000",
         },
     "explorer.autoReveal": false,
     "editor.minimap.enabled": false,
