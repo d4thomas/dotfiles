@@ -17,3 +17,8 @@ fi
 if [ -d "$HOME/.dotnet/tools" ]; then
     export PATH="$HOME/.dotnet/tools:${PATH}"
 fi
+
+# Set GnuPG environment
+if command -v gpg &> /dev/null; then
+    export GNUPGHOME="$HOME/.config/gnupg"
+fi

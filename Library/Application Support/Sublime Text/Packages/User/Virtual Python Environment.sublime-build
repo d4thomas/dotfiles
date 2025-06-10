@@ -1,0 +1,6 @@
+{
+  "shell_cmd": "if [ -x \"$file_path/.venv/bin/python\" ]; then \"$file_path/.venv/bin/python\" \"$file\"; else python \"$file\"; fi",
+  "file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+  "selector": "source.python",
+  // "interactive": true
+}

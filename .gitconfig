@@ -1,6 +1,7 @@
 [user]
     email = 152221911+d4thomas@users.noreply.github.com
     name = d4thomas
+	signingkey = 27CA006D0BA31FE1
 [filter "lfs"]
     clean = git-lfs clean -- %f
     smudge = git-lfs smudge -- %f
@@ -12,3 +13,7 @@
     helper = osxkeychain
 [core]
     excludesfile = ~/.gitignore
+[commit]
+	gpgsign = true
+[gpg]
+	program = gpg

@@ -56,9 +56,8 @@ else
     build_prompt "${success}"
 fi
 
-# Clean home directory
+# Disable less history file
 export LESSHISTFILE=-
-export GNUPGHOME="$HOME/.config/gnupg"
 
 # Set aliases
 alias grep='grep --color=always'
