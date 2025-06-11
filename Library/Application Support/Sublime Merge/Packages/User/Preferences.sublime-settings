@@ -3,6 +3,5 @@
   "font_size": 12,
   "ignore_diff_white_space": false,
   "side_bar_layout": "locations_as_column",
-  "visible_carriage_returns_at_eol": false,
-  "theme": "Merge.sublime-theme",
+  "visible_carriage_returns_at_eol": false
 }

@@ -7,9 +7,7 @@
     "workbench.editor.empty.hint": "hidden",
     "inlineChat.lineNaturalLanguageHint": false,
     "workbench.startupEditor": "newUntitledFile",
-    "window.autoDetectColorScheme": true,
-    "workbench.preferredLightColorTheme": "Monokai Pro Light",
-    "workbench.preferredDarkColorTheme": "Monokai Pro",
+    "workbench.colorTheme": "Monokai Pro Light",
     "workbench.iconTheme": "Monokai Pro Light Icons",
     "workbench.colorCustomizations": {
             "focusBorder": "#00000000",
