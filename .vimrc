@@ -2,6 +2,7 @@ set nocompatible
 
 " Set colors
 set termguicolors
+set t_Co=256
 
 " Set color scheme
 colorscheme ansi
@@ -86,9 +87,6 @@ set incsearch hlsearch
 
 " Configure line numbers
 set number
-
-" Enable syntax highlighting
-syntax on
 
 " Enable autoindenting
 set ai
