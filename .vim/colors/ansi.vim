@@ -65,7 +65,7 @@ hi ToolbarLine ctermbg=0 ctermfg=15
 hi ToolbarButton ctermbg=8 ctermfg=15
 hi debugPC ctermfg=7
 hi debugBreakpoint ctermfg=8
-hi ErrorMsg ctermfg=1 ctermbg=0 cterm=bold,italic
+hi ErrorMsg ctermfg=1 ctermbg=NONE cterm=bold,italic
 hi WarningMsg ctermfg=11
 hi DiffAdd ctermbg=10 ctermfg=0
 hi DiffChange ctermbg=12 ctermfg=0
@@ -93,7 +93,7 @@ hi MoreMsg ctermfg=7 ctermbg=0 cterm=NONE
 " Syntax
 hi Comment ctermfg=8 cterm=italic
 hi Constant ctermfg=3
-hi Error ctermfg=1
+hi Error ctermfg=1 ctermbg=NONE cterm=bold
 hi Identifier ctermfg=9
 hi Function ctermfg=4
 hi Special ctermfg=13
