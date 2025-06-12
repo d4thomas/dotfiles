@@ -10,10 +10,20 @@ colorscheme ansi
 " Enable syntax highlighting
 syntax on
 
-" Italic comments
-augroup VimCommentStyle
-    autocmd!
-    autocmd Syntax * highlight Comment gui=italic cterm=italic
+" Configure italics
+augroup VimItalics
+  autocmd!
+  autocmd Syntax * highlight Comment gui=italic cterm=italic
+  autocmd Syntax * highlight Conditional gui=italic cterm=italic
+  autocmd Syntax * highlight Repeat gui=italic cterm=italic
+  autocmd Syntax * highlight Statement gui=italic cterm=italic
+  autocmd Syntax * highlight Type gui=italic cterm=italic
+  autocmd Syntax * highlight StorageClass gui=italic cterm=italic
+  autocmd Syntax * highlight Structure gui=italic cterm=italic
+  autocmd Syntax * highlight Identifier gui=italic cterm=italic
+  autocmd Syntax * highlight htmlItalic gui=italic cterm=italic
+  autocmd Syntax * highlight markdownItalic gui=italic cterm=italic
+  autocmd Syntax * highlight markdownBlockQuote gui=italic cterm=italic
 augroup END
 
 " Filetype settings
