@@ -3,12 +3,6 @@ set nocompatible
 " Enable syntax highlighting
 syntax on
 
-" Set background
-set background=light
-
-" Set color scheme
-colorscheme term16
-
 " Configure text styles
 augroup VimTextStyles
   autocmd!

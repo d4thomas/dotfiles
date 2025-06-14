@@ -1,6 +1,7 @@
 {
   "font_face": "BlexMono Nerd Font",
   "font_size": 12,
+  "theme": "auto",
   "side_bar_layout": "tabs",
   "visible_carriage_returns_at_eol": false,
 }

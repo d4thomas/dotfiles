@@ -1,20 +1,14 @@
 {
 	"font_face": "BlexMono Nerd Font",
 	"font_size": 12,
-
 	"color_scheme": "auto",
-	"theme": "auto",
-
-	"light_color_scheme": "Solarized (light).sublime-color-scheme",
-	"dark_color_scheme": "Solarized (dark).sublime-color-scheme",
-	"dark_theme": "Solarized (dark).sublime-theme",
-	"light_theme": "Solarized (light).sublime-theme",
-	
+	"theme": "Adaptive.sublime-theme",
+	"light_color_scheme": "Breakers.sublime-color-scheme",
+	"dark_color_scheme": "Mariana.sublime-color-scheme",
 	"highlight_line": true,
 	"caret_style": "smooth",
 	"caret_extra_top": 0,
 	"caret_extra_bottom": 0,
-
 	"ignored_packages":
 	[
 		"Vintage",
