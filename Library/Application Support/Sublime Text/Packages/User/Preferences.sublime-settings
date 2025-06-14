@@ -2,9 +2,14 @@
 	"font_face": "BlexMono Nerd Font",
 	"font_size": 12,
 
-	"color_scheme": "Monokai Pro Light.sublime-color-scheme",
-	"theme": "Monokai Pro Light.sublime-theme",
+	"color_scheme": "auto",
+	"theme": "auto",
 
+	"light_color_scheme": "Solarized (light).sublime-color-scheme",
+	"dark_color_scheme": "Solarized (dark).sublime-color-scheme",
+	"dark_theme": "Solarized (dark).sublime-theme",
+	"light_theme": "Solarized (light).sublime-theme",
+	
 	"highlight_line": true,
 	"caret_style": "smooth",
 	"caret_extra_top": 0,

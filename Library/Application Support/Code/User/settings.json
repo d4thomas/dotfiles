@@ -7,8 +7,10 @@
     "workbench.editor.empty.hint": "hidden",
     "inlineChat.lineNaturalLanguageHint": false,
     "workbench.startupEditor": "newUntitledFile",
-    "workbench.colorTheme": "Monokai Pro Light",
-    "workbench.iconTheme": "Monokai Pro Light Icons",
+    "window.autoDetectColorScheme": true,
+    "workbench.preferredDarkColorTheme": "JetBrains Rider New UI Dark",
+    "workbench.preferredLightColorTheme": "JetBrains Rider New UI Lighter",
+    "workbench.iconTheme": "vscode-jetbrains-icon-theme-2023-auto",
     "workbench.colorCustomizations": {
             "focusBorder": "#00000000",
             "editorInlayHint.background": "#00000000",

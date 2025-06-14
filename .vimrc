@@ -3,35 +3,35 @@ set nocompatible
 " Enable syntax highlighting
 syntax on
 
+" Set background
+set background=light
+
+" Set color scheme
+colorscheme term16
+
 " Configure text styles
 augroup VimTextStyles
   autocmd!
-  autocmd Syntax * highlight Comment cterm=italic
-  autocmd Syntax * highlight Conditional cterm=italic
-  autocmd Syntax * highlight Repeat cterm=italic
-  autocmd Syntax * highlight Statement cterm=italic
-  autocmd Syntax * highlight Type cterm=italic
-  autocmd Syntax * highlight StorageClass cterm=italic
-  autocmd Syntax * highlight Structure cterm=italic
-  autocmd Syntax * highlight Identifier cterm=italic
-  autocmd Syntax * highlight htmlItalic cterm=italic
-  autocmd Syntax * highlight markdownItalic cterm=italic
-  autocmd Syntax * highlight markdownBlockQuote cterm=italic
-
-  autocmd Syntax * highlight Keyword cterm=bold
-  autocmd Syntax * highlight Exception cterm=bold
-  autocmd Syntax * highlight Function cterm=bold
-  autocmd Syntax * highlight Title cterm=bold
-  autocmd Syntax * highlight markdownBold cterm=bold
-  autocmd Syntax * highlight markdownHeadingDelimiter cterm=bold
-
-  autocmd Syntax * highlight Underlined cterm=underline
-  autocmd Syntax * highlight PreProc cterm=underline
-  autocmd Syntax * highlight Include cterm=underline
-  autocmd Syntax * highlight Define cterm=underline
-  autocmd Syntax * highlight Macro cterm=underline
-  autocmd Syntax * highlight PreCondit cterm=underline
+  autocmd Syntax * highlight Comment          cterm=italic
+  autocmd Syntax * highlight Constant         cterm=italic
+  autocmd Syntax * highlight SpecialComment   cterm=italic
+  autocmd Syntax * highlight Todo             cterm=italic
+  autocmd Syntax * highlight Tag              cterm=italic
+  autocmd Syntax * highlight String           cterm=italic
+  autocmd Syntax * highlight Keyword          cterm=bold
+  autocmd Syntax * highlight Number           cterm=bold
+  autocmd Syntax * highlight Boolean          cterm=bold
+  autocmd Syntax * highlight Function         cterm=bold
+  autocmd Syntax * highlight Title            cterm=bold
+  autocmd Syntax * highlight Statement        cterm=bold,italic
+  autocmd Syntax * highlight Identifier       cterm=underline
+  autocmd Syntax * highlight Macro            cterm=underline
+  autocmd Syntax * highlight Define           cterm=underline
+  autocmd Syntax * highlight Include          cterm=underline
   autocmd Syntax * highlight markdownLinkText cterm=underline
+  autocmd Syntax * highlight Type             cterm=none
+  autocmd Syntax * highlight Variable         cterm=none
+  autocmd Syntax * highlight htmlTag          cterm=none
 augroup END
 
 " Filetype settings

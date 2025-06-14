@@ -21,4 +21,4 @@ window-height = 45
 confirm-close-surface = false
 clipboard-paste-protection = false
 
-theme = "Monokai Pro Light"
+theme = dark:"Rider Dark",light:"Rider Light"
