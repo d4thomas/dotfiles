@@ -1,12 +1,5 @@
 set nocompatible
 
-" Set colors
-set termguicolors
-set t_Co=256
-
-" Set color scheme
-colorscheme ansi
-
 " Enable syntax highlighting
 syntax on
 
