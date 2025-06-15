@@ -8,9 +8,9 @@
     "inlineChat.lineNaturalLanguageHint": false,
     "workbench.startupEditor": "newUntitledFile",
     "window.autoDetectColorScheme": true,
-    "workbench.preferredDarkColorTheme": "JetBrains Rider New UI Dark",
-    "workbench.preferredLightColorTheme": "JetBrains Rider New UI Lighter",
-    "workbench.iconTheme": "vscode-jetbrains-icon-theme-2023-auto",
+    "workbench.preferredDarkColorTheme": "Monokai Pro",
+    "workbench.preferredLightColorTheme": "Monokai Pro Light",
+    "workbench.iconTheme": "Monokai Pro Light Icons",
     "workbench.colorCustomizations": {
         "focusBorder": "#00000000",
         "editorInlayHint.background": "#00000000",
@@ -41,8 +41,7 @@
             },
         ]
     },
-    "redhat.telemetry.enabled": false,
-    "mdb.confirmRunAll": false,
+    "extensions.ignoreRecommendations": true,
     "github.copilot.enable": {
         "*": false,
         "plaintext": false,
