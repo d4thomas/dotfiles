@@ -12,9 +12,9 @@
     "workbench.preferredLightColorTheme": "JetBrains Rider New UI Lighter",
     "workbench.iconTheme": "vscode-jetbrains-icon-theme-2023-auto",
     "workbench.colorCustomizations": {
-            "focusBorder": "#00000000",
-            "editorInlayHint.background": "#00000000",
-        },
+        "focusBorder": "#00000000",
+        "editorInlayHint.background": "#00000000",
+    },
     "explorer.autoReveal": false,
     "editor.minimap.enabled": false,
     "editor.fontFamily": "BlexMono Nerd Font",
@@ -28,18 +28,19 @@
     "editor.renderWhitespace": "trailing",
     "editor.semanticHighlighting.enabled": true,
     "editor.tokenColorCustomizations": {
-    "textMateRules": [
-        {
-            "scope": [
-                "comment",
-            ],
-            "settings": {
-                "fontStyle": "italic"
-            }
-        }
-    ]
+        "textMateRules": [
+            {
+                "scope": [
+                    "comment",
+                    "comment.block.documentation",
+                    "comment.line"
+                ],
+                "settings": {
+                    "fontStyle": "italic"
+                }
+            },
+        ]
     },
-
     "redhat.telemetry.enabled": false,
     "mdb.confirmRunAll": false,
     "github.copilot.enable": {
