@@ -92,7 +92,6 @@ fdf() {
   fi
   find . -path ./.git -prune -o -print | grep -i "$*"
 }
-
 fdt() {
   if [ -z "$1" ]; then
     echo "Usage: fdt <search_term>"
@@ -100,28 +99,3 @@ fdt() {
   fi
   grep -rIH --exclude-dir=".git" "$*" . 2>/dev/null
 }
-
-# Setup dot files maintenance
-if command -v git &> /dev/null; then
-    dotfiles() {
-        GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME git "$@"
-    }
-
-    init-dotfiles() {
-        mkdir -p "$HOME/.dotfiles"
-        git init --bare "$HOME/.dotfiles"
-        git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" config --local status.showUntrackedFiles no
-        git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" branch -M main
-    }
-
-    restore-dotfiles() {
-        if [ -z "$1" ]; then
-            echo "Usage: init-dotfiles <github-repo-url>"
-            return 1
-        fi
-
-        git clone --bare "$1" "$HOME/.dotfiles"
-        git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" config --local status.showUntrackedFiles no
-        git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" checkout -f
-    }
-fi
