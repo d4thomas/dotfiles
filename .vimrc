@@ -37,7 +37,7 @@ set list
 
 " Hide EOB chatacters
 let &fillchars ..= ',eob: '
-set fillchars=eob:\
+set fillchars=eob:\ 
 
 " Status line
 set statusline=

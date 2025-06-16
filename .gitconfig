@@ -19,18 +19,3 @@
     program = gpg
 [alias]
     dotfiles = !git --git-dir=$HOME/.dotfiles --work-tree=$HOME
-    dotfiles-init = "!f() { \
-        mkdir -p \"$HOME/.dotfiles\" && \
-        git init --bare \"$HOME/.dotfiles\" && \
-        git --git-dir=\"$HOME/.dotfiles\" --work-tree=\"$HOME\" config --local status.showUntrackedFiles no && \
-        git --git-dir=\"$HOME/.dotfiles\" --work-tree=\"$HOME\" branch -M main; \
-    }; f"
-    dotfiles-restore = "!f() { \
-        if [ -z \"$1\" ]; then \
-            echo \"Usage: git dotfiles-restore <github-repo-url>\"; \
-            return 1; \
-        fi; \
-        git clone --bare \"$1\" \"$HOME/.dotfiles\" && \
-        git --git-dir=\"$HOME/.dotfiles\" --work-tree=\"$HOME\" config --local status.showUntrackedFiles no && \
-        git --git-dir=\"$HOME/.dotfiles\" --work-tree=\"$HOME\" checkout -f; \
-    }; f"
