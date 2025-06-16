@@ -17,25 +17,6 @@ syntax on
 augroup VimTextStyles
   autocmd!
   autocmd Syntax * highlight Comment          cterm=italic
-  autocmd Syntax * highlight Constant         cterm=italic
-  autocmd Syntax * highlight SpecialComment   cterm=italic
-  autocmd Syntax * highlight Todo             cterm=italic
-  autocmd Syntax * highlight Tag              cterm=italic
-  autocmd Syntax * highlight String           cterm=italic
-  autocmd Syntax * highlight Keyword          cterm=bold
-  autocmd Syntax * highlight Number           cterm=bold
-  autocmd Syntax * highlight Boolean          cterm=bold
-  autocmd Syntax * highlight Function         cterm=bold
-  autocmd Syntax * highlight Title            cterm=bold
-  autocmd Syntax * highlight Statement        cterm=bold,italic
-  autocmd Syntax * highlight Identifier       cterm=underline
-  autocmd Syntax * highlight Macro            cterm=underline
-  autocmd Syntax * highlight Define           cterm=underline
-  autocmd Syntax * highlight Include          cterm=underline
-  autocmd Syntax * highlight markdownLinkText cterm=underline
-  autocmd Syntax * highlight Type             cterm=none
-  autocmd Syntax * highlight Variable         cterm=none
-  autocmd Syntax * highlight htmlTag          cterm=none
 augroup END
 
 " Filetype settings
@@ -56,7 +37,7 @@ set list
 
 " Hide EOB chatacters
 let &fillchars ..= ',eob: '
-set fillchars=eob:\ 
+set fillchars=eob:\
 
 " Status line
 set statusline=
