@@ -1,8 +1,6 @@
 {
   "font_face": "JetBrains Nerd Font",
   "font_size": 13,
-  "theme": "Merge Lighter.sublime-theme",
-  "color_scheme": "Meetio Lighter.sublime-color-scheme",
   "side_bar_layout": "tabs",
   "visible_carriage_returns_at_eol": false,
 }
