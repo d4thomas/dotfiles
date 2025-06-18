@@ -1,0 +1,6 @@
+{
+  "shell_cmd": "tectonic \"$file\" && open -a Preview \"${file_path}/${file_base_name}.pdf\"",
+  "selector": "text.tex.latex",
+  "working_dir": "${file_path}",
+  "file_regex": "^(...*?):([0-9]+):([0-9]+): (.*)$"
+}
