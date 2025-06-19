@@ -1,6 +1,10 @@
-font-family = JetBrainsMono Nerd Font
-font-style = Regular
+font-family = Berkeley Mono
+font-family = "Symbols Nerd Font"
 font-size = 13
+font-style = Book
+font-style-bold = Bold
+font-style-italic = Oblique
+font-style-bold-italic = Bold Oblique
 font-thicken = false
 
 cursor-style = block

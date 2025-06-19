@@ -45,10 +45,13 @@ if [ -f "$(brew --prefix)/share/zsh-autopair/autopair.zsh" ]; then
     source "$(brew --prefix)/share/zsh-autopair/autopair.zsh"
 fi
 
-# Configure Starship prompt
+# Configure prompt
 if command -v starship &> /dev/null; then
     eval "$(starship init zsh)"
     export VIRTUAL_ENV_DISABLE_PROMPT=1
+elif [ -d "$(brew --prefix)/Cellar/pure" ]; then
+    autoload -U promptinit; promptinit
+    prompt pure
 else
     autoload -U colors && colors
     local success="%{$fg[green]%}❯%{$reset_color%}"
