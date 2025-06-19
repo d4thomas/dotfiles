@@ -46,12 +46,17 @@ if [ -f "$(brew --prefix)/share/zsh-autopair/autopair.zsh" ]; then
 fi
 
 # Configure prompt
-if command -v starship &> /dev/null; then
-    eval "$(starship init zsh)"
-    export VIRTUAL_ENV_DISABLE_PROMPT=1
-elif [ -d "$(brew --prefix)/Cellar/pure" ]; then
+if [ -f "$(brew --prefix)/share/zsh/site-functions/prompt_pure_setup" ]; then
+    PURE_GIT_UP_ARROW="▲"
+    PURE_GIT_DOWN_ARROW="▼"
+    PURE_GIT_STASH_SYMBOL="☰"
+    zstyle :prompt:pure:git:stash show yes
+    zstyle :prompt:pure:git:dirty color magenta
     autoload -U promptinit; promptinit
     prompt pure
+elif command -v starship &> /dev/null; then
+    eval "$(starship init zsh)"
+    export VIRTUAL_ENV_DISABLE_PROMPT=1
 else
     autoload -U colors && colors
     local success="%{$fg[green]%}❯%{$reset_color%}"
