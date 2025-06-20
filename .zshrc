@@ -52,6 +52,8 @@ if [ -f "$(brew --prefix)/share/zsh/site-functions/prompt_pure_setup" ]; then
     PURE_GIT_STASH_SYMBOL="☰"
     zstyle :prompt:pure:git:stash show yes
     zstyle :prompt:pure:git:dirty color magenta
+    zstyle :prompt:pure:prompt:success color green
+    zstyle :prompt:pure:prompt:continuation color green
     autoload -U promptinit; promptinit
     prompt pure
 elif command -v starship &> /dev/null; then
