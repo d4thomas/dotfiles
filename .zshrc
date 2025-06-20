@@ -82,6 +82,7 @@ export LESSHISTFILE=-
 # Set aliases
 alias grep='grep --color=always'
 alias less='less -R'
+alias togglehist='[[ -n "$HISTFILE" ]] && { export _OLD_HISTFILE="$HISTFILE"; unset HISTFILE; echo "History Disabled"; } || { export HISTFILE="${_OLD_HISTFILE:-$HOME/.zsh_history}"; echo "History Enabled"; }'
 alias cliconcache='sudo rm -r /Library/Caches/com.apple.iconservices.store; killall Finder'
 alias man="env LESS_TERMCAP_mb=$'\e[31m' \
                LESS_TERMCAP_md=$'\e[34m' \
@@ -118,6 +119,27 @@ fdt() {
     return 1
   fi
   grep -rIH --exclude-dir=".git" "$*" . 2>/dev/null
+}
+
+# Scala REPL function
+scl() {
+  local sdk_java_version="21.0.7-tem"
+  local original_java_home
+  original_java_home=$(/usr/libexec/java_home)
+
+  export SDKMAN_DIR="$HOME/.sdkman"
+  [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
+  sdk use java "$sdk_java_version" > /dev/null
+
+  scala-cli "$@"
+
+  export JAVA_HOME="$original_java_home"
+  hash -r
+  unset SDKMAN_DIR
+  unset SDKMAN_VERSION
+  unset SDKMAN_CANDIDATES_API
+  unset SDKMAN_CURRENT_API
+  unset SDKMAN_PLATFORM
 }
 
 # Setup dot files maintenance
