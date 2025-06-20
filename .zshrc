@@ -123,26 +123,32 @@ fdt() {
   grep -rIH --exclude-dir=".git" "$*" . 2>/dev/null
 }
 
-# Scala REPL function
-scl() {
-  local sdk_java_version="21.0.7-tem"
-  local original_java_home
-  original_java_home=$(/usr/libexec/java_home)
+# Function to toggle SDK manager
+if [ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
+    sdkman() {
+        local sdkman_init="$HOME/.sdkman/bin/sdkman-init.sh"
 
-  export SDKMAN_DIR="$HOME/.sdkman"
-  [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
-  sdk use java "$sdk_java_version" > /dev/null
-
-  scala-cli "$@"
-
-  export JAVA_HOME="$original_java_home"
-  hash -r
-  unset SDKMAN_DIR
-  unset SDKMAN_VERSION
-  unset SDKMAN_CANDIDATES_API
-  unset SDKMAN_CURRENT_API
-  unset SDKMAN_PLATFORM
-}
+        if [[ "$1" == "on" ]]; then
+            export ORIGINAL_JAVA_HOME=$(/usr/libexec/java_home)
+            export SDKMAN_DIR="$HOME/.sdkman"
+            [[ -s "$sdkman_init" ]] && source "$sdkman_init"
+        elif [[ "$1" == "off" ]]; then
+            if [[ -n "$ORIGINAL_JAVA_HOME" ]]; then
+                export JAVA_HOME="$ORIGINAL_JAVA_HOME"
+                unset ORIGINAL_JAVA_HOME
+                hash -r
+            fi
+            unset SDKMAN_DIR
+            unset SDKMAN_VERSION
+            unset SDKMAN_CANDIDATES_API
+            unset SDKMAN_CURRENT_API
+            unset SDKMAN_PLATFORM
+        else
+            echo "Usage: sdkman [on|off]"
+            return 1
+        fi
+    }
+fi
 
 # Setup dot files maintenance
 if command -v git &> /dev/null; then
