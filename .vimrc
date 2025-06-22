@@ -16,7 +16,7 @@ syntax on
 " Configure text styles
 augroup VimTextStyles
   autocmd!
-  autocmd Syntax * highlight Comment          cterm=italic
+  autocmd Syntax * highlight Comment cterm=italic
 augroup END
 
 " Filetype settings
