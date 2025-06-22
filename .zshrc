@@ -12,9 +12,11 @@ if command -v brew &> /dev/null; then
     export HOMEBREW_NO_ENV_HINTS=1
     export HOMEBREW_NO_EMOJI=1
     alias brew-backup='brew bundle dump --file=~/.config/brew/Brewfile --force'
-    alias brew-restore='brew bundle --file=~/.config/brew/Brewfile --force'
     alias brew-cleanup='brew autoremove; brew cleanup --prune=all; brew cleanup -s'
     alias brew-upgrade='brew upgrade; brew-cleanup'
+    if [ -f "$HOME/.config/brew/Brewfile" ]; then
+        alias brew-restore='brew bundle --file=~/.config/brew/Brewfile --force'
+    fi
 fi
 
 # Configure Zsh autocompletion
@@ -84,7 +86,7 @@ export LESSHISTFILE=-
 # Set aliases
 alias grep='grep --color=always'
 alias less='less -R'
-alias togglehist='[[ -n "$HISTFILE" ]] && { export _OLD_HISTFILE="$HISTFILE"; unset HISTFILE; echo "History Disabled"; } || { export HISTFILE="${_OLD_HISTFILE:-$HOME/.zsh_history}"; echo "History Enabled"; }'
+alias rmgk='xattr -r -d com.apple.quarantine'
 alias cliconcache='sudo rm -r /Library/Caches/com.apple.iconservices.store; killall Finder'
 alias man="env LESS_TERMCAP_mb=$'\e[31m' \
                LESS_TERMCAP_md=$'\e[34m' \
@@ -93,7 +95,6 @@ alias man="env LESS_TERMCAP_mb=$'\e[31m' \
                LESS_TERMCAP_so=$'\e[43;30m' \
                LESS_TERMCAP_ue=$'\e[0m' \
                LESS_TERMCAP_us=$'\e[36m' man"
-alias rmgk='xattr -r -d com.apple.quarantine'
 if command -v eza &> /dev/null; then
     HIDDEN=".DS_Store"
     alias ls='eza --no-quotes --ignore-glob="$HIDDEN"'
@@ -106,6 +107,18 @@ fi
 if command -v trash &> /dev/null; then
     alias rm='trash'
 fi
+
+# Zsh history toggle function
+togglehist() {
+  if [[ -n "$HISTFILE" ]]; then
+    export _OLD_HISTFILE="$HISTFILE"
+    unset HISTFILE
+    echo "History Disabled"
+  else
+    export HISTFILE="${_OLD_HISTFILE:-$HOME/.zsh_history}"
+    echo "History Enabled"
+  fi
+}
 
 # Search functions
 fdf() {
@@ -128,11 +141,11 @@ if [ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
     sdkman() {
         local sdkman_init="$HOME/.sdkman/bin/sdkman-init.sh"
 
-        if [[ "$1" == "on" ]]; then
+        if [[ "$1" == "enable" ]]; then
             export ORIGINAL_JAVA_HOME=$(/usr/libexec/java_home)
             export SDKMAN_DIR="$HOME/.sdkman"
             [[ -s "$sdkman_init" ]] && source "$sdkman_init"
-        elif [[ "$1" == "off" ]]; then
+        elif [[ "$1" == "disable" ]]; then
             if [[ -n "$ORIGINAL_JAVA_HOME" ]]; then
                 export JAVA_HOME="$ORIGINAL_JAVA_HOME"
                 unset ORIGINAL_JAVA_HOME
@@ -144,7 +157,7 @@ if [ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
             unset SDKMAN_CURRENT_API
             unset SDKMAN_PLATFORM
         else
-            echo "Usage: sdkman [on|off]"
+            echo "Usage: sdkman [enable|disable]"
             return 1
         fi
     }
