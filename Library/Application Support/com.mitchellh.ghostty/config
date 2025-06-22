@@ -6,7 +6,7 @@ font-style-bold = ExtraBold
 font-style-italic = Oblique
 font-style-bold-italic = ExtraBold Oblique
 font-thicken = false
-font-feature = calt off
+font-feature = calt on
 
 cursor-style = block
 cursor-style-blink = true
