@@ -115,7 +115,7 @@ togglehist() {
     unset HISTFILE
     echo "History Disabled"
   else
-    export HISTFILE="${_OLD_HISTFILE:-$HOME/.zsh_history}"
+    export HISTFILE="${_OLD_HISTFILE}"
     echo "History Enabled"
   fi
 }
