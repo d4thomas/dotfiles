@@ -111,37 +111,36 @@ fi
 
 # Zsh history toggle function
 togglehist() {
-  if [[ -n "$HISTFILE" ]]; then
-    export _OLD_HISTFILE="$HISTFILE"
-    unset HISTFILE
-    echo "History Disabled"
-  else
-    export HISTFILE="${_OLD_HISTFILE}"
-    echo "History Enabled"
-  fi
+    if [[ -n "$HISTFILE" ]]; then
+        export _OLD_HISTFILE="$HISTFILE"
+        unset HISTFILE
+        echo "History Disabled"
+    else
+        export HISTFILE="${_OLD_HISTFILE}"
+        echo "History Enabled"
+    fi
 }
 
 # Search functions
 fdf() {
-  if [ -z "$1" ]; then
-    echo "Usage: fdf <name_pattern>"
-    return 1
-  fi
-  find . -path ./.git -prune -o -print | grep -i "$*"
+    if [ -z "$1" ]; then
+        echo "Usage: fdf <name_pattern>"
+        return 1
+    fi
+    find . -path ./.git -prune -o -print | grep -i "$*"
 }
 fdt() {
-  if [ -z "$1" ]; then
-    echo "Usage: fdt <search_term>"
-    return 1
-  fi
-  grep -rIH --exclude-dir=".git" "$*" . 2>/dev/null
+    if [ -z "$1" ]; then
+        echo "Usage: fdt <search_term>"
+        return 1
+    fi
+    grep -rIH --exclude-dir=".git" "$*" . 2>/dev/null
 }
 
 # Function to toggle SDK manager
 if [ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
     sdkman() {
         local sdkman_init="$HOME/.sdkman/bin/sdkman-init.sh"
-
         if [[ "$1" == "enable" ]]; then
             export ORIGINAL_JAVA_HOME=$(/usr/libexec/java_home)
             export SDKMAN_DIR="$HOME/.sdkman"
@@ -169,20 +168,17 @@ if command -v git &> /dev/null; then
     dotfiles() {
         GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME git "$@"
     }
-
     init-dotfiles() {
         mkdir -p "$HOME/.dotfiles"
         git init --bare "$HOME/.dotfiles"
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" config --local status.showUntrackedFiles no
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" branch -M main
     }
-
     rest-dotfiles() {
         if [ -z "$1" ]; then
             echo "Usage: rest-dotfiles <github-repo-url>"
             return 1
         fi
-
         git clone --bare "$1" "$HOME/.dotfiles"
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" config --local status.showUntrackedFiles no
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" checkout -f
