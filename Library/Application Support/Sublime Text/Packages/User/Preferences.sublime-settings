@@ -21,8 +21,22 @@
   "caret_style": "smooth",
   "caret_extra_top": 0,
   "caret_extra_bottom": 0,
+  "index_files": true,
   "ignored_packages": [
     "Vintage",
   ],
-  "index_files": true,
+  "auto_complete_triggers": [
+    {
+      "characters": "<",
+      "selector": "text.html, text.xml",
+    },
+    {
+      "rhs_empty": true,
+      "selector": "punctuation.accessor",
+    },
+    {
+      "characters": "\\",
+      "selector": "text.tex.latex",
+    }
+  ],
 }

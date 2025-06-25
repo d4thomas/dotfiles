@@ -3,8 +3,10 @@
   "in_process_packages": [
   ],
   "installed_packages": [
+    "LaTeXTools",
     "LSP",
     "LSP-json",
+    "LSP-TexLab",
     "LSP-typescript",
     "Package Control",
     "Quokka",
