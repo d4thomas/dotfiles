@@ -1,5 +1,3 @@
-// If more than one main function, comment out other main functions
-
 {
   "shell_cmd": "mkdir -p bin && find src -name '*.java' > sources.txt && javac -d bin @sources.txt && main_class=$(grep -rEl '^\\s*public\\s+static\\s+void\\s+main\\s*\\(\\s*String' src | head -n 1 | sed -e 's|src/||' -e 's|\\.java$||' -e 's|/|.|g') && echo \"Running: $main_class\" && [ -n \"$main_class\" ] && java -cp bin \"$main_class\" || echo 'No main class found.'; rm -f sources.txt",
   "working_dir": "${project_path:${folder}}"

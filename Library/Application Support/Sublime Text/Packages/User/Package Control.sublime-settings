@@ -1,14 +1,13 @@
 {
-	"bootstrapped": true,
-	"in_process_packages":
-	[
-	],
-	"installed_packages":
-	[
-		"LSP",
-		"LSP-jdtls",
-		"LSP-pyright",
-		"Package Control",
-		"Quokka",
-	],
+  "bootstrapped": true,
+  "in_process_packages": [],
+  "installed_packages": [
+    "LSP",
+    "LSP-jdtls",
+    "LSP-json",
+    "LSP-pyright",
+    "LSP-typescript",
+    "Package Control",
+    "Quokka",
+  ],
 }
