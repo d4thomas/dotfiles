@@ -1,4 +1,4 @@
 // Settings in here override those in "LSP/LSP.sublime-settings"
 {
-	"semantic_highlighting": true
+	"semantic_highlighting": true,
 }

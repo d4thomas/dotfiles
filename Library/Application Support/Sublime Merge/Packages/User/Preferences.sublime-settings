@@ -3,4 +3,5 @@
   "font_size": 13,
   "side_bar_layout": "tabs",
   "visible_carriage_returns_at_eol": false,
+  "theme": "auto",
 }

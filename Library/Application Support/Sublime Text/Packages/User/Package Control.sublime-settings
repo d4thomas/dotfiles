@@ -9,5 +9,6 @@
 		"LSP-jdtls",
 		"LSP-pyright",
 		"Package Control",
+		"Quokka",
 	],
 }
