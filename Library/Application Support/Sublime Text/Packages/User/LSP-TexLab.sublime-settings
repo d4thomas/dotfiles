@@ -1,0 +1,11 @@
+{
+  "settings": {
+    "texlab": {
+      "diagnostics": {
+        "ignoredPatterns": [
+          "Undefined reference"
+        ]
+      }
+    }
+  }
+}
