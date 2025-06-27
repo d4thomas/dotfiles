@@ -127,7 +127,7 @@ fdf() {
         echo "Usage: fdf <name_pattern>"
         return 1
     fi
-    find . -path ./.git -prune -o -print | grep -i "$*"
+    find . -path ./.git -prune -o -print 2>/dev/null | grep -i "$*"
 }
 fdt() {
     if [ -z "$1" ]; then
