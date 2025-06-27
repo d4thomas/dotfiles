@@ -54,6 +54,10 @@
   },
   "rules": [
     {
+      "foreground": "#fff",
+      "scope": "quokka"
+    },
+    {
       "name": "Comments and overrides inside comments",
       "scope": "comment, comment keyword, comment markup.underline.link, comment string, comment punctuation.definition, comment punctuation, comment text",
       "font_style": "italic",
