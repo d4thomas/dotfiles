@@ -117,3 +117,31 @@ set undofile
 set tabstop=4
 set shiftwidth=4
 set expandtab
+
+" Set basic syntax colors
+hi Comment        ctermfg=245
+hi Constant       ctermfg=173
+hi String         ctermfg=180
+hi Character      ctermfg=180
+hi Number         ctermfg=173
+hi Boolean        ctermfg=173
+hi Float          ctermfg=173
+hi Identifier     ctermfg=110
+hi Function       ctermfg=75
+hi Statement      ctermfg=75
+hi Conditional    ctermfg=75
+hi Repeat         ctermfg=75
+hi Label          ctermfg=75
+hi Operator       ctermfg=252
+hi Keyword        ctermfg=75
+hi Exception      ctermfg=75
+hi PreProc        ctermfg=179
+hi Include        ctermfg=179
+hi Define         ctermfg=179
+hi Macro          ctermfg=179
+hi Type           ctermfg=34
+hi StorageClass   ctermfg=34
+hi Structure      ctermfg=34
+hi Typedef        ctermfg=34
+hi Special        ctermfg=173
+hi Delimiter      ctermfg=252
