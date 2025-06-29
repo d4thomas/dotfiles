@@ -1,7 +1,7 @@
 {
-  "font_face": "Berkeley Mono Nerd Font",
+  "font_face": "Berkeley Mono Variable",
   "font_size": 13,
+  "theme": "auto",
   "side_bar_layout": "tabs",
   "visible_carriage_returns_at_eol": false,
-  "theme": "auto",
 }
