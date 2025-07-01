@@ -14,9 +14,9 @@
 [core]
     excludesfile = ~/.gitignore
 [commit]
-    gpgsign = true
+	gpgsign = true
 [gpg]
-    program = gpg
+	program = /opt/homebrew/bin/gpg
 [url "git@github.com:"]
     insteadOf = https://github.com/
 [alias]
@@ -34,3 +34,4 @@
     prompt = false
 [mergetool]
     prompt = false
+	keepBackup = true

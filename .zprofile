@@ -18,11 +18,6 @@ if [ -d "$HOME/.dotnet/tools" ]; then
     export PATH="$HOME/.dotnet/tools:${PATH}"
 fi
 
-# Set GnuPG environment
-if command -v gpg &> /dev/null; then
-    export GNUPGHOME="$HOME/.config/gnupg"
-fi
-
 # Setup JetBrains Toolbox
 if [ -d "$HOME//Library/Application Support/JetBrains/Toolbox/scripts" ]; then
     export PATH="$PATH:$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
