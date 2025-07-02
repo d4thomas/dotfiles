@@ -163,12 +163,11 @@ if [ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
     }
 fi
 
-# Setup dot files maintenance
+# Setup dotfiles maintenance
 if command -v git &> /dev/null; then
     dotfiles() {
         GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME git "$@"
     }
-
     init-dotfiles() {
         mkdir -p "$HOME/.dotfiles"
         git init --bare "$HOME/.dotfiles"
