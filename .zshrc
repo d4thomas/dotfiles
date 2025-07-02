@@ -172,6 +172,9 @@ if command -v git &> /dev/null; then
         mkdir -p "$HOME/.dotfiles"
         git init --bare "$HOME/.dotfiles"
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" config --local status.showUntrackedFiles no
+        git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" config core.sparseCheckout true
+        mkdir -p "$HOME/.dotfiles/info"
+        echo -e "/*\n!README.md" > "$HOME/.dotfiles/info/sparse-checkout"
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" branch -M main
     }
     rest-dotfiles() {
