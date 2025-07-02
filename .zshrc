@@ -192,4 +192,14 @@ if command -v git &> /dev/null; then
         printf "/*\n!README.md\n" > "$HOME/.dotfiles/info/sparse-checkout"
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" checkout -f
     }
+    dfs() { dotfiles status }
+    dfa() { dotfiles add -u }
+    dfp() { dotfiles push -u origin main }
+    dfc() {
+        if [ -z "$*" ]; then
+            echo "Usage: dfc 'commit message'"
+            return 1
+        fi
+        dotfiles commit -m "$*"
+    }
 fi
