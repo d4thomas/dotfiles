@@ -193,6 +193,7 @@ if command -v git &> /dev/null; then
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" checkout -f
     }
     dfs() { dotfiles status }
+    dfd() { dotfiles diff }
     dfa() { dotfiles add -u }
     dfp() { dotfiles push -u origin main }
     dfc() {
