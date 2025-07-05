@@ -86,20 +86,6 @@
  (IS-MAC
   (setq mac-pass-control-to-system nil))) ;; Do not pass C-
 
-;; Cycle buffers
-(global-set-key (kbd "s-]") 'next-buffer)
-(global-set-key (kbd "s-[") 'previous-buffer)
-
-;; Clean buffers with Command-K
-(defun kill-other-buffers ()
-  "Kill all other buffers except the current one."
-  (interactive)
-  (let ((current (current-buffer)))
-    (dolist (buf (buffer-list))
-      (unless (eq buf current)
-        (kill-buffer buf)))))
-(global-set-key (kbd "s-K") 'kill-other-buffers)
-
 ;; Ctrl-K to kill line
 (setq kill-whole-line t)
 
@@ -141,6 +127,16 @@
                     gnus)))
   (dolist (item tool-items)
     (define-key global-map (vector 'menu-bar 'tools item) nil)))
+
+;; Clean buffers with Super-K
+(defun kill-other-buffers ()
+  "Kill all other buffers except the current one."
+  (interactive)
+  (let ((current (current-buffer)))
+    (dolist (buf (buffer-list))
+      (unless (eq buf current)
+        (kill-buffer buf)))))
+(global-set-key (kbd "s-K") 'kill-other-buffers)
 
 ;; Window split with C-x |
 (defun toggle-window-split ()

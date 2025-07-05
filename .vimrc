@@ -88,10 +88,6 @@ set showbreak=»»»
 " Highlight search matches
 set incsearch hlsearch
 
-" Configure line numbers
-set number
-highlight LineNr ctermfg=8
-
 " Enable autoindenting
 set ai
 
@@ -117,6 +113,10 @@ set undofile
 set tabstop=4
 set shiftwidth=4
 set expandtab
+
+" Configure line numbers
+set number
+highlight LineNr ctermfg=8
 
 " Set basic syntax colors
 hi Comment        ctermfg=245
