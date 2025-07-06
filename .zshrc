@@ -201,6 +201,6 @@ if command -v git &> /dev/null; then
             echo "Usage: dfsc 'commit message'"
             return 1
         fi
-        dotfiles commit -m "$*"
+        dfs commit -m "$*"
     }
 fi
