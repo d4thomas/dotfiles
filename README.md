@@ -9,10 +9,10 @@ Add the following function definitions to your shell configuration file (e.g., `
 ```sh
 # Setup dotfiles maintenance
 if command -v git &> /dev/null; then
-    dotfiles() {
+    dfs() {
         GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME git "$@"
     }
-    init-dotfiles() {
+    dfs-init() {
         mkdir -p "$HOME/.dotfiles"
         git init --bare "$HOME/.dotfiles"
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" config --local status.showUntrackedFiles no
@@ -23,9 +23,9 @@ if command -v git &> /dev/null; then
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" sparse-checkout reapply
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" branch -M main
     }
-    rest-dotfiles() {
+    dfs-restore() {
         if [ -z "$1" ]; then
-            echo "Usage: rest-dotfiles <github-repo-url>"
+            echo "Usage: dfs-restore <github-repo-url>"
             return 1
         fi
         git clone --bare "$1" "$HOME/.dotfiles"
@@ -36,40 +36,63 @@ if command -v git &> /dev/null; then
         printf "/*\n!README.md\n" > "$HOME/.dotfiles/info/sparse-checkout"
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" checkout -f
     }
+    dfss() { dfs status }
+    dfsd() { dfs diff }
+    dfsa() { dfs add -u }
+    dfsp() { dfs push -u origin main }
+    dfsc() {
+        if [ -z "$*" ]; then
+            echo "Usage: dfsc 'commit message'"
+            return 1
+        fi
+        dfs commit -m "$*"
+    }
 fi
 ```
 
 ## Commands
 
-### init-dotfiles
+### dfs-init
 
 Initializes a bare Git repository in `$HOME/.dotfiles` and sets up sparse-checkout to exclude `README.md`.
 
 Usage:
 
 ```sh
-init-dotfiles
+dfs-init
 ```
 
-### rest-dotfiles
+### dfs-restore
 
 Restores dotfiles from a remote Git repository into `$HOME`.
 
 Usage:
 
 ```sh
-rest-dotfiles <github-repo-url>
+dfs-restore <github-repo-url>
 ```
 
-### dotfiles
+### dfs
 
-A helper function to interact with the dotfiles repository.
+A helper function to interact with the dotfiles repository. All Git commands are valid.
 
 Usage:
 
 ```sh
-dotfiles status
-dotfiles add files
-dotfiles commit -m "message"
-dotfiles push -u origin main
+dfs status
+dfs add files
+dfs commit -m "message"
+dfs push -u origin main
+```
+
+### Aliases
+
+Some useful aliases to make like easier.
+
+```sh
+dfss                  --> dfs status
+dfsd                  --> dfs diff
+dfsa                  --> dfs add -u
+dfsp                  --> dfs push -u origin main
+dfsc 'commit message' --> dfs commit -m 'commit message'
 ```
