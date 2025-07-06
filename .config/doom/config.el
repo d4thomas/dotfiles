@@ -31,6 +31,9 @@
 (setq doom-font (font-spec :family "Berkeley Mono" :size 13 :weight 'book)
       doom-variable-pitch-font (font-spec :family "Berkeley Mono Variable" :size 13))
 (setq doom-symbol-font "Symbols Nerd Font")
+(custom-set-faces!
+  '(font-lock-comment-face :slant italic)
+)
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
