@@ -116,32 +116,32 @@ set expandtab
 
 " Configure line numbers
 set number
-highlight LineNr ctermfg=8
 
-" Set basic syntax colors
-hi Comment        ctermfg=245
-hi Constant       ctermfg=173
-hi String         ctermfg=180
-hi Character      ctermfg=180
-hi Number         ctermfg=173
-hi Boolean        ctermfg=173
-hi Float          ctermfg=173
-hi Identifier     ctermfg=110
-hi Function       ctermfg=75
-hi Statement      ctermfg=75
-hi Conditional    ctermfg=75
-hi Repeat         ctermfg=75
-hi Label          ctermfg=75
-hi Operator       ctermfg=252
-hi Keyword        ctermfg=75
-hi Exception      ctermfg=75
-hi PreProc        ctermfg=179
-hi Include        ctermfg=179
-hi Define         ctermfg=179
-hi Macro          ctermfg=179
-hi Type           ctermfg=34
-hi StorageClass   ctermfg=34
-hi Structure      ctermfg=34
-hi Typedef        ctermfg=34
-hi Special        ctermfg=173
-hi Delimiter      ctermfg=252
+" Set basic syntax colors (grayscale)
+hi LineNr         ctermfg=8
+hi Comment        ctermfg=238
+hi Constant       ctermfg=245
+hi String         ctermfg=243
+hi Character      ctermfg=243
+hi Number         ctermfg=245
+hi Boolean        ctermfg=245
+hi Float          ctermfg=245
+hi Identifier     ctermfg=240
+hi Function       ctermfg=248
+hi Statement      ctermfg=246
+hi Conditional    ctermfg=246
+hi Repeat         ctermfg=246
+hi Label          ctermfg=246
+hi Operator       ctermfg=239
+hi Keyword        ctermfg=246
+hi Exception      ctermfg=246
+hi PreProc        ctermfg=243
+hi Include        ctermfg=243
+hi Define         ctermfg=243
+hi Macro          ctermfg=243
+hi Type           ctermfg=241
+hi StorageClass   ctermfg=241
+hi Structure      ctermfg=241
+hi Typedef        ctermfg=241
+hi Special        ctermfg=242
+hi Delimiter      ctermfg=239
