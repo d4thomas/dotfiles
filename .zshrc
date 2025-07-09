@@ -87,8 +87,6 @@ export LESSHISTFILE=-
 # Set aliases
 alias grep='grep --color=always'
 alias less='less -R'
-alias rmgk='xattr -r -d com.apple.quarantine'
-alias cliconcache='sudo rm -r /Library/Caches/com.apple.iconservices.store; killall Finder'
 alias man="env LESS_TERMCAP_mb=$'\e[31m' \
                LESS_TERMCAP_md=$'\e[34m' \
                LESS_TERMCAP_me=$'\e[0m' \
