@@ -88,7 +88,7 @@ hi Typedef ctermfg=248
 hi Special ctermfg=248
 hi SpecialChar ctermfg=248
 hi Tag ctermfg=248
-hi SpecialComment ctermfg=241 cterm=bold
+hi SpecialComment ctermfg=241 cterm=italic
 hi Debug ctermfg=248
 hi Underlined ctermfg=NONE cterm=underline
 hi Ignore ctermfg=241
