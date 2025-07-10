@@ -68,23 +68,23 @@ hi String ctermfg=248
 hi Character ctermfg=248
 hi Boolean ctermfg=248
 hi Identifier ctermfg=NONE
-hi Function ctermfg=248 cterm=bold
-hi Statement ctermfg=248 cterm=bold
-hi Conditional ctermfg=248 cterm=bold
-hi Repeat ctermfg=248 cterm=bold
-hi Label ctermfg=248 cterm=bold
+hi Function ctermfg=248
+hi Statement ctermfg=248
+hi Conditional ctermfg=248
+hi Repeat ctermfg=248
+hi Label ctermfg=248
 hi Operator ctermfg=NONE
-hi Keyword ctermfg=248 cterm=bold
-hi Exception ctermfg=248 cterm=bold
-hi PreProc ctermfg=248 cterm=bold
-hi Include ctermfg=248 cterm=bold
-hi Define ctermfg=248 cterm=bold
-hi Macro ctermfg=248 cterm=bold
-hi PreCondit ctermfg=248 cterm=bold
-hi Type ctermfg=248 cterm=bold
-hi StorageClass ctermfg=248 cterm=bold
-hi Structure ctermfg=248 cterm=bold
-hi Typedef ctermfg=248 cterm=bold
+hi Keyword ctermfg=248
+hi Exception ctermfg=248
+hi PreProc ctermfg=248
+hi Include ctermfg=248
+hi Define ctermfg=248
+hi Macro ctermfg=248
+hi PreCondit ctermfg=248
+hi Type ctermfg=248
+hi StorageClass ctermfg=248
+hi Structure ctermfg=248
+hi Typedef ctermfg=248
 hi Special ctermfg=248
 hi SpecialChar ctermfg=248
 hi Tag ctermfg=248
@@ -95,10 +95,10 @@ hi Ignore ctermfg=241
 hi Error ctermfg=196 ctermbg=NONE cterm=bold
 hi Todo ctermfg=NONE ctermbg=NONE cterm=reverse,bold
 
-" Accent for numbers and delimiters 
+" Accent for numbers and delimiters
 hi Number ctermfg=75 ctermbg=NONE cterm=NONE
-hi Float ctermfg=75 ctermbg=NONE cterm=bold
-hi Delimiter ctermfg=196 ctermbg=NONE cterm=bold
+hi Float ctermfg=75 ctermbg=NONE
+hi Delimiter ctermfg=196 ctermbg=NONE
 
 " Set up syntax matching for numbers and delimiters
 autocmd FileType * call s:SetAccent()
@@ -114,7 +114,7 @@ function! s:SetAccent()
   syntax match AccentNumber "\<0[xX][0-9a-fA-F]\+\>" containedin=ALL
   syntax match AccentNumber "\<0[bB][01]\+\>" containedin=ALL
   syntax match AccentNumber "\<0[oO][0-7]\+\>" containedin=ALL
-  
+
   " Match all bracket types
   syntax match AccentDelims "[()\[\]{}<>]" containedin=ALL
 

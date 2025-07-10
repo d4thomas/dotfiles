@@ -6,22 +6,6 @@ syntax on
 " Set color scheme
 colorscheme grayscale_accents
 
-" Configure text styles
-augroup VimTextStyles
-  autocmd!
-  autocmd Syntax * highlight Comment        cterm=italic
-  autocmd Syntax * highlight Keyword        cterm=italic
-  autocmd Syntax * highlight Function       cterm=italic
-  autocmd Syntax * highlight Type           cterm=italic
-  autocmd Syntax * highlight StorageClass   cterm=italic
-  autocmd Syntax * highlight PreProc        cterm=italic
-  autocmd Syntax * highlight Identifier     cterm=italic
-  autocmd Syntax * highlight Constant       cterm=italic
-  autocmd Syntax * highlight Label          cterm=italic
-  autocmd Syntax * highlight Define         cterm=italic
-  autocmd Syntax * highlight SpecialComment cterm=italic
-augroup END
-
 " Filetype settings
 filetype on
 filetype indent on
