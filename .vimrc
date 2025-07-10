@@ -3,6 +3,9 @@ set nocompatible
 " Enable syntax highlighting
 syntax on
 
+" Set color scheme
+colorscheme grayscale_accents
+
 " Configure text styles
 augroup VimTextStyles
   autocmd!
@@ -116,32 +119,3 @@ set expandtab
 
 " Configure line numbers
 set number
-
-" Set basic syntax colors (grayscale)
-hi LineNr         ctermfg=8
-hi Comment        ctermfg=238
-hi Constant       ctermfg=245
-hi String         ctermfg=243
-hi Character      ctermfg=243
-hi Number         ctermfg=245
-hi Boolean        ctermfg=245
-hi Float          ctermfg=245
-hi Identifier     ctermfg=240
-hi Function       ctermfg=248
-hi Statement      ctermfg=246
-hi Conditional    ctermfg=246
-hi Repeat         ctermfg=246
-hi Label          ctermfg=246
-hi Operator       ctermfg=239
-hi Keyword        ctermfg=246
-hi Exception      ctermfg=246
-hi PreProc        ctermfg=243
-hi Include        ctermfg=243
-hi Define         ctermfg=243
-hi Macro          ctermfg=243
-hi Type           ctermfg=241
-hi StorageClass   ctermfg=241
-hi Structure      ctermfg=241
-hi Typedef        ctermfg=241
-hi Special        ctermfg=242
-hi Delimiter      ctermfg=239
