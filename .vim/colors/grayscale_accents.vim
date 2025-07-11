@@ -45,9 +45,9 @@ hi MoreMsg ctermfg=248 cterm=bold
 hi Question ctermfg=248 cterm=bold
 
 " Search and matching
-hi Search ctermfg=248 ctermbg=237 cterm=NONE
-hi IncSearch ctermfg=248 ctermbg=233 cterm=bold
-hi MatchParen ctermfg=196 ctermbg=NONE cterm=bold
+hi Search ctermbg=NONE cterm=underline
+hi IncSearch ctermbg=NONE cterm=bold,underline
+hi MatchParen ctermfg=196 ctermbg=NONE cterm=bold,underline
 
 " Diff colors
 hi DiffAdd ctermfg=34 ctermbg=none cterm=bold
