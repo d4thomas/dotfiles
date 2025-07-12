@@ -3,7 +3,7 @@ if command -v git &> /dev/null; then
     dfs() {
         GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME git "$@"
     }
-    
+
     dfs-init() {
         mkdir -p "$HOME/.dotfiles"
         git init --bare "$HOME/.dotfiles"
@@ -15,7 +15,7 @@ if command -v git &> /dev/null; then
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" sparse-checkout reapply
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" branch -M main
     }
-    
+
     dfs-restore() {
         if [ -z "$1" ]; then
             echo "Usage: dfs-restore <github-repo-url>"
@@ -29,7 +29,7 @@ if command -v git &> /dev/null; then
         printf "/*\n!README.md\n" > "$HOME/.dotfiles/info/sparse-checkout"
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" checkout -f
     }
-    
+
     dfss() { dfs status }
     dfsd() { dfs diff }
     dfsa() { dfs add -u }

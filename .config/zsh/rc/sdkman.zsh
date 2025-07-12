@@ -2,6 +2,7 @@
 if [ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
     sdkman() {
         local sdkman_init="$HOME/.sdkman/bin/sdkman-init.sh"
+
         if [[ "$1" == "enable" ]]; then
             export ORIGINAL_JAVA_HOME=$(/usr/libexec/java_home)
             export SDKMAN_DIR="$HOME/.sdkman"
