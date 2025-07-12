@@ -4,10 +4,10 @@ This script sets up and restores dotfiles using a bare Git repository.
 
 ## Setup
 
-Add the following function definitions to your shell configuration file (e.g., `.bashrc` or `.zshrc`).
+Add the following function definitions to your `.zshrc` file.
 
 ```sh
-# Setup dotfiles maintenance
+# Configure dotfiles maintenance
 if command -v git &> /dev/null; then
     dfs() {
         GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME git "$@"
