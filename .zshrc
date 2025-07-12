@@ -2,13 +2,13 @@ ZDOT="$HOME/.config/zsh"
 
 # Load Zsh profile
 if [[ -d "$ZDOT" ]]; then
-    zsh_files=("$ZDOT"/*.zsh(N))
+    ZDOT_FILES=("$ZDOT"/*.zsh(N))
     
-    if (( ${#zsh_files[@]} )); then
+    if (( ${#ZDOT_FILES[@]} )); then
         # Configure Homebrew first
         [[ -f "$ZDOT/homebrew.zsh" ]] && source "$ZDOT/homebrew.zsh"
   
-        for file in "${zsh_files[@]}"; do
+        for file in "${ZDOT_FILES[@]}"; do
             [[ "$file" == "$ZDOT/homebrew.zsh" ]] && continue
             source "$file"
         done
