@@ -4,7 +4,7 @@ set nocompatible
 syntax on
 
 " Set color scheme
-colorscheme grayscale_accents
+colorscheme colors
 
 " Filetype settings
 filetype on
