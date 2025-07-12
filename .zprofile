@@ -1,5 +1,5 @@
 ZDOT="$HOME/.config/zsh/zprofile"
- 
+
 # Load Zsh profile
 if [[ -d "$ZDOT" ]]; then
     ZDOT_FILES=("$ZDOT"/*.zsh(N))
