@@ -8,7 +8,7 @@ setopt HIST_SAVE_NO_DUPS
 # Disable less histroy
 export LESSHISTFILE=-
 
-# Toggle history file
+# Toggle saving history file
 togglehist() {
     if [[ -n "$HISTFILE" ]]; then
         export _OLD_HISTFILE="$HISTFILE"
