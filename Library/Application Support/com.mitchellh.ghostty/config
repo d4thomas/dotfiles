@@ -1,27 +1,31 @@
 font-family = Berkeley Mono Variable
-font-family = Symbols Nerd Font
 font-size = 13
 font-style = Book
 font-style-bold = ExtraBold
 font-style-italic = Oblique
 font-style-bold-italic = ExtraBold Oblique
-font-thicken = false
 
+#font-family = MonoLisa
+#font-size = 12
+#font-style = Regular
+#font-style-bold = Bold
+#font-style-italic = Italic
+#font-style-bold-italic = Bold Italic
+
+font-family = Symbols Nerd Font
+font-thicken = false
 cursor-style = block
 cursor-style-blink = true
 shell-integration = zsh
 shell-integration-features = no-cursor
-
 macos-titlebar-style = tabs
 macos-titlebar-proxy-icon = hidden
 macos-option-as-alt = true
+quick-terminal-screen = macos-menu-bar
 window-vsync = true
 window-colorspace = display-p3
-quick-terminal-screen = macos-menu-bar
-
 window-width = 125
 window-height = 45
-
 confirm-close-surface = false
 clipboard-paste-protection = false
 
