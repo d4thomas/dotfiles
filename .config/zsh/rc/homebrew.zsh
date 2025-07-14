@@ -7,6 +7,7 @@ if command -v brew &> /dev/null; then
     export HOMEBREW_NO_EMOJI=1
 
     alias brew-cleanup='brew autoremove; brew cleanup --prune=all; brew cleanup -s'
+    alias brew-upgrade='brew update; brew upgrade'
     alias brew-backup='brew bundle dump --file=~/.config/brew/Brewfile --force'
 
     if [ -f "$HOME/.config/brew/Brewfile" ]; then
