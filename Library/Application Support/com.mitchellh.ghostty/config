@@ -29,5 +29,4 @@ window-height = 45
 confirm-close-surface = false
 clipboard-paste-protection = false
 
-#theme = dark:"JetBrains Dark",light:"JetBrains Light"
-theme = dark:"Mocha",light:"Latte"
+theme = dark:"JetBrains Dark",light:"JetBrains Light"
