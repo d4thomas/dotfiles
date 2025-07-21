@@ -87,7 +87,7 @@ dfs push -u origin main
 
 ### Aliases
 
-Some useful aliases to make like easier.
+Quality of life aliases.
 
 ```sh
 dfss                  --> dfs status
