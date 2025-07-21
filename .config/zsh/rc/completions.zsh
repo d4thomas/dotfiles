@@ -58,3 +58,6 @@ unsetopt LIST_TYPES
 # Hide certain files
 HIDDEN=".DS_Store|IdeaSnapshots"
 zstyle ':completion:*' ignored-patterns ${(s:|:)HIDDEN}
+zstyle ':completion:*' file-patterns \
+    "^(${(j:|:)HIDDEN}):files" \
+    '*:all-files'
