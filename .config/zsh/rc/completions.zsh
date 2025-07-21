@@ -3,13 +3,22 @@ autoload -Uz compinit && compinit
 zstyle ':completion:*' completer _complete _match _approximate
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 zstyle ':completion:*' menu select
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' verbose true
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*:descriptions' format '%F{yellow}%d%f'
 zstyle ':completion:*:messages' format '%F{red}%d%f'
 zstyle ':completion:*:warnings' format '%F{red}no matches found%f'
 zstyle ':completion:*:corrections' format '%F{green}%d (errors: %e)%f'
+
+# Configure completion colors
+if [[ -z "$LS_COLORS" ]]; then
+    local TMPDIRCOLORS=$(mktemp)
+    gdircolors -p | sed 's/01;//g' > "$TMPDIRCOLORS"
+    eval "$(gdircolors -b "$TMPDIRCOLORS")"
+    rm "$TMPDIRCOLORS"
+fi
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+unset LS_COLORS
 
 # Directory completion
 zstyle ':completion:*' special-dirs true
@@ -32,6 +41,10 @@ bindkey '^f' history-incremental-search-forward
 bindkey '^[[A' history-beginning-search-backward-end
 bindkey '^[[B' history-beginning-search-forward-end
 
+# Bind Esc to exit menu
+zmodload zsh/complist
+bindkey -M menuselect '\e' send-break
+
 # Configure completion
 setopt GLOB_COMPLETE
 setopt COMPLETE_IN_WORD
@@ -40,3 +53,8 @@ setopt AUTO_MENU
 setopt AUTO_LIST
 setopt AUTO_PARAM_SLASH
 setopt COMPLETE_ALIASES
+unsetopt LIST_TYPES
+
+# Hide certain files
+HIDDEN=".DS_Store|IdeaSnapshots"
+zstyle ':completion:*' ignored-patterns ${(s:|:)HIDDEN}
