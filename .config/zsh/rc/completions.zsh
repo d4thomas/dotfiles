@@ -24,9 +24,9 @@ zstyle ':completion:*:history-words' remove-all-dups yes
 zstyle ':completion:*:history-words' list false
 zstyle ':completion:*:history-words' menu yes
 
-# Bind Alt-b/f for interactive search prompts s 
-bindkey '^[b' history-incremental-search-backward
-bindkey '^[f' history-incremental-search-forward
+# Bind Ctrl-b/f for interactive search prompts s 
+bindkey '^b' history-incremental-search-backward
+bindkey '^f' history-incremental-search-forward
 
 # Bind up/down for prefix-based search
 bindkey '^[[A' history-beginning-search-backward-end
