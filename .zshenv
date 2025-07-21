@@ -1,2 +1,2 @@
-# Set Zsh directory
+#  Set Zsh directory
 export ZDOTDIR="$HOME/.config/zsh"
