@@ -19,6 +19,7 @@ brew "tectonic"
 brew "tmux"
 brew "trash", link: true
 brew "unar"
+brew "uv"
 brew "wget"
 cask "araxis-merge"
 cask "claude"
