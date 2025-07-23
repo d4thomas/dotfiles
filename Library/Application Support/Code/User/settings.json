@@ -1,27 +1,16 @@
 {
+    // Security & Trust
     "security.workspace.trust.enabled": false,
     "security.workspace.trust.untrustedFiles": "open",
+
+    // Window & Workbench
     "window.titleBarStyle": "custom",
-    "problems.showCurrentInStatus": true,
     "workbench.activityBar.location": "top",
     "workbench.editor.empty.hint": "hidden",
-    "inlineChat.lineNaturalLanguageHint": false,
     "workbench.startupEditor": "newUntitledFile",
-    "window.autoDetectColorScheme": true,
-    "workbench.preferredDarkColorTheme": "Monokai Pro",
-    "workbench.preferredLightColorTheme": "Monokai Pro Light",
-    "workbench.iconTheme": "Monokai Pro Light Icons",
-    "workbench.colorCustomizations": {
-        "focusBorder": "#00000000",
-        "editorInlayHint.background": "#00000000",
-    },
-    "explorer.autoReveal": false,
+
+    // Editor - General
     "editor.minimap.enabled": false,
-    "editor.fontFamily": "Berkeley Mono Variable, Symbols Nerd Font",
-    "terminal.integrated.fontFamily": "Berkeley Mono Variable, Symbols Nerd Font",
-    "terminal.integrated.fontLigatures.enabled": true,
-    "terminal.integrated.fontSize": 13,
-    "editor.fontSize": 13,
     "editor.detectIndentation": false,
     "editor.wordWrap": "on",
     "editor.links": false,
@@ -30,6 +19,29 @@
     "editor.accessibilitySupport": "off",
     "editor.renderWhitespace": "trailing",
     "editor.semanticHighlighting.enabled": true,
+
+    // Editor - Fonts
+    "editor.fontFamily": "Berkeley Mono Variable, Symbols Nerd Font",
+    "editor.fontLigatures": true,
+    "editor.fontSize": 13,
+
+    // Terminal
+    "terminal.integrated.fontFamily": "Berkeley Mono Variable, Symbols Nerd Font",
+    "terminal.integrated.fontLigatures.enabled": true,
+    "terminal.integrated.fontSize": 13,
+
+    // Features & UI
+    "problems.showCurrentInStatus": true,
+    "inlineChat.lineNaturalLanguageHint": false,
+    "explorer.autoReveal": false,
+    "extensions.ignoreRecommendations": true,
+
+    // Theme & Colors
+    "window.autoDetectColorScheme": true,
+    "workbench.colorCustomizations": {
+        "focusBorder": "#00000000",
+        "editorInlayHint.background": "#00000000"
+    },
     "editor.tokenColorCustomizations": {
         "textMateRules": [
             {
@@ -41,14 +53,7 @@
                 "settings": {
                     "fontStyle": "italic"
                 }
-            },
+            }
         ]
-    },
-    "extensions.ignoreRecommendations": true,
-    "github.copilot.enable": {
-        "*": false,
-        "plaintext": false,
-        "markdown": false,
-        "scminput": false
-    },
+    }
 }
