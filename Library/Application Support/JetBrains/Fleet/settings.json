@@ -1,0 +1,12 @@
+{
+    "theme": "sync-with-os",
+    "editor.fontFamily": "Berkeley Mono Variable",
+    "terminal.bell": false,
+    "fus.sendAllowed": false,
+    "collaboration.displayName": "Daniel Thomas",
+    "trimTrailingSpacesOnSave": false,
+    "editor.softWrapEnabled": true,
+    "editor.alwaysShowVerticalScrollbar": false,
+    "zoomLevel": 1.0,
+    "editor.honorCamelHumps": true
+}
