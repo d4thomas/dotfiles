@@ -12,10 +12,7 @@ zstyle ':completion:*:corrections' format '%F{green}%d (errors: %e)%f'
 
 # Configure completion colors
 if [[ -z "$LS_COLORS" ]]; then
-    local TMPDIRCOLORS=$(mktemp)
-    gdircolors -p | sed 's/01;//g' > "$TMPDIRCOLORS"
-    eval "$(gdircolors -b "$TMPDIRCOLORS")"
-    rm "$TMPDIRCOLORS"
+    eval "$(gdircolors -b <(gdircolors -p | sed 's/01;//g'))"
 fi
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 unset LS_COLORS
