@@ -12,6 +12,7 @@ if command -v git &> /dev/null; then
     dfs() {
         GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME git "$@"
     }
+
     dfs-init() {
         mkdir -p "$HOME/.dotfiles"
         git init --bare "$HOME/.dotfiles"
@@ -23,6 +24,7 @@ if command -v git &> /dev/null; then
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" sparse-checkout reapply
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" branch -M main
     }
+
     dfs-restore() {
         if [ -z "$1" ]; then
             echo "Usage: dfs-restore <github-repo-url>"
@@ -36,13 +38,14 @@ if command -v git &> /dev/null; then
         printf "/*\n!README.md\n" > "$HOME/.dotfiles/info/sparse-checkout"
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" checkout -f
     }
-    dfss() { dfs status }
-    dfsd() { dfs diff }
-    dfsa() { dfs add -u }
-    dfsp() { dfs push -u origin main }
+
+    dfss() { GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME git status }
+    dfsd() { GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME git diff }
+    dfsa() { GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME git add -u }
+    dfsp() { GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME git push -u origin main }
     dfsc() {
-        if [ -z "$*" ]; then
-            echo "Usage: dfsc 'commit message'"
+        if [ $# -eq 0 ]; then
+            echo "Usage: dfsc <commit message>"
             return 1
         fi
         dfs commit -m "$*"
