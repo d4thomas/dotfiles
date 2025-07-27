@@ -14,8 +14,13 @@ if command -v eza &> /dev/null; then
     alias ls='eza --no-quotes --ignore-glob="$HIDDEN"'
     alias lsa='eza -a'
     alias lsm='eza -s modified'
+    alias lsi='noglob _lsi_func'
     alias lsg='eza --no-quotes --group-directories-first --ignore-glob="$HIDDEN"'
     alias lst='eza --no-quotes --long --classify --all --header --git --no-user --tree --ignore-glob="$HIDDEN" --git --level'
+
+    _lsi_func() {
+        eza --ignore-glob="$*"
+}
 else
     alias ls='ls --color=always'
 fi

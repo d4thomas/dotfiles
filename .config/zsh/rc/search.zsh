@@ -4,7 +4,7 @@ fdf() {
         echo "Usage: fdf <name_pattern>"
         return 1
     fi
-    find . -path ./.git -prune -o -print 2>/dev/null | grep -i "$*"
+    noglob find . -path ./.git -prune -o -print 2>/dev/null | grep -i "$*"
 }
 
 fdt() {
@@ -12,5 +12,5 @@ fdt() {
         echo "Usage: fdt <search_term>"
         return 1
     fi
-    grep -rIH --exclude-dir=".git" "$*" . 2>/dev/null
+    noglob grep -rIH --color=always --exclude-dir=".git" "$*" . 2>/dev/null
 }
