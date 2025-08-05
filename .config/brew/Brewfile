@@ -23,6 +23,8 @@ brew "trash", link: true
 brew "unar"
 brew "uv"
 brew "wget"
+cask "adguard"
+cask "adguard-vpn"
 cask "araxis-merge"
 cask "claude"
 cask "font-symbols-only-nerd-font"
