@@ -48,27 +48,9 @@ if status is-interactive
     
     # Colors
     set fish_color_normal brblack
-    set fish_color_command green
-    set fish_color_param red
-    set fish_color_keyword brred
-    set fish_color_quote green
-    set fish_color_redirection magenta
-    set fish_color_end bryellow
-    set fish_color_comment brblack
-    set fish_color_error brred
-    set fish_color_selection --background=brblack
-    set fish_color_search_match --background=brblack
-    set fish_color_option green
-    set fish_color_operator magenta
-    set fish_color_escape brred
-    set fish_color_autosuggestion brblack
-    set fish_color_cancel brred
-    set fish_color_cwd yellow
-    set fish_color_user cyan
-    set fish_color_host blue
-    set fish_color_host_remote green
-    set fish_color_status brred
     set fish_color_valid_path blue --no-underline
+    set fish_color_search_match magenta --underline
+    set fish_color_selection --background=brblack
     set fish_pager_color_progress brblack
     set fish_pager_color_prefix brblack
     set fish_pager_color_completion brblack
