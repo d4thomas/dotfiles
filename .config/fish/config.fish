@@ -63,3 +63,4 @@ set -gx PATH "$HOME/.dotnet/tools" $PATH
 set -gx PATH (brew --prefix)/opt/openjdk/bin $PATH
 set -gx PATH "$HOME/Library/Application Support/JetBrains/Toolbox/scripts" $PATH
 set -gx COURSIER_BIN_DIR "$HOME/.local/bin"
+set -gx LESSHISTFILE -
