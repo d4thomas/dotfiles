@@ -3,6 +3,9 @@ set nocompatible
 " Enable syntax highlighting
 syntax on
 
+" Increase memory for pattern matching
+set maxmempattern=150000
+
 " Set color scheme
 colorscheme colors
 
