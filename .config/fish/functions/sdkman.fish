@@ -8,22 +8,39 @@ function sdkman --description "Toggle SDKMAN on or off"
 
     switch $action
         case enable
-            if test -s "$HOME/.sdkman/bin/sdkman-init.sh"
-                # Export SDKMAN environment variables
+            if test -f "$HOME/.sdkman/bin/sdkman-init.sh"
+                # Save JAVA_HOME and PATH
+                set -gx ORIGINAL_JAVA_HOME (/usr/libexec/java_home)
+                set -gx ORIGINAL_PATH $PATH
                 set -gx SDKMAN_DIR "$HOME/.sdkman"
-                set -gx SDKMAN_VERSION (cat "$SDKMAN_DIR/var/version" 2>/dev/null; or echo "unknown")
-                set -gx SDKMAN_PLATFORM (cat "$SDKMAN_DIR/var/platform" 2>/dev/null; or echo "unknown")
 
-                # Add SDKMAN candidates to PATH
-                for candidate_dir in $SDKMAN_DIR/candidates/*/current/bin
-                    if test -d $candidate_dir
-                        set -gx PATH $candidate_dir $PATH
-                    end
+                # Get updated PATH
+                set -l new_path (bash -c "
+                    export SDKMAN_DIR='$HOME/.sdkman'
+                    source '$HOME/.sdkman/bin/sdkman-init.sh'
+                    echo \$PATH
+                ")
+
+                # Set PATH
+                set -gx PATH (string split ':' $new_path)
+
+                # Capture SDKMAN environment variables
+                bash -c "
+                    export SDKMAN_DIR='$HOME/.sdkman'
+                    source '$HOME/.sdkman/bin/sdkman-init.sh'
+                    env | grep -E '^(SDKMAN_|JAVA_HOME=)'
+                " | while read -l line
+                    set -l parts (string split '=' $line)
+                    set -gx $parts[1] $parts[2]
                 end
 
-                # Create sdk function wrapper
-                function sdk --description "SDKMAN wrapper for fish shell"
-                    bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && sdk $argv"
+                # Create function that sources SDKMAN
+                function sdk --description "SDKMAN command wrapper"
+                    bash -c "
+                        export SDKMAN_DIR='$HOME/.sdkman'
+                        source '$HOME/.sdkman/bin/sdkman-init.sh'
+                        sdk $argv
+                    "
                 end
 
                 echo "SDKMAN enabled"
@@ -33,27 +50,26 @@ function sdkman --description "Toggle SDKMAN on or off"
             end
 
         case disable
-            # Remove SDKMAN from PATH
-            if set -q SDKMAN_DIR
-                set -e SDKMAN_DIR
-            end
-            if set -q SDKMAN_PLATFORM
-                set -e SDKMAN_PLATFORM
-            end
-            if set -q SDKMAN_VERSION
-                set -e SDKMAN_VERSION
+            # Restore JAVA_HOME and PATH
+            if set -q ORIGINAL_JAVA_HOME
+                set -gx JAVA_HOME $ORIGINAL_JAVA_HOME
+                set -e ORIGINAL_JAVA_HOME
             end
 
-            # Remove SDKMAN paths from PATH
-            set -l new_path
-            for path_entry in $PATH
-                if not string match -q "*/.sdkman/*" $path_entry
-                    set new_path $new_path $path_entry
-                end
+            if set -q ORIGINAL_PATH
+                set -gx PATH $ORIGINAL_PATH
+                set -e ORIGINAL_PATH
             end
-            set -gx PATH $new_path
 
-            # Remove sdk function if it exists
+            # Unset SDKMAN environment variables
+            set -e SDKMAN_DIR
+            set -e SDKMAN_VERSION
+            set -e SDKMAN_CANDIDATES_API
+            set -e SDKMAN_CURRENT_API
+            set -e SDKMAN_PLATFORM
+            set -e JAVA_HOME
+
+            # Remove SDK function
             if functions -q sdk
                 functions -e sdk
             end
