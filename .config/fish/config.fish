@@ -45,7 +45,7 @@ if status is-interactive
 
     # Starship
     starship init fish | source
-    
+
     # Colors
     set fish_color_normal brblack
     set fish_color_valid_path blue --no-underline
