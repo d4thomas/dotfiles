@@ -12,7 +12,7 @@ alias man="env LESS_TERMCAP_mb=$'\e[31m' \
 if command -v eza &> /dev/null; then
     HIDDEN=".DS_Store|IdeaSnapshots"
     alias ls="eza --no-quotes --ignore-glob='$HIDDEN'"
-    alias lsa="eza -a"
+    alias lss="eza -a"
     alias lsm="eza -s modified"
     alias lsi="noglob _lsi_func"
     alias lsg="eza --no-quotes --group-directories-first --ignore-glob='$HIDDEN'"
