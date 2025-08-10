@@ -19,7 +19,7 @@ brew "r"
 brew "rclone"
 brew "tectonic"
 brew "tmux"
-brew "trash", link: true
+brew "trash"
 brew "unar"
 brew "uv"
 brew "wget"

@@ -10,6 +10,7 @@ if status is-interactive
 
     # Basic
     alias less 'less -R'
+    alias trash '$(brew --prefix)/opt/trash/bin/trash'
     alias rm 'trash'
 
     # Eza

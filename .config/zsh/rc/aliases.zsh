@@ -25,6 +25,7 @@ else
     alias ls='ls --color=always'
 fi
 
-if command -v trash &> /dev/null; then
+if command -v $(brew --prefix)/opt/trash/bin/trash &> /dev/null; then
+    alias trash='$(brew --prefix)/opt/trash/bin/trash'
     alias rm='trash'
 fi
