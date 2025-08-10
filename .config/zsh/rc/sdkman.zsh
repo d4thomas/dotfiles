@@ -7,6 +7,7 @@ if [ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
             export ORIGINAL_JAVA_HOME=$(/usr/libexec/java_home)
             export SDKMAN_DIR="$HOME/.sdkman"
             [[ -s "$sdkman_init" ]] && source "$sdkman_init"
+            echo "SDKMAN enabled"
         elif [[ "$1" == "disable" ]]; then
             if [[ -n "$ORIGINAL_JAVA_HOME" ]]; then
                 export JAVA_HOME="$ORIGINAL_JAVA_HOME"
@@ -18,6 +19,7 @@ if [ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
             unset SDKMAN_CANDIDATES_API
             unset SDKMAN_CURRENT_API
             unset SDKMAN_PLATFORM
+            echo "SDKMAN disabled"
         else
             echo "Usage: sdkman [enable|disable]"
             return 1
