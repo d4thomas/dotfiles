@@ -15,13 +15,14 @@ if status is-interactive
 
     # Eza
     if type -q eza
-        set -g HIDDEN ".DS_Store|IdeaSnapshots"
+        set HIDDEN ".DS_Store|IdeaSnapshots"
         alias ls "eza --no-quotes --ignore-glob='$HIDDEN'"
         alias lsa "eza -a"
         alias lss "eza -s modified"
         alias lsi "eza --ignore-glob"
         alias lsg "eza --no-quotes --group-directories-first --ignore-glob='$HIDDEN'"
         alias lst "eza --no-quotes --long --classify --all --header --git --no-user --tree --ignore-glob='$HIDDEN' --git --level"
+        set -e HIDDEN
     end
 
     # Homebrew
