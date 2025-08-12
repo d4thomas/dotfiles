@@ -7,6 +7,9 @@ if status is-interactive
     # Less
     alias less "less -R"
 
+    # Babashka
+    alias babashka bb
+
     # Trash
     if test -f (brew --prefix)/opt/trash/bin/trash
         alias trash (brew --prefix)/opt/trash/bin/trash
