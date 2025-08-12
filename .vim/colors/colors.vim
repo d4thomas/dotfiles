@@ -5,6 +5,7 @@ if exists("syntax_on")
 endif
 
 let g:colors_name = "colors"
+set background=light
 
 " Universal colors
 hi Normal ctermfg=NONE ctermbg=NONE
