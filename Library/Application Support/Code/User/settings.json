@@ -4,6 +4,7 @@
     "security.workspace.trust.untrustedFiles": "open",
 
     // Window & Workbench
+    "git.openRepositoryInParentFolders": "never",
     "window.titleBarStyle": "custom",
     "workbench.activityBar.location": "top",
     "workbench.editor.empty.hint": "hidden",
