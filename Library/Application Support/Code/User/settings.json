@@ -29,14 +29,33 @@
     "terminal.integrated.fontFamily": "Berkeley Mono Variable, Symbols Nerd Font",
     "terminal.integrated.fontLigatures.enabled": true,
     "terminal.integrated.fontSize": 13,
+    "terminal.integrated.defaultProfile.osx": "fish",
 
-    // Features & UI
+    // Telemetry
+    "telemetry.feedback.enabled": false,
+    "telemetry.editStats.enabled": false,
+    "telemetry.telemetryLevel": "off",
+
+    // Extensions
+    "redhat.telemetry.enabled": false,
+    "github.copilot.enable": {
+        "*": false,
+        "plaintext": false,
+        "markdown": false,
+        "scminput": false
+    },
+
+    // Features & UI/UX
     "problems.showCurrentInStatus": true,
     "inlineChat.lineNaturalLanguageHint": false,
     "explorer.autoReveal": false,
     "extensions.ignoreRecommendations": true,
 
     // Theme & Colors
+    "workbench.preferredDarkColorTheme": "Monokai Pro",
+    "workbench.preferredLightColorTheme": "Monokai Pro Light",
+    "workbench.iconTheme": "Monokai Pro Light Icons",
+
     "window.autoDetectColorScheme": true,
     "workbench.colorCustomizations": {
         "focusBorder": "#00000000",
@@ -55,5 +74,5 @@
                 }
             }
         ]
-    }
+    },
 }

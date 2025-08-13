@@ -78,7 +78,6 @@ end
 validPath $HOME/.local/bin
 validPath $HOME/.dotnet/tools
 validPath (brew --prefix)/opt/openjdk/bin
-validPath "$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
 
 # Coursier
 if type -q coursier
