@@ -38,6 +38,11 @@
 
     // Extensions
     "redhat.telemetry.enabled": false,
+    "calva.paredit.defaultKeyMap": "strict",
+    "files.watcherExclude": {
+        "**/.bloop": true,
+        "**/.metals": true
+    },
     "github.copilot.enable": {
         "*": false,
         "plaintext": false,
