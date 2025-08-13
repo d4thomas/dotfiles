@@ -18,7 +18,7 @@ if status is-interactive
 
     # Eza
     if type -q eza
-        set HIDDEN ".DS_Store|IdeaSnapshots"
+        set HIDDEN ".DS_Store"
         alias ls "eza --no-quotes --ignore-glob='$HIDDEN'"
         alias lsa "eza -a"
         alias lss "eza -s modified"
