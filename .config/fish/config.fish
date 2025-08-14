@@ -33,6 +33,7 @@ if status is-interactive
     set -gx HOMEBREW_NO_ENV_HINTS 1
     set -gx HOMEBREW_NO_EMOJI 1
     alias bbd "brew bundle dump --file=~/.config/brew/Brewfile --force"
+    alias bbb "brew update; brew upgrade; brew cleanup --prune=all; bbd"
     alias bbr "brew bundle --file=~/.config/brew/Brewfile --force"
 
     # Find
