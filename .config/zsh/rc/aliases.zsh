@@ -25,6 +25,11 @@ else
     alias ls="ls --color=always"
 fi
 
+# VS Code
+if command -v code &> /dev/null; then
+    alias code="open -b com.microsoft.VSCode"
+fi
+
 if command -v $(brew --prefix)/opt/trash/bin/trash &> /dev/null; then
     alias trash="$(brew --prefix)/opt/trash/bin/trash"
     alias rm="trash"
