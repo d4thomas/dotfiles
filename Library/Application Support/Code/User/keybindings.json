@@ -43,13 +43,6 @@
     "when": "editorTextFocus"
   },
 
-  // Close active group split
-  {
-    "key": "cmd+alt+p",
-    "command": "workbench.action.closeActiveEditor",
-    "when": "editorTextFocus"
-  },
-
   // Toggle current group split maximize/minimize
   {
     "key": "cmd+alt+m",
