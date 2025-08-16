@@ -1,6 +1,7 @@
+brew "openjdk"
+brew "clojure"
 brew "colima"
 brew "coreutils"
-brew "openjdk"
 brew "coursier"
 brew "docker"
 brew "docker-credential-helper"
