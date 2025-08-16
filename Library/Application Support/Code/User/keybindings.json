@@ -6,13 +6,13 @@
     "when": "editorTextFocus"
   },
   {
-    "key": "cmd+alt+shift+down", 
+    "key": "cmd+alt+shift+down",
     "command": "workbench.action.newGroupBelow",
     "when": "editorTextFocus"
   },
   {
     "key": "cmd+alt+shift+left",
-    "command": "workbench.action.newGroupLeft", 
+    "command": "workbench.action.newGroupLeft",
     "when": "editorTextFocus"
   },
   {
@@ -28,7 +28,7 @@
     "when": "editorTextFocus"
   },
   {
-    "key": "cmd+alt+down", 
+    "key": "cmd+alt+down",
     "command": "workbench.action.focusBelowGroup",
     "when": "editorTextFocus"
   },
@@ -39,7 +39,7 @@
   },
   {
     "key": "cmd+alt+right",
-    "command": "workbench.action.focusRightGroup", 
+    "command": "workbench.action.focusRightGroup",
     "when": "editorTextFocus"
   },
 
@@ -52,18 +52,18 @@
 
   // Resize current group split
   {
-      "key": "cmd+alt+l",
-      "command": "workbench.action.decreaseViewWidth",
+    "key": "cmd+alt+l",
+    "command": "workbench.action.decreaseViewWidth",
     "when": "editorTextFocus"
   },
   {
-    "key": "cmd+alt+k", 
+    "key": "cmd+alt+k",
     "command": "workbench.action.increaseViewHeight",
     "when": "editorTextFocus"
   },
   {
     "key": "cmd+alt+j",
-    "command": "workbench.action.decreaseViewHeight", 
+    "command": "workbench.action.decreaseViewHeight",
     "when": "editorTextFocus"
   },
   {
@@ -79,8 +79,15 @@
     "when": "editorTextFocus"
   },
   {
-    "key": "ctrl+alt+down", 
+    "key": "ctrl+alt+down",
     "command": "editor.action.insertCursorBelow",
     "when": "editorTextFocus"
   },
+
+  // Debug
+  {
+    "key": "alt+b",
+    "command": "workbench.action.debug.start",
+    "when": "debuggersAvailable && debugState != 'initializing'"
+  }
 ]

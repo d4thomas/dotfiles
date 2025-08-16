@@ -1,86 +1,87 @@
 {
-    // Security & Trust
-    "security.workspace.trust.enabled": false,
-    "security.workspace.trust.untrustedFiles": "open",
+  // Language Specific
+  "javascript.inlayHints.parameterNames.enabled": "all",
+  "typescript.inlayHints.parameterNames.enabled": "all",
 
-    // Window & Workbench
-    "git.openRepositoryInParentFolders": "never",
-    "window.titleBarStyle": "custom",
-    "workbench.activityBar.location": "top",
-    "workbench.editor.empty.hint": "hidden",
-    "workbench.startupEditor": "newUntitledFile",
+  // Security & Trust
+  "security.workspace.trust.enabled": false,
+  "security.workspace.trust.untrustedFiles": "open",
 
-    // Editor - General
-    "editor.minimap.enabled": false,
-    "editor.detectIndentation": false,
-    "editor.wordWrap": "on",
-    "editor.links": false,
-    "editor.stickyScroll.enabled": false,
-    "editor.occurrencesHighlight": "off",
-    "editor.accessibilitySupport": "off",
-    "editor.renderWhitespace": "trailing",
-    "editor.semanticHighlighting.enabled": true,
+  // Window & Workbench
+  "git.openRepositoryInParentFolders": "never",
+  "window.titleBarStyle": "custom",
+  "workbench.activityBar.location": "top",
+  "workbench.editor.empty.hint": "hidden",
+  "workbench.startupEditor": "newUntitledFile",
 
-    // Editor - Fonts
-    "editor.fontFamily": "Berkeley Mono Variable, Symbols Nerd Font",
-    "editor.fontLigatures": true,
-    "editor.fontSize": 13,
+  // Editor - General
+  "editor.minimap.enabled": false,
+  "editor.detectIndentation": false,
+  "editor.wordWrap": "on",
+  "editor.links": false,
+  "editor.stickyScroll.enabled": false,
+  "editor.occurrencesHighlight": "off",
+  "editor.accessibilitySupport": "off",
+  "editor.renderWhitespace": "trailing",
+  "editor.semanticHighlighting.enabled": true,
+  "editor.inlayHints.enabled": "offUnlessPressed", // Option-Control to Toggle
+  "editor.parameterHints.enabled": false,          // Command-Shift-Space to Toggle
 
-    // Terminal
-    "terminal.integrated.fontFamily": "Berkeley Mono Variable, Symbols Nerd Font",
-    "terminal.integrated.fontLigatures.enabled": true,
-    "terminal.integrated.fontSize": 13,
-    "terminal.integrated.defaultProfile.osx": "fish",
-    "terminal.integrated.cursorBlinking": true,
-    "terminal.integrated.shellIntegration.decorationsEnabled": "never",
+  // Editor - Fonts
+  "editor.fontFamily": "Berkeley Mono Variable, Symbols Nerd Font",
+  "editor.fontLigatures": true,
+  "editor.fontSize": 13,
 
-    // Telemetry
-    "telemetry.feedback.enabled": false,
-    "telemetry.editStats.enabled": false,
-    "telemetry.telemetryLevel": "off",
+  // Terminal
+  "terminal.integrated.fontFamily": "Berkeley Mono Variable, Symbols Nerd Font",
+  "terminal.integrated.fontLigatures.enabled": true,
+  "terminal.integrated.fontSize": 13,
+  "terminal.integrated.defaultProfile.osx": "fish",
+  "terminal.integrated.cursorBlinking": true,
+  "terminal.integrated.shellIntegration.decorationsEnabled": "never",
 
-    // Extensions
-    "redhat.telemetry.enabled": false,
-    "calva.paredit.defaultKeyMap": "strict",
-    "files.watcherExclude": {
-        "**/.bloop": true,
-        "**/.metals": true
-    },
-    "github.copilot.enable": {
-        "*": false,
-        "plaintext": false,
-        "markdown": false,
-        "scminput": false
-    },
+  // Telemetry
+  "telemetry.feedback.enabled": false,
+  "telemetry.editStats.enabled": false,
+  "telemetry.telemetryLevel": "off",
 
-    // Features & UI/UX
-    "problems.showCurrentInStatus": true,
-    "inlineChat.lineNaturalLanguageHint": false,
-    "explorer.autoReveal": false,
-    "extensions.ignoreRecommendations": true,
+  // Extensions
+  "redhat.telemetry.enabled": false,
+  "calva.paredit.defaultKeyMap": "strict",
+  "files.watcherExclude": {
+    "**/.bloop": true,
+    "**/.metals": true
+  },
+  "github.copilot.enable": {
+    "*": false,
+    "plaintext": false,
+    "markdown": false,
+    "scminput": false
+  },
 
-    // Theme & Colors
-    "workbench.preferredDarkColorTheme": "Monokai Pro",
-    "workbench.preferredLightColorTheme": "Monokai Pro Light",
-    "workbench.iconTheme": "Monokai Pro Light Icons",
+  // Features & UI/UX
+  "problems.showCurrentInStatus": true,
+  "inlineChat.lineNaturalLanguageHint": false,
+  "explorer.autoReveal": false,
+  "extensions.ignoreRecommendations": true,
 
-    "window.autoDetectColorScheme": true,
-    "workbench.colorCustomizations": {
-        "focusBorder": "#00000000",
-        "editorInlayHint.background": "#00000000"
-    },
-    "editor.tokenColorCustomizations": {
-        "textMateRules": [
-            {
-                "scope": [
-                    "comment",
-                    "comment.block.documentation",
-                    "comment.line"
-                ],
-                "settings": {
-                    "fontStyle": "italic"
-                }
-            }
-        ]
-    },
+  // Theme & Colors
+  "workbench.preferredDarkColorTheme": "Monokai Pro",
+  "workbench.preferredLightColorTheme": "Monokai Pro Light",
+  "workbench.iconTheme": "Monokai Pro Light Icons",
+  "window.autoDetectColorScheme": true,
+  "workbench.colorCustomizations": {
+    "focusBorder": "#00000000",
+    "editorInlayHint.background": "#00000000"
+  },
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": ["comment", "comment.block.documentation", "comment.line"],
+        "settings": {
+          "fontStyle": "italic"
+        }
+      }
+    ]
+  },
 }
