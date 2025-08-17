@@ -10,6 +10,9 @@ if status is-interactive
     # VS Code
     alias code "open -b com.microsoft.VSCode $argv"
 
+    # Kill bloop build server
+    alias kbloop "pgrep -f bloop | xargs -r kill -9"
+
     # Trash
     if test -f (brew --prefix)/opt/trash/bin/trash
         alias trash (brew --prefix)/opt/trash/bin/trash
