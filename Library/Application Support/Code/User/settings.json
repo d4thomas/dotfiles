@@ -25,7 +25,7 @@
   "editor.renderWhitespace": "trailing",
   "editor.semanticHighlighting.enabled": true,
   "editor.inlayHints.enabled": "offUnlessPressed", // Option-Control to Toggle
-  "editor.parameterHints.enabled": false,          // Command-Shift-Space to Toggle
+  "editor.parameterHints.enabled": false, // Command-Shift-Space to Toggle
 
   // Editor - Fonts
   "editor.fontFamily": "Berkeley Mono Variable, Symbols Nerd Font",
@@ -84,4 +84,5 @@
       }
     ]
   },
+  "workbench.externalBrowser": "chrome"
 }
