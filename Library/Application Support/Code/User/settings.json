@@ -59,7 +59,6 @@
     "markdown": false,
     "scminput": false
   },
-  "cSpell.words": ["vite"],
 
   // Features & UI/UX
   "problems.showCurrentInStatus": true,
