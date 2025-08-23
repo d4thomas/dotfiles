@@ -34,9 +34,10 @@ if status is-interactive
     # Homebrew
     set -gx HOMEBREW_CASK_OPTS "--no-quarantine"
     set -gx HOMEBREW_NO_ENV_HINTS 1
-    set -gx HOMEBREW_NO_EMOJI 1
+    set -gx HOMEBREW_NO_EMOJI 1i
     alias bbd "brew bundle dump --file=~/.config/brew/Brewfile --force"
     alias bbr "brew bundle --file=~/.config/brew/Brewfile --force"
+    alias bb "brew update; brew upgrade; brew cleanup --prune=all; bbd"
 
     # Find
     alias fdf "find . -path ./.git -prune -o -print 2>/dev/null | grep -i"
