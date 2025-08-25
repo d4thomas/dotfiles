@@ -35,7 +35,7 @@ if status is-interactive
     set -gx HOMEBREW_CASK_OPTS "--no-quarantine"
     set -gx HOMEBREW_NO_ENV_HINTS 1
     set -gx HOMEBREW_NO_EMOJI 1i
-    alias bbd "brew bundle dump --file=~/.config/brew/Brewfile --force --no-vscode"
+    alias bbd "brew bundle dump --file=~/.config/brew/Brewfile --force"
     alias bbr "brew bundle --file=~/.config/brew/Brewfile --force"
     alias bb "brew update; brew upgrade; brew cleanup --prune=all; bbd"
 
