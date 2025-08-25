@@ -2,16 +2,21 @@ eval (/opt/homebrew/bin/brew shellenv)
 
 if status is-interactive
     # Dotfiles
-    alias dfs "env GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME git"
+    if type -q git
+        alias dfs "env GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME git"
+    end
+
+    # Grep
+    alias grep "grep --color=always"
 
     # Less
     alias less "less -R"
 
     # VS Code
-    alias code "open -b com.microsoft.VSCode $argv"
-
-    # Kill bloop build server
-    alias kbloop "pgrep -f bloop | xargs -r kill -9"
+    if type -q code
+        alias code "open -b com.microsoft.VSCode $argv"
+        alias kbloop "pgrep -f bloop | xargs -r kill -9"
+    end
 
     # Trash
     if test -f (brew --prefix)/opt/trash/bin/trash
@@ -34,9 +39,11 @@ if status is-interactive
     # Homebrew
     set -gx HOMEBREW_CASK_OPTS "--no-quarantine"
     set -gx HOMEBREW_NO_ENV_HINTS 1
-    set -gx HOMEBREW_NO_EMOJI 1i
+    set -gx HOMEBREW_NO_EMOJI 1
     alias bbd "brew bundle dump --file=~/.config/brew/Brewfile --force"
-    alias bbr "brew bundle --file=~/.config/brew/Brewfile --force"
+    if test -f $HOME/.config/brew/Brewfile
+        alias bbr "brew bundle --file=~/.config/brew/Brewfile --force"
+    end
     alias bb "brew update; brew upgrade; brew cleanup --prune=all; bbd"
 
     # Find

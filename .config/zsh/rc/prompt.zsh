@@ -13,6 +13,8 @@ if [ -f "$(brew --prefix)/share/zsh/site-functions/prompt_pure_setup" ]; then
 
     autoload -U promptinit; promptinit
     prompt pure
+elif command -v starship &> /dev/null; then
+    eval "$(starship init zsh)"
 else
     autoload -U colors && colors
     local success="%{$fg[green]%}❯%{$reset_color%}"
