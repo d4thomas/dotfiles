@@ -8,12 +8,12 @@
     process = git-lfs filter-process
     required = true
 [color]
-	ui = always
+    ui = always
 [credential]
     helper = osxkeychain
 [core]
     excludesfile = ~/.gitignore
-	pager =
+    pager =
 [commit]
     gpgsign = true
 [gpg]
@@ -21,19 +21,6 @@
 [url "git@github.com:"]
     insteadOf = https://github.com/
 [alias]
-    ad = difftool --tool=araxis --dir-diff
-    ads = difftool --tool=araxis --dir-diff --staged
     ignore = "!gi() { curl -sL https://www.toptal.com/developers/gitignore/api/$@ ;}; gi"
     plog = log --pretty=format:'%Cred%h%Creset -%C(magenta)%d%Creset %s %C(green)(%cr) %C(blue)<%an>%Creset' --abbrev-commit
     graph = log --graph --all --pretty=format:'%Cred%h%Creset -%C(magenta)%d%Creset %s %C(green)(%cr) %C(blue)<%an>%Creset' --abbrev-commit
-[mergetool "araxis"]
-    path = "/opt/homebrew/bin/araxiscompare"
-[diff]
-    tool = araxis
-[merge]
-    tool = araxis
-[difftool]
-    prompt = false
-[mergetool]
-    prompt = false
-    keepBackup = true
