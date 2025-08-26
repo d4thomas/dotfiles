@@ -66,6 +66,10 @@ if status is-interactive
         starship init fish | source
     end
 
+    # History expansion: !! for last command, !$ for last argument
+    bind ! _bang
+    bind '$' _dollar
+
     # Fish
     set fish_greeting
     set -g fish_complete_case_insensitive true
