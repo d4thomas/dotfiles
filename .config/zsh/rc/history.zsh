@@ -11,5 +11,5 @@ setopt HIST_FIND_NO_DUPS
 setopt HIST_SAVE_NO_DUPS
 setopt SHARE_HISTORY
 
-# Disable less histroy
+# Disable less history
 export LESSHISTFILE=-

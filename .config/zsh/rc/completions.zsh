@@ -1,3 +1,10 @@
+# Load additional completion definitions
+if [[ -d "$(brew --prefix)/share/zsh-completions" ]]; then
+    FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+    autoload -Uz compinit
+    compinit
+fi
+
 # Basic completion
 autoload -Uz compinit && compinit
 zstyle ":completion:*" completer _complete _match _approximate
