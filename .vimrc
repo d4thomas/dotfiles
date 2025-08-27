@@ -7,21 +7,7 @@ syntax on
 set maxmempattern=150000
 
 " Set colorscheme
-let g:dark_theme = 'colors'
-let g:light_theme = 'colors'
-function! SetTheme()
-    let theme = system("defaults read -g AppleInterfaceStyle 2>/dev/null | tr -d '\\n'")
-    if theme ==# 'Dark'
-        set background=dark
-        execute 'colorscheme ' . g:dark_theme
-    else
-        set background=light
-        execute 'colorscheme ' . g:light_theme
-    endif
-endfunction
-autocmd VimEnter * call SetTheme()
-command! RefreshTheme call SetTheme()
-autocmd FocusGained * call SetTheme()
+colorscheme colors
 
 " Filetype settings
 filetype on
