@@ -26,6 +26,6 @@ git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" config --local status.showUn
 git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" config core.sparseCheckout true
 git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" config core.sparseCheckoutCone false
 mkdir -p "$HOME/.dotfiles/info"
-printf "/*\n!README.md\n" > "$HOME/.dotfiles/info/sparse-checkout"
+printf "/*\n\!README.md\n" > "$HOME/.dotfiles/info/sparse-checkout"
 git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" checkout -f
 ```
