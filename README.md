@@ -21,7 +21,7 @@ GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME git
 
 ## Restore
 ```sh
-git clone --bare <git-repository> "$HOME/.dotfiles"
+git clone --bare https://github.com/d4thomas/dotfiles.git "$HOME/.dotfiles"
 git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" config --local status.showUntrackedFiles no
 git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" config core.sparseCheckout true
 git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" config core.sparseCheckoutCone false
