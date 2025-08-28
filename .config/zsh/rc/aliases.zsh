@@ -23,7 +23,7 @@ fi
 
 # Eza
 if command -v eza &> /dev/null; then
-    local HIDDEN=".DS_Store"
+    HIDDEN=".DS_Store"
     alias ls="eza --no-quotes --ignore-glob='$HIDDEN'"
     alias lsa="eza -a"
     alias lss="eza -s modified"
