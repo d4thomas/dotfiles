@@ -13,7 +13,6 @@
   "workbench.activityBar.location": "top",
   "workbench.editor.empty.hint": "hidden",
   "workbench.startupEditor": "newUntitledFile",
-  "workbench.externalBrowser": "chrome",
 
   // Editor - General
   "editor.minimap.enabled": false,
