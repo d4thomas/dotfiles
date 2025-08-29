@@ -1,12 +1,12 @@
 # Load additional completion definitions
-if [[ -d "$(brew --prefix)/share/zsh-completions" ]]; then
-    FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+if [[ -d "$BREW_PREFIX/share/zsh-completions" ]]; then
+    FPATH=$BREW_PREFIX/share/zsh-completions:$FPATH
     autoload -Uz compinit
-    compinit
+    compinit -u
 fi
 
 # Basic completion
-autoload -Uz compinit && compinit
+autoload -Uz compinit && compinit -u
 zstyle ":completion:*" completer _complete _match _approximate
 zstyle ":completion:*" matcher-list "m:{a-zA-Z}={A-Za-z}" "r:|[._-]=* r:|=*" "l:|=* r:|=*"
 zstyle ":completion:*" menu select
@@ -18,7 +18,7 @@ zstyle ":completion:*:warnings" format "%F{red}no matches found%f"
 zstyle ":completion:*:corrections" format "%F{green}%d (errors: %e)%f"
 
 # Configure completion colors
-if [[ -z "$LS_COLORS" ]]; then
+if [[ -z "$LS_COLORS" ]] && command -v gdircolors >/dev/null 2>&1; then
     eval "$(gdircolors -b <(gdircolors -p | sed "s/01;//g"))"
 fi
 zstyle ":completion:*" list-colors ${(s.:.)LS_COLORS}

@@ -16,8 +16,8 @@ if command -v code &> /dev/null; then
 fi
 
 # Trash
-if [[ -f "$(brew --prefix 2>/dev/null)/opt/trash/bin/trash" ]]; then
-    alias trash="$(brew --prefix)/opt/trash/bin/trash"
+if [[ -f "$BREW_PREFIX/opt/trash/bin/trash" ]]; then
+    alias trash="$BREW_PREFIX/opt/trash/bin/trash"
     alias rm="trash"
 fi
 

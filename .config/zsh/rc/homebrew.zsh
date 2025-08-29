@@ -6,7 +6,7 @@ if command -v brew &> /dev/null; then
     export HOMEBREW_NO_ENV_HINTS=1
     export HOMEBREW_NO_EMOJI=1
 
-    alias bbd="brew bundle dump --file=~/.config/brew/Brewfile --force"
+    alias bbd="brew bundle dump --no-vscode --file=~/.config/brew/Brewfile --force"
     if [ -f "$HOME/.config/brew/Brewfile" ]; then
         alias bbr="brew bundle --file=~/.config/brew/Brewfile --force"
     fi

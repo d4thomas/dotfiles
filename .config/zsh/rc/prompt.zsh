@@ -1,5 +1,5 @@
 # Configure prompt
-if [ -f "$(brew --prefix)/share/zsh/site-functions/prompt_pure_setup" ]; then
+if [ -f "$BREW_PREFIX/share/zsh/site-functions/prompt_pure_setup" ]; then
     export VIRTUAL_ENV_DISABLE_PROMPT=12
 
     PURE_GIT_UP_ARROW="▲"
