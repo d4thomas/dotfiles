@@ -1,5 +1,8 @@
 set nocompatible
 
+" Disable color
+let &t_Co=1
+
 " Increase memory for pattern matching
 set maxmempattern=150000
 
