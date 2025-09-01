@@ -1,13 +1,7 @@
 set nocompatible
 
-" Enable syntax highlighting
-syntax on
-
 " Increase memory for pattern matching
 set maxmempattern=150000
-
-" Set colorscheme
-colorscheme colors
 
 " Filetype settings
 filetype on
@@ -103,6 +97,3 @@ set undofile
 set tabstop=4
 set shiftwidth=4
 set expandtab
-
-" Configure line numbers
-set number
