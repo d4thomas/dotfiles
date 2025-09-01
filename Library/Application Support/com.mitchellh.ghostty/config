@@ -12,6 +12,7 @@ font-style-bold-italic = ExtraBold Oblique
 #font-style-italic = Italic
 #font-style-bold-italic = Bold Italic
 
+font-feature = -calt
 font-family = Symbols Nerd Font
 font-thicken = false
 cursor-style = block
