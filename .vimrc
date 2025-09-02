@@ -70,7 +70,7 @@ set linebreak
 set breakat=\^I!@*-+;:,./?
 
 " Character to show that a line is wrapped
-set showbreak=»»»
+let &showbreak = repeat(' ', 4) . '| '
 
 " Highlight search matches
 set incsearch hlsearch
