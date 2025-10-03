@@ -102,3 +102,6 @@ end
 
 # Less
 set -gx LESSHISTFILE -
+
+# PIP
+set -g -x PIP_REQUIRE_VIRTUALENV true
