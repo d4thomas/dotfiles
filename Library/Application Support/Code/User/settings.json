@@ -49,6 +49,7 @@
   // Extensions
   "redhat.telemetry.enabled": false,
   "calva.paredit.defaultKeyMap": "strict",
+  "mdb.mcp.server": "prompt",
   "files.watcherExclude": {
     "**/.bloop": true,
     "**/.metals": true
