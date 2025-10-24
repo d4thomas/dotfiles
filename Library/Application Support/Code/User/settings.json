@@ -85,5 +85,6 @@
         }
       }
     ]
-  }
+  },
+  "mdb.confirmRunAll": false
 }
