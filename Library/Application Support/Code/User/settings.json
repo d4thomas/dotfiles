@@ -49,6 +49,7 @@
   // Extensions
   "redhat.telemetry.enabled": false,
   "calva.paredit.defaultKeyMap": "strict",
+  "mdb.confirmRunAll": false,
   "mdb.mcp.server": "prompt",
   "files.watcherExclude": {
     "**/.bloop": true,
@@ -85,6 +86,5 @@
         }
       }
     ]
-  },
-  "mdb.confirmRunAll": false
+  }
 }
