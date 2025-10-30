@@ -11,10 +11,12 @@ Simple Image-to-PDF Converter with Auto-Numbering
 
 This script:
 1. Scans all subdirectories for images
-2. Extracts numbers from directory names (e.g., "Chapter 3" -> "3.pdf")
-3. Creates PDFs in the working directory
-4. Moves processed directories to a "processed" folder
-5. Interactively creates volumes by specifying chapter ranges
+2. Flattens images into a "pages" folder with renamed files (e.g., 07/029.png -> pages/07_029.png)
+3. Waits for user to press Enter before converting to PDF
+4. Extracts numbers from directory names (e.g., "Chapter 3" -> "3.pdf")
+5. Creates PDFs in the working directory
+6. Moves processed directories to a "processed" folder
+7. Interactively creates volumes by specifying chapter ranges
 """
 
 import os
@@ -50,6 +52,66 @@ def get_images(directory):
             images.append(file)
 
     return images
+
+
+def flatten_images_to_pages(base_path):
+    """Flatten all images from subdirectories into a single 'pages' folder"""
+    base_path = Path(base_path)
+    pages_dir = base_path / "pages"
+    
+    # Create pages directory
+    if pages_dir.exists():
+        shutil.rmtree(pages_dir)
+    pages_dir.mkdir()
+    
+    # Get all subdirectories
+    subdirs = [d for d in base_path.iterdir() 
+               if d.is_dir() 
+               and not d.name.startswith('.') 
+               and d.name not in ('processed', 'pages')]
+    
+    if not subdirs:
+        print("No directories found to process.")
+        return None
+    
+    # Sort naturally
+    subdirs.sort(key=lambda x: natural_sort_key(x.name))
+    
+    print("\nFlattening images into 'pages' folder:\n")
+    
+    total_copied = 0
+    dir_mapping = {}  # Maps directory number to list of image files in pages folder
+    
+    for subdir in subdirs:
+        # Extract number from directory name
+        number = extract_number(subdir.name)
+        if not number:
+            print(f"⊘ {subdir.name} - No number found, skipping")
+            continue
+        
+        # Get images
+        images = get_images(subdir)
+        if not images:
+            print(f"⊘ {subdir.name} - No images found, skipping")
+            continue
+        
+        print(f"→ {subdir.name} ({len(images)} images)")
+        
+        # Copy images with new naming scheme
+        copied_files = []
+        for img_file in images:
+            # New name: dirNumber_filename.ext (e.g., 07_029.png)
+            new_name = f"{number}_{img_file.name}"
+            dest_path = pages_dir / new_name
+            
+            shutil.copy2(img_file, dest_path)
+            copied_files.append(dest_path)
+            total_copied += 1
+        
+        dir_mapping[number] = copied_files
+    
+    print(f"\n✓ Copied {total_copied} images to pages/ folder")
+    return dir_mapping
 
 
 def images_to_pdf(image_files, output_pdf):
@@ -94,61 +156,47 @@ def images_to_pdf(image_files, output_pdf):
         return False
 
 
-def process_directories(base_path):
-    """Process all directories, create PDFs, move processed dirs"""
+def process_directories(base_path, dir_mapping):
+    """Process directories and create PDFs from flattened images"""
     base_path = Path(base_path)
     processed_dir = base_path / "processed"
-
-    # Get all subdirectories
-    subdirs = [d for d in base_path.iterdir() 
-               if d.is_dir() 
-               and not d.name.startswith('.') 
-               and d.name != 'processed']
-
-    if not subdirs:
-        print("No directories found to process.")
-        return []
-
-    # Sort naturally
-    subdirs.sort(key=lambda x: natural_sort_key(x.name))
+    pages_dir = base_path / "pages"
 
     pdf_list = []
-    print("\nProcessing directories:\n")
+    print("\nCreating PDFs:\n")
 
-    for subdir in subdirs:
-        # Extract number from directory name
-        number = extract_number(subdir.name)
-        if not number:
-            print(f"⊘ {subdir.name} - No number found, skipping")
-            continue
-
-        # Get images
-        images = get_images(subdir)
-        if not images:
-            print(f"⊘ {subdir.name} - No images found, skipping")
-            continue
-
+    for number, image_files in sorted(dir_mapping.items(), key=lambda x: natural_sort_key(x[0])):
         # Create PDF with just the number
         pdf_name = f"{number}.pdf"
         pdf_path = base_path / pdf_name
 
-        print(f"→ {subdir.name} -> {pdf_name} ({len(images)} images)")
+        print(f"→ {number}.pdf ({len(image_files)} images)")
 
-        if images_to_pdf(images, pdf_path):
+        if images_to_pdf(image_files, pdf_path):
             pdf_list.append((number, pdf_path))
-
-            # Move processed directory
-            processed_dir.mkdir(exist_ok=True)
-            dest = processed_dir / subdir.name
-
-            # Handle existing directories
-            if dest.exists():
-                shutil.rmtree(dest)
-
-            shutil.move(str(subdir), str(dest))
-            print(f"  ✓ Created {pdf_name}, moved to processed/")
+            print(f"  ✓ Created {pdf_name}")
         else:
             print(f"  ✗ Failed to create {pdf_name}")
+
+    # Move original directories to processed folder if PDFs were created
+    if pdf_list:
+        subdirs = [d for d in base_path.iterdir() 
+                   if d.is_dir() 
+                   and not d.name.startswith('.') 
+                   and d.name not in ('processed', 'pages')]
+        
+        if subdirs:
+            processed_dir.mkdir(exist_ok=True)
+            for subdir in subdirs:
+                dest = processed_dir / subdir.name
+                
+                # Handle existing directories
+                if dest.exists():
+                    shutil.rmtree(dest)
+                
+                shutil.move(str(subdir), str(dest))
+            
+            print(f"\n✓ Moved original directories to processed/")
 
     return pdf_list
 
@@ -330,7 +378,7 @@ def main():
     subdirs = [d for d in base_path.iterdir() 
                if d.is_dir() 
                and not d.name.startswith('.') 
-               and d.name != 'processed']
+               and d.name not in ('processed', 'pages')]
 
     has_image_dirs = False
     for subdir in subdirs:
@@ -341,9 +389,23 @@ def main():
     pdf_list = []
 
     if has_image_dirs:
-        # Process directories normally
-        print("Found directories with images. Processing...\n")
-        pdf_list = process_directories(base_path)
+        # Step 1: Flatten images to pages folder
+        print("Found directories with images. Flattening to pages/ folder...\n")
+        dir_mapping = flatten_images_to_pages(base_path)
+        
+        if not dir_mapping:
+            print("\nNo images to process.")
+            return
+        
+        # Step 2: Wait for user to press Enter
+        print("\n" + "=" * 60)
+        print("Images have been copied to the 'pages/' folder.")
+        print("You can now manually edit any images before PDF conversion.")
+        print("=" * 60)
+        input("\nPress ENTER when ready to convert to PDF...")
+        
+        # Step 3: Process and create PDFs
+        pdf_list = process_directories(base_path, dir_mapping)
 
         if not pdf_list:
             print("\nNo PDFs created.")
@@ -361,7 +423,7 @@ def main():
         print("No directories with images or existing PDFs found.")
         return
 
-    # Step 2: Create volumes
+    # Step 4: Create volumes
     create_volumes(pdf_list, base_path)
 
 
