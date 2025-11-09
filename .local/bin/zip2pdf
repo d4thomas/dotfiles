@@ -1,16 +1,12 @@
 #!/bin/bash
 
-# Get the base name
-BASENAME="${1%.zip}"
+set -e
 
-# Create directory
+FULLPATH="$1"
+FILENAME=$(basename "$FULLPATH")
+BASENAME="${FILENAME%.zip}"
+
 mkdir "$BASENAME"
-
-# Unzip file
-unzip "$1" -d "$BASENAME"
-
-# Convert files to PDF
+unzip "$FULLPATH" -d "$BASENAME"
 img2pdf "$BASENAME"/* -o "$BASENAME.pdf"
-
-# Remove directory
 rm -r "$BASENAME"
