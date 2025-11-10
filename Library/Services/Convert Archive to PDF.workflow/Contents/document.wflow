@@ -66,16 +66,13 @@ do
   (
     set -e
     cd "$(dirname "$FULLPATH")"
-    
     FILENAME=$(basename "$FULLPATH")
-
     TEMPNAME="${FILENAME%.zip}"
     BASENAME="${TEMPNAME%.cbz}"
-    
-    mkdir "$BASENAME"
-    unzip "$FILENAME" -d "$BASENAME"
-    img2pdf "$BASENAME"/* -o "$BASENAME.pdf"
-    rm -r "$BASENAME"
+    TEMP_DIR=$(mktemp -d)
+    unzip "$FILENAME" -d "$TEMP_DIR"
+    img2pdf "$TEMP_DIR"/* -o "$BASENAME.pdf"
+    rm -r "$TEMP_DIR"
   )
 done</string>
 					<key>CheckedForUserDefaultShell</key>
@@ -190,7 +187,7 @@ done</string>
 				<key>isViewVisible</key>
 				<integer>1</integer>
 				<key>location</key>
-				<string>433.500000:485.000000</string>
+				<string>433.500000:600.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Run Shell Script.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>
