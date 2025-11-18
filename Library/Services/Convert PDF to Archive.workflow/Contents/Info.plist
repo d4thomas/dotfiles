@@ -12,7 +12,7 @@
 			<key>NSMenuItem</key>
 			<dict>
 				<key>default</key>
-				<string>Convert Archive to PDF (Subfolder)</string>
+				<string>Convert PDF to Archive</string>
 			</dict>
 			<key>NSMessage</key>
 			<string>runWorkflowAsService</string>

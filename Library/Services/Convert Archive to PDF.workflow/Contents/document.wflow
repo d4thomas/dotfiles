@@ -60,27 +60,31 @@
 				<dict>
 					<key>COMMAND_STRING</key>
 					<string>export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+/bin/zsh -s -- "$@" &lt;&lt;'EOF'
 
-for FULLPATH in "$@"
-do
-  (
-    set -e
-    cd "$(dirname "$FULLPATH")"
-    FILENAME=$(basename "$FULLPATH")
-    TEMPNAME="${FILENAME%.zip}"
-    BASENAME="${TEMPNAME%.cbz}"
-    TEMP_DIR=$(mktemp -d)
-    unzip "$FILENAME" -d "$TEMP_DIR"
-    img2pdf "$TEMP_DIR"/* -o "$BASENAME.pdf"
-    rm -r "$TEMP_DIR"
-  )
-done</string>
+setopt nullglob
+set -e
+
+for FULLPATH in "$@"; do
+  cd "$(dirname "$FULLPATH")"
+  FILENAME=$(basename "$FULLPATH")
+  BASENAME="${FILENAME%.*}"
+  
+  TEMP_DIR=$(mktemp -d)
+  unar -q -D -o "$TEMP_DIR" "$FILENAME"
+  
+  images=("$TEMP_DIR"/**/*.(jpg|jpeg|png|webp|JPG|JPEG|PNG|WEBP)(.n))
+  img2pdf "${images[@]}" -o "$BASENAME.pdf"
+  
+  rm -rf "$TEMP_DIR"
+done
+EOF</string>
 					<key>CheckedForUserDefaultShell</key>
 					<true/>
 					<key>inputMethod</key>
 					<integer>1</integer>
 					<key>shell</key>
-					<string>/bin/bash</string>
+					<string>/bin/zsh</string>
 					<key>source</key>
 					<string></string>
 				</dict>
@@ -187,7 +191,7 @@ done</string>
 				<key>isViewVisible</key>
 				<integer>1</integer>
 				<key>location</key>
-				<string>433.500000:600.000000</string>
+				<string>309.000000:611.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Run Shell Script.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>

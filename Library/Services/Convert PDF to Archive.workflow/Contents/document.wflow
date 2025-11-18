@@ -60,43 +60,24 @@
 				<dict>
 					<key>COMMAND_STRING</key>
 					<string>export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
-
-# We pass the file list "$@" to a temporary Zsh instance
-# This ensures Natural Sorting works even if Automator is set to Bash
 /bin/zsh -s -- "$@" &lt;&lt;'EOF'
 
-# Enable nullglob so script doesn't fail on missing extensions
 setopt nullglob
+set -e
 
-for FULLPATH in "$@"
-do
-  (
-    # Stop on error
-    set -e
-    
-    cd "$(dirname "$FULLPATH")"
-    FILENAME=$(basename "$FULLPATH")
-    TEMPNAME="${FILENAME%.zip}"
-    BASENAME="${TEMPNAME%.cbz}"
-    TEMP_DIR=$(mktemp -d)
+for FULLPATH in "$@"; do
+  cd "$(dirname "$FULLPATH")"
+  FILENAME=$(basename "$FULLPATH")
+  BASENAME="${FILENAME%.pdf}"
+  
+  TEMP_DIR=$(mktemp -d)
+  
+  pdfimages -all "$FILENAME" "$TEMP_DIR/page"
+  
+  images=("$TEMP_DIR"/*(.) (.n))
+  (cd "$TEMP_DIR" &amp;&amp; zip -q -0 - *) &gt; "$BASENAME.cbz"
 
-    # 1. Unzip quietly
-    unzip -q "$FILENAME" -d "$TEMP_DIR"
-
-    # 2. Find images recursively using Zsh's natural sort (.n)
-    # The (.n) at the end forces "Natural Sort" (1, 2, 10 instead of 1, 10, 2)
-    images=("$TEMP_DIR"/**/*.(jpg|jpeg|png|webp|JPG|JPEG|PNG|WEBP)(.n))
-
-    # 3. Convert if images exist
-    if (( ${#images[@]} )); then
-        img2pdf "${images[@]}" -o "$BASENAME.pdf"
-    else
-        echo "No images found in $FILENAME"
-    fi
-
-    # 4. Cleanup
-    rm -r "$TEMP_DIR"
-  )
+  rm -rf "$TEMP_DIR"
 done
 EOF</string>
 					<key>CheckedForUserDefaultShell</key>
@@ -104,7 +85,7 @@ EOF</string>
 					<key>inputMethod</key>
 					<integer>1</integer>
 					<key>shell</key>
-					<string>/bin/bash</string>
+					<string>/bin/zsh</string>
 					<key>source</key>
 					<string></string>
 				</dict>
@@ -211,7 +192,7 @@ EOF</string>
 				<key>isViewVisible</key>
 				<integer>1</integer>
 				<key>location</key>
-				<string>309.000000:624.000000</string>
+				<string>309.000000:561.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Run Shell Script.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>
