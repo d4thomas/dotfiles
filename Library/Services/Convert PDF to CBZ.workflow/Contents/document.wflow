@@ -72,11 +72,16 @@ for FULLPATH in "$@"; do
   
   TEMP_DIR=$(mktemp -d)
   
-  pdfimages -all "$FILENAME" "$TEMP_DIR/page"
+  pdfimages -all -p "$FILENAME" "$TEMP_DIR/page"
   
-  images=("$TEMP_DIR"/*(.) (.n))
+  for page_num in $(ls "$TEMP_DIR" | sed -E 's/page-([0-9]+)-.*/\1/' | sort -u); do
+    largest=$(ls -S "$TEMP_DIR"/page-${page_num}-* 2&gt;/dev/null | head -1)
+    for f in "$TEMP_DIR"/page-${page_num}-*; do
+      [[ "$f" != "$largest" ]] &amp;&amp; rm "$f"
+    done
+  done
+  
   (cd "$TEMP_DIR" &amp;&amp; zip -q -0 - *) &gt; "$BASENAME.cbz"
-
   rm -rf "$TEMP_DIR"
 done
 EOF</string>
@@ -192,7 +197,7 @@ EOF</string>
 				<key>isViewVisible</key>
 				<integer>1</integer>
 				<key>location</key>
-				<string>309.000000:561.000000</string>
+				<string>507.500000:597.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Run Shell Script.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>
