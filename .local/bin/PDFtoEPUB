@@ -1,0 +1,507 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.9"
+# dependencies = [
+#     "pillow",
+# ]
+# ///
+
+import sys
+import argparse
+import uuid
+import subprocess
+from pathlib import Path
+from datetime import datetime
+import zipfile
+import shutil
+import os
+from PIL import Image
+import re
+import json
+try:
+    import urllib.request
+    import urllib.parse
+except ImportError:
+    pass
+
+
+def parse_manga_title(filename):
+    name = filename.replace('.pdf', '').replace('.PDF', '')
+
+    patterns = [
+        r'\s*[-_]\s*v(?:ol(?:ume)?\.?)?\s*\d+.*$',
+        r'\s*v(?:ol(?:ume)?\.?)?\s*\d+.*$',
+        r'\s*[-_]\s*\d+.*$',
+        r'\s*#\d+.*$',
+        r'\s*\(\d+\).*$',
+        r'\s*\[\d+\].*$',
+    ]
+
+    for pattern in patterns:
+        name = re.sub(pattern, '', name, flags=re.IGNORECASE)
+
+    name = re.sub(r'\s+', ' ', name).strip()
+
+    return name
+
+
+def fetch_anilist_metadata(title):
+    try:
+        query = '''
+        query ($search: String) {
+          Media(search: $search, type: MANGA) {
+            staff {
+              edges {
+                role
+                node {
+                  name {
+                    full
+                  }
+                }
+              }
+            }
+            startDate {
+              year
+              month
+              day
+            }
+            endDate {
+              year
+              month
+              day
+            }
+            genres
+          }
+        }
+        '''
+
+        variables = {'search': title}
+
+        data = json.dumps({
+            'query': query,
+            'variables': variables
+        }).encode('utf-8')
+
+        req = urllib.request.Request(
+            'https://graphql.anilist.co',
+            data=data,
+            headers={'Content-Type': 'application/json'}
+        )
+
+        with urllib.request.urlopen(req, timeout=5) as response:
+            result = json.loads(response.read().decode('utf-8'))
+
+            if 'data' in result and result['data']['Media']:
+                media = result['data']['Media']
+
+                author = None
+                if 'staff' in media and media['staff']['edges']:
+                    for edge in media['staff']['edges']:
+                        role = edge['role']
+                        if any(keyword in role for keyword in ['Story & Art', 'Story', 'Original Creator']):
+                            author = edge['node']['name']['full']
+                            break
+
+                # Format dates
+                start_date = None
+                if media.get('startDate') and media['startDate'].get('year'):
+                    start_date = f"{media['startDate']['year']}"
+
+                return {
+                    'author': author,
+                    'publication_date': start_date,
+                    'genres': media.get('genres', [])
+                }
+
+        return None
+    except Exception as e:
+        print(f"  Could not fetch AniList metadata: {e}")
+        return None
+
+
+def create_mimetype(output_dir):
+    mimetype_path = output_dir / "mimetype"
+    with open(mimetype_path, 'w', encoding='utf-8') as f:
+        f.write("application/epub+zip")
+    return mimetype_path
+
+
+def create_container_xml(output_dir):
+    meta_inf = output_dir / "META-INF"
+    meta_inf.mkdir(exist_ok=True)
+
+    container_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+\t<rootfiles>
+\t\t<rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml" />
+\t</rootfiles>
+</container>
+"""
+
+    with open(meta_inf / "container.xml", 'w', encoding='utf-8') as f:
+        f.write(container_xml)
+
+
+def create_css(output_dir):
+    css_dir = output_dir / "OEBPS" / "css"
+    css_dir.mkdir(parents=True, exist_ok=True)
+
+    css_content = """body, div, dl, dt, dd, h1, h2, h3, h4, h5, h6, p, pre, code, blockquote {
+\tmargin:0;
+\tpadding:0;
+\tborder-width:0;
+\ttext-rendering:optimizeSpeed;
+}
+body {
+\tmargin:0;
+\tpadding:0;
+}
+.page-container {
+\tposition:absolute;
+\tleft:0px;
+\ttop:0px;
+\twidth:100%;
+\theight:100%;
+}
+img.full-page {
+\theight:100%;
+\twidth:100%;
+\tobject-fit:contain;
+\tposition:absolute;
+\tleft:0px;
+\ttop:0px;
+}
+"""
+
+    with open(css_dir / "style.css", 'w', encoding='utf-8') as f:
+        f.write(css_content)
+
+
+def create_xhtml_page(page_num, image_filename, image_width, image_height):
+    xhtml = f"""<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+\t<head>
+\t\t<meta charset="utf-8" />
+\t\t<meta name="viewport" content="width={image_width},height={image_height}" />
+\t\t<title>Page {page_num}</title>
+\t\t<link href="css/style.css" rel="stylesheet" type="text/css" />
+\t</head>
+\t<body style="width:{image_width}px;height:{image_height}px;margin:0;padding:0">
+\t\t<div class="page-container">
+\t\t\t<img class="full-page" src="image/{image_filename}" alt="Page {page_num}" />
+\t\t</div>
+\t</body>
+</html>
+"""
+    return xhtml
+
+
+def create_content_opf(output_dir, title, num_pages, image_sizes, metadata=None, reading_direction='rtl'):
+    book_id = str(uuid.uuid4())
+    timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    author = metadata.get('author') if metadata else None
+    pub_date = metadata.get('publication_date') if metadata else None
+    genres = metadata.get('genres', []) if metadata else []
+
+    manifest_pages = []
+    for i in range(1, num_pages + 1):
+        manifest_pages.append(f'\t\t<item id="page-{i}" href="page-{i}.xhtml" media-type="application/xhtml+xml" />')
+
+    manifest_images = []
+    for i in range(1, num_pages + 1):
+        properties = ' properties="cover-image"' if i == 1 else ''
+        manifest_images.append(f'\t\t<item id="img-{i}" href="image/page-{i}.png" media-type="image/png"{properties} />')
+
+    spine_items = []
+    for i in range(1, num_pages + 1):
+        spine_items.append(f'\t\t<itemref idref="page-{i}" />')
+
+    metadata_lines = [
+        f'\t\t<meta name="cover" content="img-1" />',
+        f'\t\t<dc:title>{title}</dc:title>',
+    ]
+
+    if author:
+        metadata_lines.append(f'\t\t<dc:creator>{author}</dc:creator>')
+
+    if pub_date:
+        metadata_lines.append(f'\t\t<dc:date>{pub_date}</dc:date>')
+    else:
+        metadata_lines.append(f'\t\t<dc:date>{timestamp}</dc:date>')
+
+    for genre in genres:
+        metadata_lines.append(f'\t\t<dc:subject>{genre}</dc:subject>')
+
+    metadata_lines.extend([
+        f'\t\t<dc:language>en</dc:language>',
+        f'\t\t<meta property="dcterms:modified">{timestamp}</meta>',
+        f'\t\t<dc:identifier id="bookid">urn:uuid:{book_id}</dc:identifier>',
+        f'\t\t<!--fixed-layout options-->',
+        f'\t\t<meta property="rendition:layout">pre-paginated</meta>',
+        f'\t\t<meta property="rendition:spread">none</meta>',
+    ])
+
+    content_opf = f"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<package version="3.0" xmlns="http://www.idpf.org/2007/opf" unique-identifier="bookid" prefix="rendition: http://www.idpf.org/vocab/rendition/# ibooks: http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/">
+\t<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+{chr(10).join(metadata_lines)}
+\t</metadata>
+\t<manifest>
+{chr(10).join(manifest_pages)}
+\t\t<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav" />
+\t\t<item id="css" href="css/style.css" media-type="text/css" />
+{chr(10).join(manifest_images)}
+\t</manifest>
+\t<spine page-progression-direction="{reading_direction}">
+{chr(10).join(spine_items)}
+\t</spine>
+</package>
+"""
+
+    with open(output_dir / "OEBPS" / "content.opf", 'w', encoding='utf-8') as f:
+        f.write(content_opf)
+
+
+def convert_pdf_to_images(pdf_path, output_dir):
+    print(f"Extracting images from PDF: {pdf_path}")
+
+    image_dir = output_dir / "OEBPS" / "image"
+    image_dir.mkdir(parents=True, exist_ok=True)
+
+    temp_extract = output_dir / "temp_images"
+    temp_extract.mkdir(exist_ok=True)
+
+    try:
+        list_result = subprocess.run([
+            'pdfimages',
+            '-list',
+            str(pdf_path)
+        ], check=True, capture_output=True, text=True)
+
+        lines = list_result.stdout.strip().split('\n')[2:]  # Skip header lines
+        image_pages = {}
+        for line in lines:
+            parts = line.split()
+            if len(parts) >= 3:
+                page_num = int(parts[0])
+                img_type = parts[2]
+                # Only count actual images, not soft masks
+                if img_type == 'image':
+                    if page_num not in image_pages:
+                        image_pages[page_num] = True
+
+        num_actual_pages = len(image_pages)
+        print(f"  Detected {num_actual_pages} pages")
+        print(f"  Extracting images from PDF...")
+
+        subprocess.run([
+            'pdfimages',
+            '-all',
+            '-p',
+            str(pdf_path),
+            str(temp_extract / 'page')
+        ], check=True, capture_output=True)
+
+        print(f"  Extraction complete, processing images...")
+
+        from collections import defaultdict
+        files_by_page = defaultdict(list)
+
+        for f in temp_extract.iterdir():
+            if f.is_file() and f.stem.startswith('page-'):
+                parts = f.stem.split('-')
+                if len(parts) >= 3:
+                    page_num = int(parts[1])
+                    files_by_page[page_num].append(f)
+
+        if not files_by_page:
+            raise RuntimeError("No images extracted from PDF")
+
+        sorted_pages = sorted(files_by_page.keys())
+        image_sizes = []
+
+        for page_idx, page_num in enumerate(sorted_pages, start=1):
+            page_files = files_by_page[page_num]
+
+            main_image = max(page_files, key=lambda f: f.stat().st_size)
+
+            with Image.open(main_image) as img:
+                width, height = img.size
+                image_sizes.append((width, height))
+
+                final_path = image_dir / f"page-{page_idx}.png"
+                img.save(final_path, 'PNG', optimize=True)
+                print(f"  Processing page {page_idx}/{num_actual_pages}: {width}x{height}")
+
+        return image_sizes
+
+    finally:
+        if temp_extract.exists():
+            shutil.rmtree(temp_extract)
+
+
+def create_nav_document(output_dir, title, num_pages):
+    nav_content = f"""<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+\t<head>
+\t\t<meta charset="utf-8" />
+\t\t<title>{title}</title>
+\t</head>
+\t<body>
+\t\t<nav epub:type="toc">
+\t\t\t<ol>
+\t\t\t\t<li><a href="page-1.xhtml">Cover</a></li>
+\t\t\t</ol>
+\t\t</nav>
+\t</body>
+</html>
+"""
+    with open(output_dir / "OEBPS" / "nav.xhtml", 'w', encoding='utf-8') as f:
+        f.write(nav_content)
+
+
+def create_xhtml_pages(output_dir, num_pages, image_sizes):
+    oebps_dir = output_dir / "OEBPS"
+
+    for i in range(1, num_pages + 1):
+        width, height = image_sizes[i - 1]
+        xhtml_content = create_xhtml_page(i, f"page-{i}.png", width, height)
+
+        with open(oebps_dir / f"page-{i}.xhtml", 'w', encoding='utf-8') as f:
+            f.write(xhtml_content)
+
+
+def create_epub_zip(temp_dir, output_epub):
+    print(f"Creating EPUB: {output_epub}")
+
+    with zipfile.ZipFile(output_epub, 'w', zipfile.ZIP_DEFLATED) as epub:
+        epub.write(temp_dir / "mimetype", "mimetype", compress_type=zipfile.ZIP_STORED)
+
+        # Add all other files
+        for root, dirs, files in os.walk(temp_dir):
+            for file in files:
+                if file == "mimetype":
+                    continue
+                file_path = Path(root) / file
+                arcname = file_path.relative_to(temp_dir)
+                epub.write(file_path, arcname, compress_type=zipfile.ZIP_DEFLATED)
+
+    print(f"EPUB created successfully: {output_epub}")
+
+
+def convert_pdf_to_epub(pdf_path, output_epub=None, left_to_right=False):
+    pdf_path = Path(pdf_path)
+
+    if not pdf_path.exists():
+        print(f"Error: PDF file not found: {pdf_path}")
+        return False
+
+    if output_epub is None:
+        output_epub = pdf_path.with_suffix('.epub')
+    else:
+        output_epub = Path(output_epub)
+
+    title = pdf_path.stem
+
+    print("Fetching metadata...")
+    series_title = parse_manga_title(pdf_path.name)
+    print(f"  Parsed series title: '{series_title}'")
+
+    metadata = fetch_anilist_metadata(series_title)
+    if metadata:
+        if metadata.get('author'):
+            print(f"  Found author: {metadata['author']}")
+        if metadata.get('publication_date'):
+            print(f"  Publication date: {metadata['publication_date']}")
+        if metadata.get('genres'):
+            print(f"  Genres: {', '.join(metadata['genres'])}")
+    else:
+        print("  No metadata found online")
+
+    temp_dir = Path(f"temp_epub_{uuid.uuid4().hex[:8]}")
+    temp_dir.mkdir(exist_ok=True)
+
+    try:
+        print("Creating EPUB structure...")
+        create_mimetype(temp_dir)
+        create_container_xml(temp_dir)
+        create_css(temp_dir)
+
+        image_sizes = convert_pdf_to_images(pdf_path, temp_dir)
+        num_pages = len(image_sizes)
+
+        print("Creating XHTML pages...")
+        create_xhtml_pages(temp_dir, num_pages, image_sizes)
+        create_nav_document(temp_dir, title, num_pages)
+
+        print("Creating metadata...")
+        reading_direction = 'ltr' if left_to_right else 'rtl'
+        create_content_opf(temp_dir, title, num_pages, image_sizes, metadata, reading_direction)
+
+        create_epub_zip(temp_dir, output_epub)
+
+        return True
+
+    except Exception as e:
+        print(f"Error during conversion: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+    finally:
+        if temp_dir.exists():
+            shutil.rmtree(temp_dir)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='Convert PDF files to EPUB format. By default, processes all PDFs in the current directory with right-to-left reading.'
+    )
+    parser.add_argument('pdf_files', nargs='*', help='Input PDF file(s) to convert. If not specified, converts all PDFs in current directory.')
+    parser.add_argument('-o', '--output', help='Output EPUB file (only valid when converting a single file)')
+    parser.add_argument('-ltr', '--left-to-right', action='store_true',
+                       help='Use left-to-right reading direction (default is right-to-left for manga)')
+
+    args = parser.parse_args()
+
+    if args.pdf_files:
+        pdf_paths = [Path(f) for f in args.pdf_files]
+    else:
+        pdf_paths = list(Path.cwd().glob('*.pdf'))
+        pdf_paths.extend(Path.cwd().glob('*.PDF'))
+
+    if not pdf_paths:
+        print("No PDF files found.")
+        sys.exit(1)
+
+    if args.output and len(pdf_paths) > 1:
+        print("Error: -o/--output can only be used when converting a single file")
+        sys.exit(1)
+
+    print(f"Found {len(pdf_paths)} PDF file(s) to convert")
+    print(f"Reading direction: {'Left-to-Right' if args.left_to_right else 'Right-to-Left'}\n")
+
+    success_count = 0
+    for pdf_path in pdf_paths:
+        print(f"\n{'='*60}")
+        print(f"Processing: {pdf_path.name}")
+        print(f"{'='*60}")
+
+        output_epub = args.output if args.output else None
+        success = convert_pdf_to_epub(pdf_path, output_epub, args.left_to_right)
+
+        if success:
+            success_count += 1
+
+    print(f"\n{'='*60}")
+    print(f"Conversion complete: {success_count}/{len(pdf_paths)} successful")
+    print(f"{'='*60}")
+
+    sys.exit(0 if success_count == len(pdf_paths) else 1)
+
+
+if __name__ == '__main__':
+    main()
