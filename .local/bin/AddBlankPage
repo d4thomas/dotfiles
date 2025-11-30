@@ -1,0 +1,99 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.9"
+# dependencies = [
+#     "pypdf",
+# ]
+# ///
+
+import os
+import glob # Used for finding files matching a pattern
+from pypdf import PdfReader, PdfWriter, PageObject
+from pypdf.generic import RectangleObject
+
+# --- Configuration ---
+# The page number to duplicate the size from and where the new page will be inserted.
+# (index 1 is the second page)
+TARGET_PAGE_INDEX = 1 
+
+def process_pdf_for_blank_page(pdf_path: str, target_index: int):
+    """
+    Inserts a blank page matching the size of the page at target_index
+    into the PDF at that same index (making it the new page two), 
+    and overwrites the original file.
+
+    Args:
+        pdf_path: Path to the original PDF file to be processed and overwritten.
+        target_index: The 0-based index of the page whose size to use and
+                      where the new page will be inserted (index 1 = second page).
+    """
+    if not os.path.exists(pdf_path):
+        # This check is mostly redundant since we're looping over existing files, 
+        # but good practice.
+        return
+
+    print(f"\n--- Processing: {pdf_path} ---")
+
+    # Define a temporary file path for safe writing before overwriting
+    temp_output_path = f"{pdf_path}.tmp"
+    
+    try:
+        # Initialize reader and writer
+        reader = PdfReader(pdf_path)
+        writer = PdfWriter()
+
+        num_pages = len(reader.pages)
+
+        if num_pages < target_index + 1:
+            print(f"Skipping: PDF only has {num_pages} pages. Cannot reference page index {target_index} (Page {target_index + 1}).")
+            return
+
+        # 1. Get the MediaBox (size) of the original target page
+        original_page = reader.pages[target_index]
+        media_box = original_page.mediabox
+        
+        # We need the dimensions for the new page.
+        width = media_box.width
+        height = media_box.height
+        
+        print(f"Original Page {target_index + 1} size: Width={width:.2f}, Height={height:.2f}")
+
+        # 2. Create a new, blank PageObject with the extracted dimensions
+        blank_page = PageObject.create_blank_page(
+            width=width, 
+            height=height
+        )
+
+        # 3. Copy all pages from the reader to the writer
+        for page in reader.pages:
+            writer.add_page(page)
+
+        # 4. Insert the new blank page at the target index (position 2)
+        writer.insert_page(blank_page, index=target_index)
+
+        # 5. Write the new PDF to the temporary file
+        with open(temp_output_path, "wb") as output_pdf_file:
+            writer.write(output_pdf_file)
+
+        # 6. Replace the original file with the temporary file (atomic operation)
+        os.replace(temp_output_path, pdf_path)
+
+        print(f"Success: Blank page inserted and original file '{pdf_path}' overwritten.")
+
+    except Exception as e:
+        # If an error occurred, clean up the temporary file if it exists
+        if os.path.exists(temp_output_path):
+            os.remove(temp_output_path)
+        print(f"An error occurred during PDF processing of '{pdf_path}': {e}")
+
+# Run the function
+if __name__ == "__main__":
+    # Find all PDF files in the current directory
+    pdf_files = [f for f in os.listdir('.') if f.lower().endswith(".pdf")]
+    
+    if not pdf_files:
+        print("No PDF files (.pdf) found in the current directory to process.")
+    else:
+        print(f"Found {len(pdf_files)} PDF file(s) to process.")
+        for pdf_file in pdf_files:
+            process_pdf_for_blank_page(pdf_file, TARGET_PAGE_INDEX)
