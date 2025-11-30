@@ -1,0 +1,234 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.9"
+# dependencies = [
+#     "pypdf",
+# ]
+# ///
+
+import os
+import sys
+from collections import Counter
+from pypdf import PdfReader, PdfWriter, PageObject
+
+def parse_page_selection(range_str: str, max_pages: int) -> list[int]:
+    """
+    Parses a 1-based page range string (e.g., "6-7", "5") into a list of 0-based indices.
+    Clips page numbers to available range (1 to max_pages).
+    
+    Args:
+        range_str: String specifying the pages (e.g., "6-7" or "5").
+        max_pages: Total number of pages in the PDF.
+        
+    Returns:
+        A sorted list of 0-based page indices to process.
+    """
+    pages_to_process = set()
+    range_str = range_str.strip()
+    
+    if '-' in range_str:
+        # Handle hyphenated range (e.g., "6-7")
+        try:
+            start_page, end_page = map(int, range_str.split('-'))
+            
+            # Ensure start <= end
+            if start_page > end_page:
+                start_page, end_page = end_page, start_page
+                
+            # Clamp pages to 1 and max_pages (inclusive)
+            start = max(1, start_page)
+            end = min(max_pages, end_page)
+            
+            for page_num in range(start, end + 1):
+                pages_to_process.add(page_num - 1) # Convert to 0-based index
+                
+        except ValueError:
+            print(f"Warning: Invalid page range format '{range_str}'. Ignoring range.")
+            
+    else:
+        # Handle single page number (e.g., "6")
+        try:
+            page_num = int(range_str)
+            if 1 <= page_num <= max_pages:
+                pages_to_process.add(page_num - 1)
+            else:
+                print(f"Warning: Page number {page_num} is out of bounds (1-{max_pages}). Ignoring page.")
+        except ValueError:
+            print(f"Warning: Invalid single page number '{range_str}'. Ignoring page.")
+
+    return sorted(list(pages_to_process))
+
+def get_most_common_size(reader: PdfReader) -> tuple[int, int, str] | None:
+    """
+    Analyzes the pages in the PDF reader and returns the dimensions (width, height)
+    and a string representation of the most common page size.
+    Returns None if no pages are found.
+    """
+    size_counts = Counter()
+    
+    for page in reader.pages:
+        # Get the MediaBox dimensions. Dimensions are typically floats.
+        width = page.mediabox.width
+        height = page.mediabox.height
+        
+        # Round dimensions to the nearest integer point value for counting consistency.
+        size_key = (round(width), round(height))
+        size_counts[size_key] += 1
+        
+    if not size_counts:
+        return None
+
+    # Find the most common size
+    (most_common_width, most_common_height), count = size_counts.most_common(1)[0]
+    
+    print(f"  Analysis complete. Found {len(size_counts)} unique page size(s).")
+    print(f"  Most common size: {most_common_width} x {most_common_height} points (found in {count} page(s)).")
+    
+    target_name = f"{most_common_width} x {most_common_height} pt (Most Common)"
+    
+    return most_common_width, most_common_height, target_name
+
+
+def normalize_page_sizes(pdf_path: str, page_range_str: str | None = None):
+    """
+    Normalizes a selection of pages within the given PDF to the size that appears 
+    most frequently in the document, and overwrites the original file.
+
+    Args:
+        pdf_path: Path to the PDF file to be processed and overwritten.
+        page_range_str: Optional string specifying the pages to process (e.g., "6-7").
+                        If None, all pages are processed.
+    """
+    if not os.path.exists(pdf_path):
+        print(f"Error: File not found at '{pdf_path}'.")
+        return
+
+    print(f"\n--- Processing: {pdf_path} ---")
+
+    # Define a temporary file path for safe writing before overwriting
+    temp_output_path = f"{pdf_path}.tmp"
+    
+    try:
+        # Step 1: Initialize reader for analysis and size determination
+        reader = PdfReader(pdf_path)
+
+        num_pages = len(reader.pages)
+        if num_pages == 0:
+            print("Skipping: PDF contains no pages.")
+            return
+
+        # Determine which pages to normalize (0-based indices)
+        if page_range_str is None:
+            # Process all pages
+            target_indices = list(range(num_pages))
+            mode_desc = "All pages"
+        else:
+            # Process a specific range
+            target_indices = parse_page_selection(page_range_str, num_pages)
+            mode_desc = f"Selected pages (1-based indices): {[i+1 for i in target_indices]}"
+        
+        if not target_indices:
+            print("No valid pages selected for processing. File remains unchanged.")
+            return
+
+        print(f"  Normalization mode: {mode_desc}")
+
+
+        # Step 2: Determine the target size dynamically (analyzing ALL pages for consistency)
+        target_info = get_most_common_size(reader)
+        if not target_info:
+            print("Skipping: Could not determine target size.")
+            return
+
+        TARGET_WIDTH, TARGET_HEIGHT, TARGET_NAME = target_info
+        print(f"  Target size set to: {TARGET_NAME}")
+        
+        # Initialize writer for the modification process
+        reader_for_write = PdfReader(pdf_path) 
+        writer = PdfWriter()
+
+        pages_normalized_count = 0
+        
+        # Step 3: Iterate through all pages and apply normalization selectively
+        for i, page in enumerate(reader_for_write.pages):
+            
+            # Check if current page index (i) should be normalized
+            is_target_page = i in target_indices
+            
+            original_width = page.mediabox.width
+            original_height = page.mediabox.height
+            
+            # Use the rounded original dimensions for comparison
+            rounded_original_width = round(original_width)
+            rounded_original_height = round(original_height)
+
+            # Check if this is a target page AND it needs normalization
+            if is_target_page and (rounded_original_width != TARGET_WIDTH or rounded_original_height != TARGET_HEIGHT):
+                
+                # Scale the page content and dimensions to the target size
+                page.scale_to(TARGET_WIDTH, TARGET_HEIGHT)
+                pages_normalized_count += 1
+                
+                print(f"  Page {i+1} (Normalized): Resized from {rounded_original_width}x{rounded_original_height} to {TARGET_WIDTH}x{TARGET_HEIGHT}")
+            elif is_target_page:
+                 print(f"  Page {i+1} (Target, Skipped): Already {TARGET_WIDTH}x{TARGET_HEIGHT}")
+            else:
+                 print(f"  Page {i+1} (Ignored): Not in selected range.")
+
+
+            writer.add_page(page)
+
+        if pages_normalized_count == 0:
+            print("No pages required normalization in the selected range. File remains unchanged.")
+            
+        # 4. Write the new PDF to the temporary file
+        with open(temp_output_path, "wb") as output_pdf_file:
+            writer.write(output_pdf_file)
+
+        # 5. Replace the original file with the temporary file (atomic operation)
+        os.replace(temp_output_path, pdf_path)
+
+        print(f"Success: {pages_normalized_count} page(s) normalized. Original file '{pdf_path}' overwritten.")
+
+    except Exception as e:
+        # If an error occurred, clean up the temporary file if it exists
+        if os.path.exists(temp_output_path):
+            os.remove(temp_output_path)
+        print(f"An error occurred during PDF processing of '{pdf_path}': {e}")
+
+
+# Run the function
+if __name__ == "__main__":
+    
+    if len(sys.argv) == 3:
+        # Single file mode with page range: uv run script.py file.pdf 6-7
+        pdf_file = sys.argv[1]
+        page_range = sys.argv[2]
+        print(f"--- Single file mode with Page Range ---")
+        
+        if os.path.exists(pdf_file) and pdf_file.lower().endswith(".pdf"):
+            normalize_page_sizes(pdf_file, page_range)
+        else:
+            print(f"Error: Specified file '{pdf_file}' not found or is not a PDF.")
+            
+    elif len(sys.argv) == 2:
+        # Single file mode, all pages: uv run script.py file.pdf
+        pdf_file = sys.argv[1]
+        print(f"--- Single file mode, All Pages ---")
+        
+        if os.path.exists(pdf_file) and pdf_file.lower().endswith(".pdf"):
+            normalize_page_sizes(pdf_file, None)
+        else:
+            print(f"Error: Specified file '{pdf_file}' not found or is not a PDF.")
+            
+    else:
+        # Directory mode, all pages: uv run script.py
+        pdf_files = [f for f in os.listdir('.') if f.lower().endswith(".pdf")]
+        
+        if not pdf_files:
+            print("No PDF files (.pdf) found in the current directory to process.")
+        else:
+            print(f"--- Directory mode, All Pages ---")
+            print(f"Found {len(pdf_files)} PDF file(s) to process.")
+            for pdf_file in pdf_files:
+                normalize_page_sizes(pdf_file, None)
