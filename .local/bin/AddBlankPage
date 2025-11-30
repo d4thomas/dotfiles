@@ -7,6 +7,7 @@
 # ///
 
 import os
+import sys # Added for command-line argument handling
 import glob # Used for finding files matching a pattern
 from pypdf import PdfReader, PdfWriter, PageObject
 from pypdf.generic import RectangleObject
@@ -88,12 +89,25 @@ def process_pdf_for_blank_page(pdf_path: str, target_index: int):
 
 # Run the function
 if __name__ == "__main__":
-    # Find all PDF files in the current directory
-    pdf_files = [f for f in os.listdir('.') if f.lower().endswith(".pdf")]
     
-    if not pdf_files:
-        print("No PDF files (.pdf) found in the current directory to process.")
-    else:
-        print(f"Found {len(pdf_files)} PDF file(s) to process.")
-        for pdf_file in pdf_files:
+    if len(sys.argv) > 1:
+        # Command line argument provided: Process only the specified file
+        pdf_file = sys.argv[1]
+        print(f"Single file mode: Processing '{pdf_file}'...")
+        
+        if os.path.exists(pdf_file) and pdf_file.lower().endswith(".pdf"):
             process_pdf_for_blank_page(pdf_file, TARGET_PAGE_INDEX)
+        else:
+            print(f"Error: Specified file '{pdf_file}' not found or is not a PDF. Please ensure the path is correct.")
+            
+    else:
+        # No argument provided: Process all PDF files (default behavior)
+        # Find all PDF files in the current directory
+        pdf_files = [f for f in os.listdir('.') if f.lower().endswith(".pdf")]
+        
+        if not pdf_files:
+            print("No PDF files (.pdf) found in the current directory to process.")
+        else:
+            print(f"Directory mode: Found {len(pdf_files)} PDF file(s) to process.")
+            for pdf_file in pdf_files:
+                process_pdf_for_blank_page(pdf_file, TARGET_PAGE_INDEX)
