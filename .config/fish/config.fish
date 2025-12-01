@@ -37,7 +37,6 @@ if status is-interactive
     end
 
     # Homebrew
-    set -gx HOMEBREW_CASK_OPTS "--no-quarantine"
     set -gx HOMEBREW_NO_ENV_HINTS 1
     set -gx HOMEBREW_NO_EMOJI 1
     export HOMEBREW_NO_ANALYTICS=1

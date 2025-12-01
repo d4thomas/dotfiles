@@ -2,7 +2,6 @@
 if command -v brew &> /dev/null; then
     FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 
-    export HOMEBREW_CASK_OPTS="--no-quarantine"
     export HOMEBREW_NO_ENV_HINTS=1
     export HOMEBREW_NO_EMOJI=1
     export HOMEBREW_NO_ANALYTICS=1
