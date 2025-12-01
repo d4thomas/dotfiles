@@ -1,6 +1,9 @@
-#!/usr/bin/env python3
-
-# https://github.com/subdavis/kobo-book-downloader
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = [
+#   "pillow",
+# ]
+# ///
 
 import os
 import sys
@@ -8,6 +11,7 @@ import zipfile
 import tempfile
 import subprocess
 import re
+import argparse
 from pathlib import Path
 from collections import Counter
 import xml.etree.ElementTree as ET
@@ -288,12 +292,48 @@ def convert_epub_to_pdf(epub_path):
             return False
 
 def main():
-    # Get all EPUB files in current directory
-    epub_files = sorted(Path('.').glob('*.epub'), key=lambda x: natural_sort_key(x.name))
+    parser = argparse.ArgumentParser(
+        description='Convert EPUB files to PDF format',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog='''
+Examples:
+  %(prog)s                    # Convert all EPUBs in current directory
+  %(prog)s book.epub          # Convert specific file
+  %(prog)s file1.epub file2.epub  # Convert multiple specific files
+        '''
+    )
+    parser.add_argument(
+        'files',
+        nargs='*',
+        help='EPUB file(s) to convert (default: all EPUBs in current directory)'
+    )
 
-    if not epub_files:
-        print("No EPUB files found in current directory")
-        return
+    args = parser.parse_args()
+
+    # Determine which files to process
+    if args.files:
+        # Process specified files
+        epub_files = []
+        for file_arg in args.files:
+            file_path = Path(file_arg)
+            if not file_path.exists():
+                print(f"Error: File not found: {file_arg}")
+                continue
+            if file_path.suffix.lower() != '.epub':
+                print(f"Error: Not an EPUB file: {file_arg}")
+                continue
+            epub_files.append(file_path)
+        
+        if not epub_files:
+            print("No valid EPUB files specified")
+            return
+    else:
+        # Get all EPUB files in current directory
+        epub_files = sorted(Path('.').glob('*.epub'), key=lambda x: natural_sort_key(x.name))
+
+        if not epub_files:
+            print("No EPUB files found in current directory")
+            return
 
     print(f"Found {len(epub_files)} EPUB file(s) to convert\n")
 
