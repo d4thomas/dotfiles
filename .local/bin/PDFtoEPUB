@@ -240,7 +240,7 @@ def create_content_opf(output_dir, title, num_pages, image_sizes, metadata=None,
         f'\t\t<dc:identifier id="bookid">urn:uuid:{book_id}</dc:identifier>',
         f'\t\t<!--fixed-layout options-->',
         f'\t\t<meta property="rendition:layout">pre-paginated</meta>',
-        f'\t\t<meta property="rendition:spread">none</meta>',
+        f'\t\t<meta property="rendition:spread">auto</meta>',
     ])
 
     content_opf = f"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
