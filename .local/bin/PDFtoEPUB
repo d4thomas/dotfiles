@@ -18,6 +18,7 @@ import os
 from PIL import Image
 import re
 import json
+import tempfile
 try:
     import urllib.request
     import urllib.parse
@@ -265,7 +266,7 @@ def create_content_opf(output_dir, title, num_pages, image_sizes, metadata=None,
 
 
 def convert_pdf_to_images(pdf_path, output_dir):
-    print(f"Extracting images from PDF: {pdf_path}")
+    print(f"Rendering PDF pages to images: {pdf_path}")
 
     image_dir = output_dir / "OEBPS" / "image"
     image_dir.mkdir(parents=True, exist_ok=True)
@@ -274,66 +275,46 @@ def convert_pdf_to_images(pdf_path, output_dir):
     temp_extract.mkdir(exist_ok=True)
 
     try:
-        list_result = subprocess.run([
-            'pdfimages',
-            '-list',
-            str(pdf_path)
-        ], check=True, capture_output=True, text=True)
+        # Get number of pages
+        pdfinfo_result = subprocess.run(
+            ['pdfinfo', str(pdf_path)],
+            check=True, capture_output=True, text=True
+        )
+        num_pages = int(re.search(r'Pages:\s*(\d+)', pdfinfo_result.stdout).group(1))
+        print(f"  Detected {num_pages} pages")
 
-        lines = list_result.stdout.strip().split('\n')[2:]  # Skip header lines
-        image_pages = {}
-        for line in lines:
-            parts = line.split()
-            if len(parts) >= 3:
-                page_num = int(parts[0])
-                img_type = parts[2]
-                # Only count actual images, not soft masks
-                if img_type == 'image':
-                    if page_num not in image_pages:
-                        image_pages[page_num] = True
-
-        num_actual_pages = len(image_pages)
-        print(f"  Detected {num_actual_pages} pages")
-        print(f"  Extracting images from PDF...")
-
+        print(f"  Rendering pages as PNGs...")
         subprocess.run([
-            'pdfimages',
-            '-all',
-            '-p',
+            'pdftoppm',
+            '-png',
+            '-r', '300',  # Render at 300 DPI for high quality
             str(pdf_path),
             str(temp_extract / 'page')
         ], check=True, capture_output=True)
 
-        print(f"  Extraction complete, processing images...")
+        print(f"  Rendering complete, processing images...")
 
-        from collections import defaultdict
-        files_by_page = defaultdict(list)
-
-        for f in temp_extract.iterdir():
-            if f.is_file() and f.stem.startswith('page-'):
-                parts = f.stem.split('-')
-                if len(parts) >= 3:
-                    page_num = int(parts[1])
-                    files_by_page[page_num].append(f)
-
-        if not files_by_page:
-            raise RuntimeError("No images extracted from PDF")
-
-        sorted_pages = sorted(files_by_page.keys())
         image_sizes = []
+        # pdftoppm names pages starting from 1, with leading zeros
+        # e.g., page-01.png, page-02.png ... page-10.png
+        # We need to sort them numerically
+        image_files = sorted(
+            [f for f in temp_extract.iterdir() if f.is_file() and f.suffix == '.png'],
+            key=lambda f: int(f.stem.split('-')[-1])
+        )
 
-        for page_idx, page_num in enumerate(sorted_pages, start=1):
-            page_files = files_by_page[page_num]
+        if not image_files:
+            raise RuntimeError("No images rendered from PDF")
 
-            main_image = max(page_files, key=lambda f: f.stat().st_size)
-
-            with Image.open(main_image) as img:
+        for i, image_path in enumerate(image_files, start=1):
+            with Image.open(image_path) as img:
                 width, height = img.size
                 image_sizes.append((width, height))
 
-                final_path = image_dir / f"page-{page_idx}.png"
-                img.save(final_path, 'PNG', optimize=True)
-                print(f"  Processing page {page_idx}/{num_actual_pages}: {width}x{height}")
+                final_path = image_dir / f"page-{i}.png"
+                # Just move the file, no need to re-save
+                shutil.move(image_path, final_path)
+                print(f"  Processing page {i}/{num_pages}: {width}x{height}")
 
         return image_sizes
 
@@ -421,8 +402,8 @@ def convert_pdf_to_epub(pdf_path, output_epub=None, left_to_right=False):
     else:
         print("  No metadata found online")
 
-    temp_dir = Path(f"temp_epub_{uuid.uuid4().hex[:8]}")
-    temp_dir.mkdir(exist_ok=True)
+    temp_dir = Path(tempfile.mkdtemp())
+    print(f"  Using temporary directory: {temp_dir}")
 
     try:
         print("Creating EPUB structure...")
@@ -453,6 +434,7 @@ def convert_pdf_to_epub(pdf_path, output_epub=None, left_to_right=False):
 
     finally:
         if temp_dir.exists():
+            print(f"Cleaning up temporary directory: {temp_dir}")
             shutil.rmtree(temp_dir)
 
 
@@ -467,6 +449,10 @@ def main():
 
     args = parser.parse_args()
 
+    if args.output and len(pdf_paths) > 1:
+        print("Error: -o/--output can only be used when converting a single file")
+        sys.exit(1)
+
     if args.pdf_files:
         pdf_paths = [Path(f) for f in args.pdf_files]
     else:
@@ -477,12 +463,13 @@ def main():
         print("No PDF files found.")
         sys.exit(1)
 
-    if args.output and len(pdf_paths) > 1:
-        print("Error: -o/--output can only be used when converting a single file")
-        sys.exit(1)
+    # Create EPUB output directory
+    epub_output_dir = Path.cwd() / "EPUB"
+    epub_output_dir.mkdir(exist_ok=True)
+    print(f"Output directory: {epub_output_dir}")
 
     print(f"Found {len(pdf_paths)} PDF file(s) to convert")
-    print(f"Reading direction: {'Left-to-Right' if args.left_to_right else 'Right-to-Left'}\n")
+    print(f"Reading direction: {'Left-to-Right' if args.left_to_right else 'Right-to-Left'}")
 
     success_count = 0
     for pdf_path in pdf_paths:
@@ -490,7 +477,12 @@ def main():
         print(f"Processing: {pdf_path.name}")
         print(f"{'='*60}")
 
-        output_epub = args.output if args.output else None
+        if args.output:
+            output_epub = Path(args.output)
+        else:
+            # Place output in EPUB directory
+            output_epub = epub_output_dir / pdf_path.with_suffix('.epub').name
+
         success = convert_pdf_to_epub(pdf_path, output_epub, args.left_to_right)
 
         if success:

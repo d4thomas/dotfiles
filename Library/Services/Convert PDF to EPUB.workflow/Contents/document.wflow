@@ -66,7 +66,7 @@ do
     dir=$(dirname "$file")
     filename=$(basename "$file")
     
-    cd "$dir" &amp;&amp; "$HOME/.local/bin/PDFtoEPUB" "$filename" 2&gt;&amp;1
+    cd "$dir" &amp;&amp; "$HOME/.local/bin/PDFtoEpub" "$filename" 2&gt;&amp;1
 done</string>
 					<key>CheckedForUserDefaultShell</key>
 					<true/>
@@ -177,12 +177,10 @@ done</string>
 						<string>4</string>
 					</dict>
 				</dict>
-				<key>conversionLabel</key>
-				<integer>0</integer>
 				<key>isViewVisible</key>
 				<integer>1</integer>
 				<key>location</key>
-				<string>400.000000:757.000000</string>
+				<string>400.000000:305.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Run Shell Script.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>

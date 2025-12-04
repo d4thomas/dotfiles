@@ -12,6 +12,9 @@ if status is-interactive
     # Less
     alias less "less -R"
 
+    # Gemini
+    alias gemini "npx @google/gemini-cli"
+
     # VS Code
     if type -q code
         alias code "open -b com.microsoft.VSCode $argv"

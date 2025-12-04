@@ -9,6 +9,9 @@ alias grep="grep --color=always"
 # Less
 alias less="less -R"
 
+# Gemini
+alias gemini="npx @google/gemini-cli"
+
 # VS Code
 if command -v code &> /dev/null; then
     alias code="open -b com.microsoft.VSCode"
