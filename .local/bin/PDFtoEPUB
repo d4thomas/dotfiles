@@ -19,6 +19,8 @@ from PIL import Image
 import re
 import json
 import tempfile
+import time
+from multiprocessing import Pool, cpu_count
 try:
     import urllib.request
     import urllib.parse
@@ -48,6 +50,7 @@ def parse_manga_title(filename):
 
 
 def fetch_anilist_metadata(title):
+    """Fetch metadata from AniList (manga/anime database)"""
     try:
         query = '''
         query ($search: String) {
@@ -72,7 +75,6 @@ def fetch_anilist_metadata(title):
               month
               day
             }
-            genres
           }
         }
         '''
@@ -112,13 +114,150 @@ def fetch_anilist_metadata(title):
                 return {
                     'author': author,
                     'publication_date': start_date,
-                    'genres': media.get('genres', [])
+                    'source': 'AniList'
                 }
 
         return None
     except Exception as e:
-        print(f"Could not fetch AniList metadata: {e}")
+        print(f"  AniList: {e}")
         return None
+
+
+def fetch_google_books_metadata(title):
+    """Fetch metadata from Google Books API"""
+    try:
+        query = urllib.parse.quote(title)
+        url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=1"
+
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req, timeout=5) as response:
+            result = json.loads(response.read().decode('utf-8'))
+
+            if result.get('totalItems', 0) > 0:
+                book = result['items'][0]['volumeInfo']
+
+                author = None
+                if book.get('authors'):
+                    author = ', '.join(book['authors'])
+
+                pub_date = None
+                if book.get('publishedDate'):
+                    # Extract just the year
+                    pub_date = book['publishedDate'][:4]
+
+                return {
+                    'author': author,
+                    'publication_date': pub_date,
+                    'source': 'Google Books'
+                }
+
+        return None
+    except Exception as e:
+        print(f"  Google Books: {e}")
+        return None
+
+
+def fetch_openlibrary_metadata(title):
+    """Fetch metadata from Open Library API"""
+    try:
+        query = urllib.parse.quote(title)
+        url = f"https://openlibrary.org/search.json?title={query}&limit=1"
+
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req, timeout=5) as response:
+            result = json.loads(response.read().decode('utf-8'))
+
+            if result.get('numFound', 0) > 0:
+                book = result['docs'][0]
+
+                author = None
+                if book.get('author_name'):
+                    author = ', '.join(book['author_name'][:2])  # Limit to first 2 authors
+
+                pub_date = None
+                if book.get('first_publish_year'):
+                    pub_date = str(book['first_publish_year'])
+
+                return {
+                    'author': author,
+                    'publication_date': pub_date,
+                    'source': 'Open Library'
+                }
+
+        return None
+    except Exception as e:
+        print(f"  Open Library: {e}")
+        return None
+
+
+def fetch_mangadex_metadata(title):
+    """Fetch metadata from MangaDex API"""
+    try:
+        query = urllib.parse.quote(title)
+        url = f"https://api.mangadex.org/manga?title={query}&limit=1&includes[]=author&includes[]=artist"
+
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req, timeout=5) as response:
+            result = json.loads(response.read().decode('utf-8'))
+
+            if result.get('data') and len(result['data']) > 0:
+                manga = result['data'][0]
+
+                # Extract author from relationships
+                author = None
+                for rel in manga.get('relationships', []):
+                    if rel['type'] in ['author', 'artist']:
+                        author_name = rel.get('attributes', {}).get('name')
+                        if author_name:
+                            author = author_name
+                            break
+
+                # Get publication year
+                pub_date = None
+                attrs = manga.get('attributes', {})
+                if attrs.get('year'):
+                    pub_date = str(attrs['year'])
+
+                return {
+                    'author': author,
+                    'publication_date': pub_date,
+                    'source': 'MangaDex'
+                }
+
+        return None
+    except Exception as e:
+        print(f"  MangaDex: {e}")
+        return None
+
+
+def fetch_metadata(title):
+    """
+    Fetch metadata from multiple sources with fallback.
+    Tries sources in order until finding good metadata.
+    """
+    print(f"Searching for metadata: '{title}'")
+
+    # Try each source in order of preference
+    sources = [
+        fetch_anilist_metadata,      # Best for manga/anime
+        fetch_mangadex_metadata,      # Manga-specific
+        fetch_google_books_metadata,  # General books
+        fetch_openlibrary_metadata,   # Comprehensive fallback
+    ]
+
+    for fetch_func in sources:
+        metadata = fetch_func(title)
+        if metadata and metadata.get('author'):  # Only accept if we found an author
+            source = metadata.get('source', 'Unknown')
+            print(f"  ✓ Found metadata from {source}")
+            if metadata.get('author'):
+                print(f"    Author: {metadata['author']}")
+            if metadata.get('publication_date'):
+                print(f"    Published: {metadata['publication_date']}")
+            return metadata
+
+    print(f"  ✗ No metadata found from any source")
+    return None
 
 
 def create_mimetype(output_dir):
@@ -205,7 +344,6 @@ def create_content_opf(output_dir, title, num_pages, image_sizes, metadata=None,
 
     author = metadata.get('author') if metadata else None
     pub_date = metadata.get('publication_date') if metadata else None
-    genres = metadata.get('genres', []) if metadata else []
 
     manifest_pages = []
     for i in range(1, num_pages + 1):
@@ -214,7 +352,7 @@ def create_content_opf(output_dir, title, num_pages, image_sizes, metadata=None,
     manifest_images = []
     for i in range(1, num_pages + 1):
         properties = ' properties="cover-image"' if i == 1 else ''
-        manifest_images.append(f'\t\t<item id="img-{i}" href="image/page-{i}.png" media-type="image/png"{properties} />')
+        manifest_images.append(f'\t\t<item id="img-{i}" href="image/page-{i}.jpg" media-type="image/jpeg"{properties} />')
 
     spine_items = []
     for i in range(1, num_pages + 1):
@@ -233,14 +371,10 @@ def create_content_opf(output_dir, title, num_pages, image_sizes, metadata=None,
     else:
         metadata_lines.append(f'\t\t<dc:date>{timestamp}</dc:date>')
 
-    for genre in genres:
-        metadata_lines.append(f'\t\t<dc:subject>{genre}</dc:subject>')
-
     metadata_lines.extend([
         f'\t\t<dc:language>en</dc:language>',
         f'\t\t<meta property="dcterms:modified">{timestamp}</meta>',
         f'\t\t<dc:identifier id="bookid">urn:uuid:{book_id}</dc:identifier>',
-        f'\t\t<!--fixed-layout options-->',
         f'\t\t<meta property="rendition:layout">pre-paginated</meta>',
         f'\t\t<meta property="rendition:spread">auto</meta>',
     ])
@@ -268,87 +402,104 @@ def create_content_opf(output_dir, title, num_pages, image_sizes, metadata=None,
 
 def disable_hidden_layers(pdf_path, temp_dir):
     """
-    Processes the PDF to remove or flatten hidden layers if possible.
+    Removes hidden layers (OCG) from PDF using mutool clean.
     Returns the path to the processed PDF.
     """
     output_pdf_path = temp_dir / pdf_path.name
-    
-    # Check if qpdf is available
-    if not shutil.which("qpdf"):
-        print("Warning: qpdf not found. Cannot remove hidden layers. Proceeding with original PDF.")
+
+    if not shutil.which("mutool"):
+        print("Warning: mutool not found, skipping layer removal")
         shutil.copy(pdf_path, output_pdf_path)
         return output_pdf_path
 
-    print(f"Attempting to remove hidden layers using qpdf: {pdf_path.name}")
+    print(f"Removing hidden layers from PDF...")
     try:
-        # qpdf command to flatten annotations and remove unnecessary content.
-        # This might help with some forms of "hidden" content, but true OCG layers
-        # are more complex. For a general approach, flattening is often the best bet.
-        qpdf_result = subprocess.run(
-            ['qpdf', str(pdf_path), '--flatten-annotations=all', str(output_pdf_path)],
+        # mutool clean -gggg removes OCG layers, annotations, and unused objects
+        mutool_result = subprocess.run(
+            ['mutool', 'clean', '-gggg', str(pdf_path), str(output_pdf_path)],
             capture_output=True,
             text=True
         )
 
-        if qpdf_result.returncode == 0:
-            print(f"Processed PDF saved to: {output_pdf_path}")
-            return output_pdf_path
-        elif qpdf_result.returncode != 0 and "operation succeeded with warnings" in qpdf_result.stderr:
-
-            # Suppress warning output as requested
+        if mutool_result.returncode == 0:
+            print(f"Layer removal complete")
             return output_pdf_path
         else:
-            print(f"Error processing PDF with qpdf (exit code {qpdf_result.returncode}): {qpdf_result.stderr.strip()}")
-            print("Proceeding with original PDF without removing hidden layers.")
+            print(f"Layer removal failed: {mutool_result.stderr.strip()}")
+            print("Proceeding with original PDF")
             shutil.copy(pdf_path, output_pdf_path)
-    
+
     except Exception as e:
-        print(f"An unexpected error occurred with qpdf: {e}")
-        print("Proceeding with original PDF without removing hidden layers.")
+        print(f"Error: {e}")
+        print("Proceeding with original PDF")
         shutil.copy(pdf_path, output_pdf_path)
         return output_pdf_path
 
 
-def convert_pdf_to_images(pdf_path, output_dir, dpi):
-    print(f"Rendering PDF pages to images")
+def process_single_image(args):
+    """Helper function to process a single image in parallel"""
+    image_path, page_num, image_dir, jpeg_quality = args
+    try:
+        with Image.open(image_path) as img:
+            width, height = img.size
+
+            # Convert to RGB (in case of RGBA) and save as optimized JPEG
+            final_path = image_dir / f"page-{page_num}.jpg"
+            rgb_img = img.convert('RGB')
+            rgb_img.save(
+                final_path,
+                'JPEG',
+                quality=jpeg_quality,
+                optimize=True,
+                progressive=True
+            )
+
+            # Get final file size for logging
+            final_size = final_path.stat().st_size / 1024  # KB
+            return (page_num, width, height, final_size)
+    except Exception as e:
+        print(f"Error processing page {page_num}: {e}")
+        return None
+
+
+def convert_pdf_to_images(pdf_path, output_dir, dpi, jpeg_quality=80):
+    print(f"Converting PDF to images at {dpi} DPI...")
 
     image_dir = output_dir / "OEBPS" / "image"
     image_dir.mkdir(parents=True, exist_ok=True)
 
     temp_extract = output_dir / "temp_images"
     temp_extract.mkdir(exist_ok=True)
-    
+
     layer_temp_dir = Path(tempfile.mkdtemp(prefix="layer_fix_"))
-    processed_pdf_path = None # To store path of PDF with layers possibly removed
+    processed_pdf_path = None
 
     try:
-        # Disable hidden layers and get path to the processed PDF
         processed_pdf_path = disable_hidden_layers(pdf_path, layer_temp_dir)
 
-        # Get number of pages from the processed PDF
+        # Get page count
         pdfinfo_result = subprocess.run(
             ['pdfinfo', str(processed_pdf_path)],
             check=True, capture_output=True, text=True
         )
         num_pages = int(re.search(r'Pages:\s*(\d+)', pdfinfo_result.stdout).group(1))
-        print(f"Detected {num_pages} pages")
+        print(f"Pages: {num_pages}")
 
-        print(f"Rendering pages as PNGs at {dpi} DPI using mutool...")
-        # Use mutool to render pages, as it handles layers correctly and was requested by the user.
+        print(f"Rendering {num_pages} pages to PNG at {dpi} DPI (this may take a while)...")
+        render_start = time.time()
         subprocess.run([
             'mutool',
             'draw',
             '-o', str(temp_extract / 'page-%d.png'),
             '-r', str(dpi),
             str(processed_pdf_path)
-        ], check=True, capture_output=True)
+        ], check=True)
+        render_time = time.time() - render_start
+        print(f"Rendering complete ({render_time:.1f}s, {render_time/num_pages:.1f}s per page)")
 
-        print(f"Rendering complete, processing images...")
+        print(f"Converting to JPEG (quality {jpeg_quality})...")
+        convert_start = time.time()
 
-        image_sizes = []
-        # pdftoppm names pages starting from 1, with leading zeros
-        # e.g., page-01.png, page-02.png ... page-10.png
-        # We need to sort them numerically
         image_files = sorted(
             [f for f in temp_extract.iterdir() if f.is_file() and f.suffix == '.png'],
             key=lambda f: int(f.stem.split('-')[-1])
@@ -357,15 +508,27 @@ def convert_pdf_to_images(pdf_path, output_dir, dpi):
         if not image_files:
             raise RuntimeError("No images rendered from PDF")
 
-        for i, image_path in enumerate(image_files, start=1):
-            with Image.open(image_path) as img:
-                width, height = img.size
-                image_sizes.append((width, height))
+        process_args = [
+            (image_path, i, image_dir, jpeg_quality)
+            for i, image_path in enumerate(image_files, start=1)
+        ]
 
-                final_path = image_dir / f"page-{i}.png"
-                # Just move the file, no need to re-save
-                shutil.move(image_path, final_path)
-                print(f"  Processing page {i}/{num_pages}: {width}x{height}")
+        num_workers = min(cpu_count(), len(image_files))
+        print(f"Using {num_workers} parallel workers...")
+
+        image_sizes = []
+        with Pool(num_workers) as pool:
+            results = pool.map(process_single_image, process_args)
+
+            results = [r for r in results if r is not None]
+            results.sort(key=lambda x: x[0])
+
+            for page_num, width, height, final_size in results:
+                image_sizes.append((width, height))
+                print(f"Page {page_num}/{num_pages}: {width}x{height} ({final_size:.0f}KB)")
+
+        convert_time = time.time() - convert_start
+        print(f"Conversion complete ({convert_time:.1f}s)")
 
         return image_sizes
 
@@ -402,19 +565,18 @@ def create_xhtml_pages(output_dir, num_pages, image_sizes):
 
     for i in range(1, num_pages + 1):
         width, height = image_sizes[i - 1]
-        xhtml_content = create_xhtml_page(i, f"page-{i}.png", width, height)
+        xhtml_content = create_xhtml_page(i, f"page-{i}.jpg", width, height)
 
         with open(oebps_dir / f"page-{i}.xhtml", 'w', encoding='utf-8') as f:
             f.write(xhtml_content)
 
 
 def create_epub_zip(temp_dir, output_epub):
-    print(f"Creating EPUB: {output_epub}")
+    print(f"Packaging EPUB: {output_epub.name}")
 
     with zipfile.ZipFile(output_epub, 'w', zipfile.ZIP_DEFLATED) as epub:
         epub.write(temp_dir / "mimetype", "mimetype", compress_type=zipfile.ZIP_STORED)
 
-        # Add all other files
         for root, dirs, files in os.walk(temp_dir):
             for file in files:
                 if file == "mimetype":
@@ -426,7 +588,8 @@ def create_epub_zip(temp_dir, output_epub):
 
 
 
-def convert_pdf_to_epub(pdf_path, output_epub=None, left_to_right=False, dpi=600):
+def convert_pdf_to_epub(pdf_path, output_epub=None, left_to_right=False, dpi=150, jpeg_quality=80):
+    conversion_start = time.time()
     pdf_path = Path(pdf_path)
 
     if not pdf_path.exists():
@@ -438,22 +601,11 @@ def convert_pdf_to_epub(pdf_path, output_epub=None, left_to_right=False, dpi=600
     else:
         output_epub = Path(output_epub)
 
-    title = pdf_path.stem
+    title = pdf_path.stem + " (Manga)"
+    pdf_size_mb = pdf_path.stat().st_size / (1024 * 1024)
 
-    print("Fetching metadata...")
     series_title = parse_manga_title(pdf_path.name)
-    print(f"  Parsed series title: '{series_title}'")
-
-    metadata = fetch_anilist_metadata(series_title)
-    if metadata:
-        if metadata.get('author'):
-            print(f"  Found author: {metadata['author']}")
-        if metadata.get('publication_date'):
-            print(f"  Publication date: {metadata['publication_date']}")
-        if metadata.get('genres'):
-            print(f"  Genres: {', '.join(metadata['genres'])}")
-    else:
-        print("  No metadata found online")
+    metadata = fetch_metadata(series_title)
 
     temp_dir = Path(tempfile.mkdtemp())
 
@@ -463,21 +615,28 @@ def convert_pdf_to_epub(pdf_path, output_epub=None, left_to_right=False, dpi=600
         create_container_xml(temp_dir)
         create_css(temp_dir)
 
-        image_sizes = convert_pdf_to_images(pdf_path, temp_dir, dpi)
-
-
-
+        image_sizes = convert_pdf_to_images(pdf_path, temp_dir, dpi, jpeg_quality)
         num_pages = len(image_sizes)
 
-        print("Creating XHTML pages...")
+        print("Generating XHTML pages...")
         create_xhtml_pages(temp_dir, num_pages, image_sizes)
         create_nav_document(temp_dir, title, num_pages)
 
-        print("Creating metadata...")
+        print("Writing metadata...")
         reading_direction = 'ltr' if left_to_right else 'rtl'
         create_content_opf(temp_dir, title, num_pages, image_sizes, metadata, reading_direction)
 
         create_epub_zip(temp_dir, output_epub)
+
+        # Final statistics
+        conversion_time = time.time() - conversion_start
+        epub_size_mb = output_epub.stat().st_size / (1024 * 1024)
+        compression_ratio = (1 - epub_size_mb / pdf_size_mb) * 100 if pdf_size_mb > 0 else 0
+
+        print(f"\nConversion successful!")
+        print(f"Total time: {conversion_time:.1f}s ({conversion_time/60:.1f} minutes)")
+        print(f"PDF size: {pdf_size_mb:.1f}MB → EPUB size: {epub_size_mb:.1f}MB ({compression_ratio:+.0f}%)")
+        print(f"Output: {output_epub}")
 
         return True
 
@@ -489,7 +648,6 @@ def convert_pdf_to_epub(pdf_path, output_epub=None, left_to_right=False, dpi=600
 
     finally:
         if temp_dir.exists():
-            print(f"Cleaning up temporary directory: {temp_dir}")
             shutil.rmtree(temp_dir)
 
     
@@ -501,8 +659,10 @@ def main():
     parser.add_argument('-o', '--output', help='Output EPUB file (only valid when converting a single file)')
     parser.add_argument('-ltr', '--left-to-right', action='store_true',
                        help='Use left-to-right reading direction (default is right-to-left for manga)')
-    parser.add_argument('-d', '--dpi', type=int, default=600,
-                       help='DPI (dots per inch) for rendering PDF pages to images (default: 600)')
+    parser.add_argument('-d', '--dpi', type=int, default=150,
+                       help='DPI (dots per inch) for rendering PDF pages to images (default: 150)')
+    parser.add_argument('-q', '--quality', type=int, default=80,
+                       help='JPEG quality (1-100, higher is better quality but larger file size, default: 80)')
 
     args = parser.parse_args()
 
@@ -517,15 +677,13 @@ def main():
         pdf_paths.extend(Path.cwd().glob('*.PDF'))
 
     if not pdf_paths:
-        print("No PDF files found.")
+        print("No PDF files found")
         sys.exit(1)
 
-    # Create EPUB output directory
-    epub_output_dir = Path.cwd() / "EPUB"
-    epub_output_dir.mkdir(exist_ok=True)
+    epub_output_dir = Path.cwd()
     print(f"Output directory: {epub_output_dir}")
 
-    print(f"Found {len(pdf_paths)} PDF file(s) to convert")
+    print(f"Converting {len(pdf_paths)} PDF file(s)")
     print(f"Reading direction: {'Left-to-Right' if args.left_to_right else 'Right-to-Left'}")
 
     success_count = 0
@@ -538,9 +696,10 @@ def main():
             output_epub = Path(args.output)
         else:
             # Place output in EPUB directory
-            output_epub = epub_output_dir / pdf_path.with_suffix('.epub').name
+            epub_filename = pdf_path.stem + " (Manga).epub"
+            output_epub = epub_output_dir / epub_filename
 
-        success = convert_pdf_to_epub(pdf_path, output_epub, args.left_to_right, args.dpi)
+        success = convert_pdf_to_epub(pdf_path, output_epub, args.left_to_right, args.dpi, args.quality)
 
         if success:
             success_count += 1
