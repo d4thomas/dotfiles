@@ -20,6 +20,7 @@ import re
 import json
 import tempfile
 import time
+import hashlib
 from multiprocessing import Pool, cpu_count
 try:
     import urllib.request
@@ -273,9 +274,9 @@ def create_container_xml(output_dir):
 
     container_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
-\t<rootfiles>
-\t\t<rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml" />
-\t</rootfiles>
+	<rootfiles>
+		<rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml" />
+	</rootfiles>
 </container>
 """
 
@@ -288,29 +289,29 @@ def create_css(output_dir):
     css_dir.mkdir(parents=True, exist_ok=True)
 
     css_content = """body, div, dl, dt, dd, h1, h2, h3, h4, h5, h6, p, pre, code, blockquote {
-\tmargin:0;
-\tpadding:0;
-\tborder-width:0;
-\ttext-rendering:optimizeSpeed;
+	margin:0;
+	padding:0;
+	border-width:0;
+	text-rendering:optimizeSpeed;
 }
 body {
-\tmargin:0;
-\tpadding:0;
+	margin:0;
+	padding:0;
 }
 .page-container {
-\tposition:absolute;
-\tleft:0px;
-\ttop:0px;
-\twidth:100%;
-\theight:100%;
+	position:absolute;
+	left:0px;
+	top:0px;
+	width:100%;
+	height:100%;
 }
 img.full-page {
-\theight:100%;
-\twidth:100%;
-\tobject-fit:contain;
-\tposition:absolute;
-\tleft:0px;
-\ttop:0px;
+	height:100%;
+	width:100%;
+	object-fit:contain;
+	position:absolute;
+	left:0px;
+	top:0px;
 }
 """
 
@@ -322,17 +323,17 @@ def create_xhtml_page(page_num, image_filename, image_width, image_height):
     xhtml = f"""<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
-\t<head>
-\t\t<meta charset="utf-8" />
-\t\t<meta name="viewport" content="width={image_width},height={image_height}" />
-\t\t<title>Page {page_num}</title>
-\t\t<link href="css/style.css" rel="stylesheet" type="text/css" />
-\t</head>
-\t<body style="width:{image_width}px;height:{image_height}px;margin:0;padding:0">
-\t\t<div class="page-container">
-\t\t\t<img class="full-page" src="image/{image_filename}" alt="Page {page_num}" />
-\t\t</div>
-\t</body>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width={image_width},height={image_height}" />
+		<title>Page {page_num}</title>
+		<link href="css/style.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body style="width:{image_width}px;height:{image_height}px;margin:0;padding:0">
+		<div class="page-container">
+			<img class="full-page" src="image/{image_filename}" alt="Page {page_num}" />
+		</div>
+	</body>
 </html>
 """
     return xhtml
@@ -381,18 +382,18 @@ def create_content_opf(output_dir, title, num_pages, image_sizes, metadata=None,
 
     content_opf = f"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <package version="3.0" xmlns="http://www.idpf.org/2007/opf" unique-identifier="bookid" prefix="rendition: http://www.idpf.org/vocab/rendition/# ibooks: http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/">
-\t<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+	<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
 {chr(10).join(metadata_lines)}
-\t</metadata>
-\t<manifest>
+	</metadata>
+	<manifest>
 {chr(10).join(manifest_pages)}
-\t\t<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav" />
-\t\t<item id="css" href="css/style.css" media-type="text/css" />
+		<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav" />
+		<item id="css" href="css/style.css" media-type="text/css" />
 {chr(10).join(manifest_images)}
-\t</manifest>
-\t<spine page-progression-direction="{reading_direction}">
+	</manifest>
+	<spine page-progression-direction="{reading_direction}">
 {chr(10).join(spine_items)}
-\t</spine>
+	</spine>
 </package>
 """
 
@@ -400,160 +401,127 @@ def create_content_opf(output_dir, title, num_pages, image_sizes, metadata=None,
         f.write(content_opf)
 
 
-def disable_hidden_layers(pdf_path, temp_dir):
+def extract_and_process_images(pdf_path, output_dir, left_to_right=False):
     """
-    Removes hidden layers (OCG) from PDF using mutool clean.
-    Returns the path to the processed PDF.
+    Extracts images from a PDF, splits spreads, and returns image sizes.
+    This function is a Python implementation of the logic in extract_manga_pages.sh.
     """
-    output_pdf_path = temp_dir / pdf_path.name
-
-    if not shutil.which("mutool"):
-        print("Warning: mutool not found, skipping layer removal")
-        shutil.copy(pdf_path, output_pdf_path)
-        return output_pdf_path
-
-    print(f"Removing hidden layers from PDF...")
-    try:
-        # mutool clean -gggg removes OCG layers, annotations, and unused objects
-        mutool_result = subprocess.run(
-            ['mutool', 'clean', '-gggg', str(pdf_path), str(output_pdf_path)],
-            capture_output=True,
-            text=True
-        )
-
-        if mutool_result.returncode == 0:
-            print(f"Layer removal complete")
-            return output_pdf_path
-        else:
-            print(f"Layer removal failed: {mutool_result.stderr.strip()}")
-            print("Proceeding with original PDF")
-            shutil.copy(pdf_path, output_pdf_path)
-
-    except Exception as e:
-        print(f"Error: {e}")
-        print("Proceeding with original PDF")
-        shutil.copy(pdf_path, output_pdf_path)
-        return output_pdf_path
-
-
-def process_single_image(args):
-    """Helper function to process a single image in parallel"""
-    image_path, page_num, image_dir, jpeg_quality = args
-    try:
-        with Image.open(image_path) as img:
-            width, height = img.size
-
-            # Convert to RGB (in case of RGBA) and save as optimized JPEG
-            final_path = image_dir / f"page-{page_num}.jpg"
-            rgb_img = img.convert('RGB')
-            rgb_img.save(
-                final_path,
-                'JPEG',
-                quality=jpeg_quality,
-                optimize=True,
-                progressive=True
-            )
-
-            # Get final file size for logging
-            final_size = final_path.stat().st_size / 1024  # KB
-            return (page_num, width, height, final_size)
-    except Exception as e:
-        print(f"Error processing page {page_num}: {e}")
-        return None
-
-
-def convert_pdf_to_images(pdf_path, output_dir, dpi, jpeg_quality=80):
-    print(f"Converting PDF to images at {dpi} DPI...")
+    print("Extracting and processing images...")
 
     image_dir = output_dir / "OEBPS" / "image"
     image_dir.mkdir(parents=True, exist_ok=True)
-
-    temp_extract = output_dir / "temp_images"
-    temp_extract.mkdir(exist_ok=True)
-
-    layer_temp_dir = Path(tempfile.mkdtemp(prefix="layer_fix_"))
-    processed_pdf_path = None
+    
+    temp_extract_dir = Path(tempfile.mkdtemp(prefix="pdf_extract_"))
 
     try:
-        processed_pdf_path = disable_hidden_layers(pdf_path, layer_temp_dir)
-
-        # Get page count
-        pdfinfo_result = subprocess.run(
-            ['pdfinfo', str(processed_pdf_path)],
-            check=True, capture_output=True, text=True
-        )
-        num_pages = int(re.search(r'Pages:\s*(\d+)', pdfinfo_result.stdout).group(1))
-        print(f"Pages: {num_pages}")
-
-        print(f"Rendering {num_pages} pages to PNG at {dpi} DPI (this may take a while)...")
-        render_start = time.time()
-        subprocess.run([
-            'mutool',
-            'draw',
-            '-o', str(temp_extract / 'page-%d.png'),
-            '-r', str(dpi),
-            str(processed_pdf_path)
-        ], check=True)
-        render_time = time.time() - render_start
-        print(f"Rendering complete ({render_time:.1f}s, {render_time/num_pages:.1f}s per page)")
-
-        print(f"Converting to JPEG (quality {jpeg_quality})...")
-        convert_start = time.time()
-
-        image_files = sorted(
-            [f for f in temp_extract.iterdir() if f.is_file() and f.suffix == '.png'],
-            key=lambda f: int(f.stem.split('-')[-1])
+        # Extract images using pdfimages
+        subprocess.run(
+            ['pdfimages', '-j', '-p', str(pdf_path), str(temp_extract_dir / 'page')],
+            check=True, capture_output=True
         )
 
-        if not image_files:
-            raise RuntimeError("No images rendered from PDF")
-
-        process_args = [
-            (image_path, i, image_dir, jpeg_quality)
-            for i, image_path in enumerate(image_files, start=1)
-        ]
-
-        num_workers = min(cpu_count(), len(image_files))
-        print(f"Using {num_workers} parallel workers...")
-
+        page_num = 1
+        seen_hashes = set()
         image_sizes = []
-        with Pool(num_workers) as pool:
-            results = pool.map(process_single_image, process_args)
+        
+        # Sort extracted files numerically
+        extracted_files = sorted(
+            [f for f in temp_extract_dir.iterdir() if f.is_file()],
+            key=lambda f: int(re.search(r'\d+', f.name).group()) if re.search(r'\d+', f.name) else -1
+        )
 
-            results = [r for r in results if r is not None]
-            results.sort(key=lambda x: x[0])
+        for img_path in extracted_files:
+            if not (img_path.suffix.lower() in ['.jpg', '.ppm', '.pbm']):
+                continue
 
-            for page_num, width, height, final_size in results:
-                image_sizes.append((width, height))
-                print(f"Page {page_num}/{num_pages}: {width}x{height} ({final_size:.0f}KB)")
+            # Calculate hash to skip duplicates
+            with open(img_path, 'rb') as f:
+                img_hash = hashlib.md5(f.read()).hexdigest()
 
-        convert_time = time.time() - convert_start
-        print(f"Conversion complete ({convert_time:.1f}s)")
+            if img_hash in seen_hashes:
+                print(f"Skipping duplicate: {img_path.name}")
+                continue
+            seen_hashes.add(img_hash)
 
+            # Get image dimensions
+            result = subprocess.run(
+                ['magick', 'identify', '-format', '%w %h', str(img_path)],
+                check=True, capture_output=True, text=True
+            )
+            width, height = map(int, result.stdout.split())
+
+            # Split two-page spreads
+            if width > height:
+                print(f"Splitting two-page spread: {img_path.name}")
+                half_width = width // 2
+                
+                page1_path = image_dir / f"page_{page_num:04d}.jpg"
+                page2_path = image_dir / f"page_{page_num + 1:04d}.jpg"
+
+                if left_to_right:
+                    # Left page first
+                    subprocess.run(
+                        ['magick', str(img_path), '-crop', f'{half_width}x{height}+0+0', str(page1_path)],
+                        check=True
+                    )
+                    # Right page second
+                    subprocess.run(
+                        ['magick', str(img_path), '-crop', f'{half_width}x{height}+{half_width}+0', str(page2_path)],
+                        check=True
+                    )
+                else:
+                    # Right page first
+                    subprocess.run(
+                        ['magick', str(img_path), '-crop', f'{half_width}x{height}+{half_width}+0', str(page1_path)],
+                        check=True
+                    )
+                    # Left page second
+                    subprocess.run(
+                        ['magick', str(img_path), '-crop', f'{half_width}x{height}+0+0', str(page2_path)],
+                        check=True
+                    )
+                
+                with Image.open(page1_path) as img:
+                    image_sizes.append(img.size)
+                with Image.open(page2_path) as img:
+                    image_sizes.append(img.size)
+                
+                shutil.move(page1_path, image_dir / f"page-{page_num}.jpg")
+                shutil.move(page2_path, image_dir / f"page-{page_num + 1}.jpg")
+                page_num += 2
+            else:
+                print(f"Single page: {img_path.name}")
+                dest_path = image_dir / f"page-{page_num}.jpg"
+                subprocess.run(
+                    ['magick', str(img_path), str(dest_path)],
+                    check=True
+                )
+                with Image.open(dest_path) as img:
+                    image_sizes.append(img.size)
+                page_num += 1
+                
         return image_sizes
 
     finally:
-        if temp_extract.exists():
-            shutil.rmtree(temp_extract)
-        if layer_temp_dir.exists():
-            shutil.rmtree(layer_temp_dir)
+        if temp_extract_dir.exists():
+            shutil.rmtree(temp_extract_dir)
 
 
 def create_nav_document(output_dir, title, num_pages):
     nav_content = f"""<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
-\t<head>
-\t\t<meta charset="utf-8" />
-\t\t<title>{title}</title>
-\t</head>
-\t<body>
-\t\t<nav epub:type="toc">
-\t\t\t<ol>
-\t\t\t\t<li><a href="page-1.xhtml">Cover</a></li>
-\t\t\t</ol>
-\t\t</nav>
-\t</body>
+	<head>
+		<meta charset="utf-8" />
+		<title>{title}</title>
+	</head>
+	<body>
+		<nav epub:type="toc">
+			<ol>
+				<li><a href="page-1.xhtml">Cover</a></li>
+			</ol>
+		</nav>
+	</body>
 </html>
 """
     with open(output_dir / "OEBPS" / "nav.xhtml", 'w', encoding='utf-8') as f:
@@ -587,8 +555,7 @@ def create_epub_zip(temp_dir, output_epub):
 
 
 
-
-def convert_pdf_to_epub(pdf_path, output_epub=None, left_to_right=False, dpi=150, jpeg_quality=80):
+def convert_pdf_to_epub(pdf_path, output_epub=None, left_to_right=False):
     conversion_start = time.time()
     pdf_path = Path(pdf_path)
 
@@ -615,7 +582,7 @@ def convert_pdf_to_epub(pdf_path, output_epub=None, left_to_right=False, dpi=150
         create_container_xml(temp_dir)
         create_css(temp_dir)
 
-        image_sizes = convert_pdf_to_images(pdf_path, temp_dir, dpi, jpeg_quality)
+        image_sizes = extract_and_process_images(pdf_path, temp_dir, left_to_right)
         num_pages = len(image_sizes)
 
         print("Generating XHTML pages...")
@@ -659,10 +626,6 @@ def main():
     parser.add_argument('-o', '--output', help='Output EPUB file (only valid when converting a single file)')
     parser.add_argument('-ltr', '--left-to-right', action='store_true',
                        help='Use left-to-right reading direction (default is right-to-left for manga)')
-    parser.add_argument('-d', '--dpi', type=int, default=150,
-                       help='DPI (dots per inch) for rendering PDF pages to images (default: 150)')
-    parser.add_argument('-q', '--quality', type=int, default=80,
-                       help='JPEG quality (1-100, higher is better quality but larger file size, default: 80)')
 
     args = parser.parse_args()
 
@@ -699,7 +662,7 @@ def main():
             epub_filename = pdf_path.stem + " (Manga).epub"
             output_epub = epub_output_dir / epub_filename
 
-        success = convert_pdf_to_epub(pdf_path, output_epub, args.left_to_right, args.dpi, args.quality)
+        success = convert_pdf_to_epub(pdf_path, output_epub, args.left_to_right)
 
         if success:
             success_count += 1
