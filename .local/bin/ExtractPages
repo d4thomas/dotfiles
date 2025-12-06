@@ -1,0 +1,99 @@
+#!/bin/bash
+
+# Script to extract manga pages from PDF and split two-page spreads
+# Usage: ./extract_manga_pages.sh input.pdf [output_dir] [--ltr]
+
+set -e
+
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 input.pdf [output_dir] [--ltr]"
+    echo "Extract pages from PDF and split two-page spreads"
+    echo "  --ltr: Extract left-to-right (default is right-to-left)"
+    exit 1
+fi
+
+INPUT_PDF="$1"
+OUTPUT_DIR="${2:-manga_pages}"
+LEFT_TO_RIGHT=false
+
+# Check for --ltr flag in any argument position
+for arg in "$@"; do
+    if [ "$arg" = "--ltr" ]; then
+        LEFT_TO_RIGHT=true
+        # Remove --ltr from OUTPUT_DIR if it was set there
+        if [ "$OUTPUT_DIR" = "--ltr" ]; then
+            OUTPUT_DIR="manga_pages"
+        fi
+    fi
+done
+
+if [ ! -f "$INPUT_PDF" ]; then
+    echo "Error: PDF file '$INPUT_PDF' not found"
+    exit 1
+fi
+
+# Check for required commands
+command -v pdfimages >/dev/null 2>&1 || { echo "Error: pdfimages not found. Install poppler-utils"; exit 1; }
+command -v magick >/dev/null 2>&1 || { echo "Error: magick (ImageMagick) not found. Install imagemagick"; exit 1; }
+
+# Create output directory
+mkdir -p "$OUTPUT_DIR"
+TEMP_DIR=$(mktemp -d)
+
+echo "Extracting images from PDF..."
+pdfimages -j -p "$INPUT_PDF" "$TEMP_DIR/page"
+
+echo "Processing images..."
+page_num=1
+HASH_FILE="$TEMP_DIR/seen_hashes.txt"
+touch "$HASH_FILE"
+
+for img in "$TEMP_DIR"/page-*; do
+    [ -e "$img" ] || continue
+    # Skip if not an image file
+    [[ "$img" =~ \.(jpg|ppm|pbm)$ ]] || continue
+
+    # Calculate hash to detect duplicates
+    img_hash=$(md5 -q "$img")
+
+    # Skip if we've already processed this image
+    if grep -q "^$img_hash$" "$HASH_FILE"; then
+        echo "Skipping duplicate: $(basename "$img")"
+        continue
+    fi
+    echo "$img_hash" >> "$HASH_FILE"
+
+    # Get image dimensions
+    dimensions=$(magick identify -format "%w %h" "$img")
+    width=$(echo $dimensions | cut -d' ' -f1)
+    height=$(echo $dimensions | cut -d' ' -f2)
+
+    # If width is greater than height, it's a two-page spread
+    if [ "$width" -gt "$height" ]; then
+        echo "Splitting two-page spread: $(basename "$img")"
+        half_width=$((width / 2))
+
+        if [ "$LEFT_TO_RIGHT" = true ]; then
+            # Left-to-right mode: extract left page first
+            magick "$img" -crop "${half_width}x${height}+0+0" "$OUTPUT_DIR/page_$(printf '%04d' $page_num).jpg"
+            page_num=$((page_num + 1))
+            magick "$img" -crop "${half_width}x${height}+${half_width}+0" "$OUTPUT_DIR/page_$(printf '%04d' $page_num).jpg"
+            page_num=$((page_num + 1))
+        else
+            # Right-to-left mode (default): extract right page first
+            magick "$img" -crop "${half_width}x${height}+${half_width}+0" "$OUTPUT_DIR/page_$(printf '%04d' $page_num).jpg"
+            page_num=$((page_num + 1))
+            magick "$img" -crop "${half_width}x${height}+0+0" "$OUTPUT_DIR/page_$(printf '%04d' $page_num).jpg"
+            page_num=$((page_num + 1))
+        fi
+    else
+        echo "Single page: $(basename "$img")"
+        magick "$img" "$OUTPUT_DIR/page_$(printf '%04d' $page_num).jpg"
+        page_num=$((page_num + 1))
+    fi
+done
+
+# Cleanup
+rm -rf "$TEMP_DIR"
+
+echo "Done! Extracted $((page_num - 1)) pages to $OUTPUT_DIR/"
