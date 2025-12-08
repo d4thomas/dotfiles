@@ -1,0 +1,287 @@
+#!/usr/bin/env python3
+"""
+Fix EPUB files that are missing thumbnail metadata.
+
+This script adds the necessary metadata for EPUB readers to generate thumbnails:
+1. Adds <meta name="cover" content="..."/> to the metadata section
+2. Adds a <guide> section with cover reference (if missing)
+
+Usage:
+    python fix_epub_thumbnail.py [input.epub ...]
+
+If no arguments provided, processes all .epub files in current directory.
+Files are modified in place (overwrites originals).
+"""
+
+import sys
+import zipfile
+import os
+from pathlib import Path
+import tempfile
+import shutil
+import xml.etree.ElementTree as ET
+
+# Register XML namespaces
+NAMESPACES = {
+    'opf': 'http://www.idpf.org/2007/opf',
+    'dc': 'http://purl.org/dc/elements/1.1/',
+    'dcterms': 'http://purl.org/dc/terms/'
+}
+
+for prefix, uri in NAMESPACES.items():
+    ET.register_namespace(prefix, uri)
+
+
+def find_opf_file(epub_path):
+    """Find the OPF file path within the EPUB."""
+    with zipfile.ZipFile(epub_path, 'r') as zip_ref:
+        # Read container.xml to find OPF location
+        try:
+            container_data = zip_ref.read('META-INF/container.xml')
+            container_tree = ET.fromstring(container_data)
+
+            # Find the rootfile element
+            rootfile = container_tree.find('.//{urn:oasis:names:tc:opendocument:xmlns:container}rootfile')
+            if rootfile is not None:
+                return rootfile.get('full-path')
+        except Exception as e:
+            print(f"Error reading container.xml: {e}")
+
+    # Fallback: search for .opf files
+    with zipfile.ZipFile(epub_path, 'r') as zip_ref:
+        for name in zip_ref.namelist():
+            if name.endswith('.opf'):
+                return name
+
+    return None
+
+
+def find_cover_image_id(manifest):
+    """Find the cover image ID in the manifest."""
+    # Look for item with properties="cover-image"
+    for item in manifest.findall('opf:item', NAMESPACES):
+        properties = item.get('properties', '')
+        if 'cover-image' in properties:
+            return item.get('id')
+
+    # Fallback: look for item with id containing 'cover'
+    for item in manifest.findall('opf:item', NAMESPACES):
+        item_id = item.get('id', '')
+        href = item.get('href', '')
+        if 'cover' in item_id.lower() and any(ext in href.lower() for ext in ['.jpg', '.jpeg', '.png', '.gif']):
+            return item_id
+
+    return None
+
+
+def find_cover_xhtml_href(manifest, spine):
+    """Find the cover XHTML file href in the manifest."""
+    # First try: look for item with 'cover' in the ID
+    for item in manifest.findall('opf:item', NAMESPACES):
+        item_id = item.get('id', '')
+        href = item.get('href', '')
+        media_type = item.get('media-type', '')
+
+        # Look for cover page in XHTML
+        if 'cover' in item_id.lower() and 'xhtml' in media_type:
+            return href
+
+    # Second try: use the first page from the spine
+    if spine is not None:
+        first_itemref = spine.find('opf:itemref', NAMESPACES)
+        if first_itemref is not None:
+            first_page_id = first_itemref.get('idref')
+            if first_page_id:
+                for item in manifest.findall('opf:item', NAMESPACES):
+                    if item.get('id') == first_page_id:
+                        href = item.get('href', '')
+                        if href and 'xhtml' in item.get('media-type', ''):
+                            return href
+
+    return None
+
+
+def get_cover_meta(metadata):
+    """Get the cover meta tag if it exists, returns None otherwise."""
+    for meta in metadata.findall('opf:meta', NAMESPACES):
+        if meta.get('name') == 'cover':
+            return meta
+    return None
+
+
+def has_cover_in_guide(root):
+    """Check if the guide section has a cover reference."""
+    guide = root.find('opf:guide', NAMESPACES)
+    if guide is None:
+        return False
+
+    for reference in guide.findall('opf:reference', NAMESPACES):
+        if reference.get('type') == 'cover':
+            return True
+    return False
+
+
+def fix_epub_thumbnail(input_path, output_path=None):
+    """Fix EPUB thumbnail metadata."""
+    if output_path is None:
+        output_path = input_path
+
+    # Find the OPF file
+    opf_path = find_opf_file(input_path)
+    if not opf_path:
+        print("Error: Could not find OPF file in EPUB")
+        return False
+
+    print(f"Found OPF file: {opf_path}")
+
+    # Create a temporary directory to work with
+    with tempfile.TemporaryDirectory() as temp_dir:
+        # Extract EPUB
+        with zipfile.ZipFile(input_path, 'r') as zip_ref:
+            zip_ref.extractall(temp_dir)
+
+        # Read and parse OPF file
+        opf_full_path = os.path.join(temp_dir, opf_path)
+        tree = ET.parse(opf_full_path)
+        root = tree.getroot()
+
+        # Find metadata, manifest, and spine sections
+        metadata = root.find('opf:metadata', NAMESPACES)
+        manifest = root.find('opf:manifest', NAMESPACES)
+        spine = root.find('opf:spine', NAMESPACES)
+
+        if metadata is None or manifest is None:
+            print("Error: Could not find metadata or manifest in OPF file")
+            return False
+
+        modified = False
+
+        # Find cover image ID
+        cover_id = find_cover_image_id(manifest)
+
+        if cover_id:
+            print(f"Found cover image with ID: {cover_id}")
+
+            # Check and fix cover meta tag
+            cover_meta = get_cover_meta(metadata)
+            if cover_meta is None:
+                print("Adding cover metadata...")
+                cover_meta = ET.Element('{http://www.idpf.org/2007/opf}meta')
+                cover_meta.set('name', 'cover')
+                cover_meta.set('content', cover_id)
+                metadata.append(cover_meta)
+                modified = True
+            else:
+                # Check if the existing metadata points to the correct cover ID
+                existing_cover_ref = cover_meta.get('content')
+                if existing_cover_ref != cover_id:
+                    print(f"Fixing incorrect cover metadata: {existing_cover_ref} -> {cover_id}")
+                    cover_meta.set('content', cover_id)
+                    modified = True
+                else:
+                    print("Cover metadata already correct")
+
+            # Add or update guide section
+            if not has_cover_in_guide(root):
+                cover_href = find_cover_xhtml_href(manifest, spine)
+                if cover_href:
+                    print(f"Adding cover reference to guide: {cover_href}")
+                    guide = root.find('opf:guide', NAMESPACES)
+                    if guide is None:
+                        # Create new guide section
+                        guide = ET.Element('{http://www.idpf.org/2007/opf}guide')
+                        root.append(guide)
+
+                    # Add cover reference
+                    reference = ET.SubElement(guide, '{http://www.idpf.org/2007/opf}reference')
+                    reference.set('type', 'cover')
+                    reference.set('title', 'Cover')
+                    reference.set('href', cover_href)
+                    modified = True
+                else:
+                    print("Warning: Could not find cover XHTML file for guide section")
+            else:
+                print("Guide section already has cover reference")
+        else:
+            print("Warning: Could not find cover image in manifest")
+            return False
+
+        if not modified:
+            print("No changes needed - EPUB already has thumbnail metadata")
+            return True
+
+        # Write modified OPF back
+        # Preserve XML declaration and formatting
+        tree.write(opf_full_path, encoding='utf-8', xml_declaration=True)
+
+        # Re-create EPUB zip file
+        # EPUB spec requires mimetype to be first and uncompressed
+        with zipfile.ZipFile(output_path, 'w', zipfile.ZIP_DEFLATED) as zip_out:
+            # Add mimetype first (uncompressed)
+            mimetype_path = os.path.join(temp_dir, 'mimetype')
+            if os.path.exists(mimetype_path):
+                zip_out.write(mimetype_path, 'mimetype', compress_type=zipfile.ZIP_STORED)
+
+            # Add all other files
+            for root_dir, dirs, files in os.walk(temp_dir):
+                for file in files:
+                    file_path = os.path.join(root_dir, file)
+                    arcname = os.path.relpath(file_path, temp_dir)
+
+                    # Skip mimetype (already added)
+                    if arcname == 'mimetype':
+                        continue
+
+                    zip_out.write(file_path, arcname)
+
+        print(f"Successfully fixed EPUB: {output_path}")
+        return True
+
+
+def main():
+    # Get list of EPUB files to process
+    if len(sys.argv) > 1:
+        # Process files specified on command line
+        epub_files = [arg for arg in sys.argv[1:] if arg.lower().endswith('.epub')]
+        if not epub_files:
+            print("Error: No EPUB files specified")
+            print(__doc__)
+            sys.exit(1)
+    else:
+        # Process all EPUB files in current directory
+        epub_files = [f for f in os.listdir('.') if f.lower().endswith('.epub')]
+        if not epub_files:
+            print("No EPUB files found in current directory")
+            sys.exit(0)
+
+    print(f"Found {len(epub_files)} EPUB file(s) to process\n")
+
+    success_count = 0
+    fail_count = 0
+
+    for epub_file in sorted(epub_files):
+        print(f"Processing: {epub_file}")
+
+        if not os.path.exists(epub_file):
+            print(f"  Error: File not found\n")
+            fail_count += 1
+            continue
+
+        # Process in place (overwrite original)
+        success = fix_epub_thumbnail(epub_file, epub_file)
+
+        if success:
+            success_count += 1
+        else:
+            fail_count += 1
+
+        print()  # Blank line between files
+
+    # Summary
+    print("=" * 60)
+    print(f"Summary: {success_count} succeeded, {fail_count} failed")
+    sys.exit(0 if fail_count == 0 else 1)
+
+
+if __name__ == '__main__':
+    main()
