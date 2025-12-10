@@ -20,11 +20,13 @@ import re
 
 
 class MangaEPUBConverter:
-    def __init__(self, cbz_path, output_dir=".", author="Tarō Hitsuji", publisher="Seven Seas"):
+    def __init__(self, cbz_path, output_dir=".", author="Unknown", publisher="Unknown", add_blank_page=False, left_to_right=False):
         self.cbz_path = Path(cbz_path)
         self.output_dir = Path(output_dir)
         self.author = author
         self.publisher = publisher
+        self.add_blank_page = add_blank_page
+        self.left_to_right = left_to_right
 
         # Extract title from filename (remove .cbz extension)
         self.title = self.cbz_path.stem
@@ -61,39 +63,107 @@ class MangaEPUBConverter:
 
         return sorted(images, key=natural_sort_key)
 
+    def is_blank_page(self, img):
+        """Check if an image is blank (mostly white or single color)"""
+        img_small = img.resize((100, 100))
+        colors = img_small.getcolors(maxcolors=10000)
+        if colors and len(colors) == 1:
+            return True
+        if colors:
+            total_pixels = sum(count for count, _ in colors)
+            max_color_count = max(count for count, _ in colors)
+            if max_color_count / total_pixels > 0.99:
+                return True
+        return False
+
     def process_images(self, image_files):
-        """Process images: detect spreads and split them right-to-left"""
-        print(f"Processing {len(image_files)} images...")
+        """Process images: detect spreads and split them right-to-left or left-to-right"""
+        reading_direction = "left-to-right" if self.left_to_right else "right-to-left"
+        print(f"Processing {len(image_files)} images ({reading_direction})...")
 
         image_dir = self.work_dir / "item" / "image"
         image_dir.mkdir(parents=True, exist_ok=True)
+
+        # Check if pages 2 and 3 (indices 1 and 2) are both blank
+        skip_page_3 = False
+        if len(image_files) >= 3:
+            img1 = Image.open(image_files[1])
+            img2 = Image.open(image_files[2])
+            if self.is_blank_page(img1) and self.is_blank_page(img2):
+                skip_page_3 = True
+                print(f"  Detected blank pages 2 and 3, keeping page 2, skipping page 3...")
+            img1.close()
+            img2.close()
 
         processed_images = []
         page_num = 0
 
         for idx, img_path in enumerate(image_files):
+            # Skip page 3 if both pages 2 and 3 are blank
+            if skip_page_3 and idx == 2:
+                continue
+
+            # Insert blank page after cover if requested (after first image is processed)
+            if self.add_blank_page and idx == 1 and page_num == 1:
+                # We need to peek at the next image to get its dimensions
+                next_img = Image.open(img_path)
+                next_width, next_height = next_img.size
+                next_img.close()
+
+                # If next image is a spread, use half width
+                if next_width > next_height:
+                    blank_width = next_width // 2
+                    blank_height = next_height
+                else:
+                    blank_width = next_width
+                    blank_height = next_height
+
+                print(f"  Adding blank page after cover...")
+                # Create blank white image with same dimensions as page 2
+                blank_img = Image.new('RGB', (blank_width, blank_height), color='white')
+                blank_filename = f"i-{page_num:03d}.jpg"
+                blank_img.save(image_dir / blank_filename, "JPEG", quality=90, optimize=True)
+                blank_img.close()
+                processed_images.append((blank_filename, (blank_width, blank_height)))
+                page_num += 1
+
             img = Image.open(img_path)
             width, height = img.size
 
             # Check if this is a two-page spread (width > height)
             if width > height:
                 print(f"  Detected spread: {img_path.name} ({width}x{height})")
-                # Split into two pages (right-to-left reading)
+                # Split into two pages
                 mid = width // 2
 
-                # Right page comes first (manga reading direction)
-                right_page = img.crop((mid, 0, width, height))
-                right_filename = f"i-{page_num:03d}.jpg"
-                right_page.save(image_dir / right_filename, "JPEG", quality=90, optimize=True)
-                processed_images.append((right_filename, right_page.size))
-                page_num += 1
+                if self.left_to_right:
+                    # Left-to-right reading: left page comes first
+                    left_page = img.crop((0, 0, mid, height))
+                    left_filename = f"i-{page_num:03d}.jpg"
+                    left_page.save(image_dir / left_filename, "JPEG", quality=90, optimize=True)
+                    processed_images.append((left_filename, left_page.size))
+                    page_num += 1
 
-                # Left page comes second
-                left_page = img.crop((0, 0, mid, height))
-                left_filename = f"i-{page_num:03d}.jpg"
-                left_page.save(image_dir / left_filename, "JPEG", quality=90, optimize=True)
-                processed_images.append((left_filename, left_page.size))
-                page_num += 1
+                    # Right page comes second
+                    right_page = img.crop((mid, 0, width, height))
+                    right_filename = f"i-{page_num:03d}.jpg"
+                    right_page.save(image_dir / right_filename, "JPEG", quality=90, optimize=True)
+                    processed_images.append((right_filename, right_page.size))
+                    page_num += 1
+                else:
+                    # Right-to-left reading: right page comes first (manga reading direction)
+                    right_page = img.crop((mid, 0, width, height))
+                    right_filename = f"i-{page_num:03d}.jpg"
+                    right_page.save(image_dir / right_filename, "JPEG", quality=90, optimize=True)
+                    processed_images.append((right_filename, right_page.size))
+                    page_num += 1
+
+                    # Left page comes second
+                    left_page = img.crop((0, 0, mid, height))
+                    left_filename = f"i-{page_num:03d}.jpg"
+                    left_page.save(image_dir / left_filename, "JPEG", quality=90, optimize=True)
+                    processed_images.append((left_filename, left_page.size))
+                    page_num += 1
             else:
                 # Single page - just copy the original file instead of re-encoding
                 filename = f"i-{page_num:03d}.jpg"
@@ -112,12 +182,6 @@ class MangaEPUBConverter:
                 page_num += 1
 
             img.close()
-
-        # First image is the cover
-        if processed_images:
-            cover_src = image_dir / processed_images[0][0]
-            cover_dst = image_dir / "cover.jpg"
-            shutil.copy(cover_src, cover_dst)
 
         print(f"  Generated {len(processed_images)} pages")
         return processed_images
@@ -179,23 +243,13 @@ p { display: none; }'''
 
     def create_xhtml_files(self, processed_images):
         """Create XHTML file for each page"""
-        # Get dimensions from first page (assuming all pages are similar)
-        if processed_images:
-            _, (width, height) = processed_images[0]
-        else:
-            width, height = 1801, 2560
-
-        # Cover page
-        self.create_xhtml_page("cover", "../image/cover.jpg", width, height, is_cover=True)
-
-        # Regular pages
         for idx, (img_filename, (img_width, img_height)) in enumerate(processed_images):
             page_id = f"p-{idx:03d}"
             self.create_xhtml_page(page_id, f"../image/{img_filename}", img_width, img_height)
 
-    def create_xhtml_page(self, page_id, image_path, width, height, is_cover=False):
+    def create_xhtml_page(self, page_id, image_path, width, height):
         """Create a single XHTML page"""
-        filename = "cover.xhtml" if is_cover else f"{page_id}.xhtml"
+        filename = f"{page_id}.xhtml"
 
         content = f'''<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
@@ -224,10 +278,13 @@ p { display: none; }'''
 
         timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
 
+        # Set reading direction
+        page_dir = "ltr" if self.left_to_right else "rtl"
+
         # Start building OPF
         lines = [
             '<?xml version="1.0" encoding="UTF-8"?>',
-            '<package xmlns="http://www.idpf.org/2007/opf" version="3.0" xml:lang="en" prefix="fixed-layout-jp: http://www.digital-comic.jp ibooks: http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/" unique-identifier="pub-id" dir="rtl">',
+            f'<package xmlns="http://www.idpf.org/2007/opf" version="3.0" xml:lang="en" prefix="fixed-layout-jp: http://www.digital-comic.jp ibooks: http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/" unique-identifier="pub-id" dir="{page_dir}">',
             '  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:epub="http://www.idpf.org/2011/epub">',
             f'    <dc:title id="id">{self.title}</dc:title>',
             f'    <dc:creator id="creator">{self.author}</dc:creator>',
@@ -241,7 +298,7 @@ p { display: none; }'''
             '    <meta refines="#creator" property="role" scheme="marc:relators">aut</meta>',
             f'    <meta refines="#creator" property="file-as">{self.author.upper()}</meta>',
             f'    <meta property="dcterms:modified">{timestamp}</meta>',
-            '    <meta name="cover" content="cover-img"/>',
+            '    <meta name="cover" content="page-img-000"/>',
             '    <meta name="zero-gutter" content="true"/>',
             '    <meta name="zero-margin" content="true"/>',
             '    <meta name="RegionMagnification" content="false"/>',
@@ -250,7 +307,7 @@ p { display: none; }'''
             '    <meta name="orientation-lock" content="none"/>',
             f'    <meta name="original-resolution" content="{width}x{height}"/>',
             '    <meta name="book-type" content="comic"/>',
-            '    <meta name="primary-writing-mode" content="horizontal-rl"/>',
+            f'    <meta name="primary-writing-mode" content="horizontal-{"lr" if self.left_to_right else "rl"}"/>',
             f'    <meta property="fixed-layout-jp:viewport">width={width}, height={height}</meta>',
             '    <meta property="ibooks:binding">false</meta>',
             '    <meta property="rendition:layout">pre-paginated</meta>',
@@ -258,7 +315,6 @@ p { display: none; }'''
             '    <meta property="rendition:spread">landscape</meta>',
             '  </metadata>',
             '  <manifest>',
-            '    <item id="cover" href="xhtml/cover.xhtml" media-type="application/xhtml+xml" fallback="cover-img" properties="svg"/>',
         ]
 
         # Add page items
@@ -270,23 +326,32 @@ p { display: none; }'''
             '    <item properties="nav" id="toc" href="nav.xhtml" media-type="application/xhtml+xml"/>',
             '    <item id="ncx" href="nav.ncx" media-type="application/x-dtbncx+xml"/>',
             '    <item id="css" href="style/fixed-layout.css" media-type="text/css"/>',
-            '    <item id="cover-img" href="image/cover.jpg" properties="cover-image" media-type="image/jpeg"/>',
         ])
 
         # Add image items
         for idx, (img_filename, _) in enumerate(processed_images):
-            lines.append(f'    <item id="page-img-{idx:03d}" href="image/{img_filename}" media-type="image/jpeg"/>')
+            if idx == 0:
+                lines.append(f'    <item id="page-img-{idx:03d}" href="image/{img_filename}" media-type="image/jpeg" properties="cover-image"/>')
+            else:
+                lines.append(f'    <item id="page-img-{idx:03d}" href="image/{img_filename}" media-type="image/jpeg"/>')
 
         lines.extend([
             '  </manifest>',
-            '  <spine toc="ncx" page-progression-direction="rtl">',
-            '    <itemref linear="yes" idref="cover" properties="rendition:page-spread-center"/>',
+            f'  <spine toc="ncx" page-progression-direction="{"ltr" if self.left_to_right else "rtl"}">',
         ])
 
-        # Add spine items (alternating right/left pages)
+        # Add spine items
         for idx in range(len(processed_images)):
-            spread = "page-spread-right" if idx % 2 == 0 else "page-spread-left"
-            lines.append(f'    <itemref linear="yes" idref="page-{idx:03d}" properties="{spread}"/>')
+            if idx == 0:
+                lines.append(f'    <itemref linear="yes" idref="page-{idx:03d}" properties="rendition:page-spread-center"/>')
+            else:
+                # For LTR: odd pages on left, even pages on right
+                # For RTL: odd pages on right, even pages on left
+                if self.left_to_right:
+                    spread = "page-spread-left" if idx % 2 == 1 else "page-spread-right"
+                else:
+                    spread = "page-spread-right" if idx % 2 == 1 else "page-spread-left"
+                lines.append(f'    <itemref linear="yes" idref="page-{idx:03d}" properties="{spread}"/>')
 
         lines.extend([
             '  </spine>',
@@ -310,11 +375,11 @@ p { display: none; }'''
     <text>{self.title}</text>
   </docTitle>
   <navMap>
-    <navPoint id="cover">
+    <navPoint id="page-000">
       <navLabel>
         <text>Cover</text>
       </navLabel>
-      <content src="xhtml/cover.xhtml"/>
+      <content src="xhtml/p-000.xhtml"/>
     </navPoint>
   </navMap>
 </ncx>'''
@@ -334,13 +399,13 @@ p { display: none; }'''
     <nav epub:type="toc" id="toc">
       <h1>Table of Contents</h1>
       <ol>
-        <li><a href="xhtml/cover.xhtml">Cover</a></li>
+        <li><a href="xhtml/p-000.xhtml">Cover</a></li>
       </ol>
     </nav>
     <nav epub:type="landmarks">
       <h1>Landmarks</h1>
       <ol>
-        <li><a epub:type="cover" href="xhtml/cover.xhtml">Cover</a></li>
+        <li><a epub:type="bodymatter" href="xhtml/p-000.xhtml">Cover</a></li>
       </ol>
     </nav>
   </body>
@@ -366,6 +431,9 @@ p { display: none; }'''
 
             # Add all other files
             for root, dirs, files in os.walk(self.work_dir):
+                if "extracted" in Path(root).parts:
+                    continue
+
                 for file in files:
                     if file == "mimetype":
                         continue
@@ -417,16 +485,50 @@ p { display: none; }'''
 
 def main():
     """Convert all CBZ files in current directory or a specific file"""
-    import sys
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Convert CBZ manga files to EPUB format with automatic two-page spread detection and splitting."
+    )
+    parser.add_argument(
+        "files",
+        nargs="*",
+        help="CBZ file(s) to convert. If not specified, converts all CBZ files in current directory."
+    )
+    parser.add_argument(
+        "-a", "--author",
+        default="Unknown",
+        help="Author name for the EPUB metadata (default: Unknown)"
+    )
+    parser.add_argument(
+        "-p", "--publisher",
+        default="Unknown",
+        help="Publisher name for the EPUB metadata (default: Unknown)"
+    )
+    parser.add_argument(
+        "--add",
+        action="store_true",
+        help="Add a blank page between the cover (page 1) and page 2"
+    )
+    parser.add_argument(
+        "--ltr",
+        action="store_true",
+        help="Use left-to-right reading direction instead of right-to-left (manga default)"
+    )
+
+    args = parser.parse_args()
 
     current_dir = Path.cwd()
 
-    # Check if specific file provided as argument
-    if len(sys.argv) > 1:
-        cbz_files = [Path(sys.argv[1])]
-        if not cbz_files[0].exists():
-            print(f"Error: File not found: {sys.argv[1]}")
-            return
+    # Check if specific files provided as arguments
+    if args.files:
+        cbz_files = []
+        for file_arg in args.files:
+            file_path = Path(file_arg)
+            if not file_path.exists():
+                print(f"Error: File not found: {file_arg}")
+                return
+            cbz_files.append(file_path)
     else:
         cbz_files = sorted(current_dir.glob("*.cbz"))
 
@@ -447,8 +549,10 @@ def main():
         converter = MangaEPUBConverter(
             cbz_file,
             output_dir=current_dir,
-            author="Tarō Hitsuji",
-            publisher="Seven Seas"
+            author=args.author,
+            publisher=args.publisher,
+            add_blank_page=args.add,
+            left_to_right=args.ltr
         )
 
         result = converter.convert(cleanup=True)
