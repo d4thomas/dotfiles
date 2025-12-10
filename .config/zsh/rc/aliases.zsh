@@ -37,8 +37,8 @@ if command -v eza &> /dev/null; then
 fi
 
 # Find
-alias fdf="find . -path ./.git -prune -o -print 2>/dev/null | grep -i"
-alias fdt="grep -rIH --color=always --exclude-dir=.git"
+alias fdf="find . -path ./.git -prune -o -path './Library/Mobile Documents' -prune -o -print 2>/dev/null | grep -i"
+alias fdt="grep -rIH --color=always --exclude-dir=.git --exclude-dir='Library/Mobile Documents'"
 
 # Man
 alias man="env \
