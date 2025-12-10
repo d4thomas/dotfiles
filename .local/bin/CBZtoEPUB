@@ -36,7 +36,7 @@ class MangaEPUBConverter:
         self.work_dir.mkdir(exist_ok=True)
 
     def extract_cbz(self):
-        """Extract CBZ file (it's just a ZIP file)"""
+        """Extract CBZ file"""
         print(f"Extracting {self.cbz_path.name}...")
         extract_dir = self.work_dir / "extracted"
         extract_dir.mkdir(exist_ok=True)
@@ -56,7 +56,7 @@ class MangaEPUBConverter:
                 if Path(file).suffix.lower() in image_extensions:
                     images.append(Path(root) / file)
 
-        # Sort naturally (handles numbers correctly)
+        # Sort naturally
         def natural_sort_key(path):
             return [int(text) if text.isdigit() else text.lower()
                     for text in re.split(r'(\d+)', str(path.name))]
@@ -105,7 +105,7 @@ class MangaEPUBConverter:
 
             # Insert blank page after cover if requested (after first image is processed)
             if self.add_blank_page and idx == 1 and page_num == 1:
-                # We need to peek at the next image to get its dimensions
+                # Look at the next image to get its dimensions
                 next_img = Image.open(img_path)
                 next_width, next_height = next_img.size
                 next_img.close()
@@ -151,7 +151,7 @@ class MangaEPUBConverter:
                     processed_images.append((right_filename, right_page.size))
                     page_num += 1
                 else:
-                    # Right-to-left reading: right page comes first (manga reading direction)
+                    # Right-to-left reading: right page comes first
                     right_page = img.crop((mid, 0, width, height))
                     right_filename = f"i-{page_num:03d}.jpg"
                     right_page.save(image_dir / right_filename, "JPEG", quality=90, optimize=True)
