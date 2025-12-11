@@ -47,14 +47,7 @@
   "telemetry.telemetryLevel": "off",
 
   // Extensions
-  "redhat.telemetry.enabled": false,
-  "calva.paredit.defaultKeyMap": "strict",
-  "mdb.confirmRunAll": false,
-  "mdb.mcp.server": "prompt",
-  "files.watcherExclude": {
-    "**/.bloop": true,
-    "**/.metals": true
-  },
+  "claudeCode.preferredLocation": "panel",
   "github.copilot.enable": {
     "*": false,
     "plaintext": false,
@@ -64,7 +57,6 @@
 
   // Features & UI/UX
   "problems.showCurrentInStatus": true,
-  "inlineChat.lineNaturalLanguageHint": false,
   "explorer.autoReveal": false,
   "extensions.ignoreRecommendations": true,
 
@@ -87,5 +79,4 @@
       }
     ]
 },
-"claudeCode.preferredLocation": "panel"
 }
