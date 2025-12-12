@@ -209,7 +209,7 @@ def update_metadata(epub_file, new_title=None, new_author=None, new_publisher=No
 def main():
     parser = argparse.ArgumentParser(description='Update EPUB metadata (title, author, publisher)')
     parser.add_argument('epub_files', nargs='*', help='EPUB files to process')
-    parser.add_argument('-t', '--title', nargs='?', const='', help='New title (use without value to set title to filename)')
+    parser.add_argument('-t', '--title', action='store_true', help='Set title to filename')
     parser.add_argument('-a', '--author', help='New author')
     parser.add_argument('-p', '--publisher', help='New publisher')
     parser.add_argument('--show', action='store_true', help='Display current metadata without modifying')
@@ -217,7 +217,7 @@ def main():
     args = parser.parse_args()
 
     # If --show flag is set OR no modification flags provided, display metadata
-    show_mode = args.show or (args.title is None and not args.author and not args.publisher)
+    show_mode = args.show or (not args.title and not args.author and not args.publisher)
 
     if show_mode:
         if args.epub_files:
@@ -258,11 +258,9 @@ def main():
         print(f"Processing: {epub_file}")
 
         # Determine what to update
-        # If -t flag used without value (empty string), use filename as title
-        if args.title == '':
+        # If -t flag used, use filename as title
+        if args.title:
             title_to_use = Path(epub_file).stem
-        elif args.title:
-            title_to_use = args.title
         else:
             title_to_use = None
 
