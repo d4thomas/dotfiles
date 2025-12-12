@@ -125,19 +125,24 @@ def update_metadata(epub_file, new_title=None, new_author=None, new_publisher=No
             title_elem = root.find('.//dc:title', namespaces=NSMAP)
             if title_elem is not None:
                 old_title = title_elem.text
-                title_elem.text = new_title
-                print(f"  Title: '{old_title}' -> '{new_title}'")
+                # Only update if there's an actual difference (including case)
+                if old_title != new_title:
+                    title_elem.text = new_title
+                    print(f"  Title: '{old_title}' -> '{new_title}'")
 
-                # Update title-sort (file-as) if it exists
-                title_id = title_elem.get('id')
-                if title_id:
-                    # Look for <meta refines="#id" property="file-as">
-                    for meta in root.findall('.//opf:meta', namespaces=NSMAP):
-                        if meta.get('refines') == f'#{title_id}' and meta.get('property') == 'file-as':
-                            meta.text = new_title
-                            print(f"  Updated sort title to '{new_title}'")
-                            break
-                updated = True
+                    # Update title-sort (file-as) if it exists
+                    title_id = title_elem.get('id')
+                    if title_id:
+                        # Look for <meta refines="#id" property="file-as">
+                        for meta in root.findall('.//opf:meta', namespaces=NSMAP):
+                            if meta.get('refines') == f'#{title_id}' and meta.get('property') == 'file-as':
+                                old_sort = meta.text
+                                meta.text = new_title
+                                print(f"  Sort title: '{old_sort}' -> '{new_title}'")
+                                break
+                    updated = True
+                else:
+                    print(f"  Title unchanged: '{old_title}'")
             else:
                 print(f"  Warning: No title element found")
 
@@ -146,18 +151,23 @@ def update_metadata(epub_file, new_title=None, new_author=None, new_publisher=No
             author_elem = root.find('.//dc:creator', namespaces=NSMAP)
             if author_elem is not None:
                 old_author = author_elem.text
-                author_elem.text = new_author
-                print(f"  Author: '{old_author}' -> '{new_author}'")
+                # Only update if there's an actual difference (including case)
+                if old_author != new_author:
+                    author_elem.text = new_author
+                    print(f"  Author: '{old_author}' -> '{new_author}'")
 
-                # Update author-sort (file-as) if it exists
-                author_id = author_elem.get('id')
-                if author_id:
-                    for meta in root.findall('.//opf:meta', namespaces=NSMAP):
-                        if meta.get('refines') == f'#{author_id}' and meta.get('property') == 'file-as':
-                            meta.text = new_author
-                            print(f"  Updated sort author to '{new_author}'")
-                            break
-                updated = True
+                    # Update author-sort (file-as) if it exists
+                    author_id = author_elem.get('id')
+                    if author_id:
+                        for meta in root.findall('.//opf:meta', namespaces=NSMAP):
+                            if meta.get('refines') == f'#{author_id}' and meta.get('property') == 'file-as':
+                                old_sort_author = meta.text
+                                meta.text = new_author
+                                print(f"  Sort author: '{old_sort_author}' -> '{new_author}'")
+                                break
+                    updated = True
+                else:
+                    print(f"  Author unchanged: '{old_author}'")
             else:
                 print(f"  Warning: No author element found")
 
@@ -166,9 +176,13 @@ def update_metadata(epub_file, new_title=None, new_author=None, new_publisher=No
             publisher_elem = root.find('.//dc:publisher', namespaces=NSMAP)
             if publisher_elem is not None:
                 old_publisher = publisher_elem.text
-                publisher_elem.text = new_publisher
-                print(f"  Publisher: '{old_publisher}' -> '{new_publisher}'")
-                updated = True
+                # Only update if there's an actual difference (including case)
+                if old_publisher != new_publisher:
+                    publisher_elem.text = new_publisher
+                    print(f"  Publisher: '{old_publisher}' -> '{new_publisher}'")
+                    updated = True
+                else:
+                    print(f"  Publisher unchanged: '{old_publisher}'")
             else:
                 # Create publisher element if it doesn't exist
                 metadata_elem = root.find('.//opf:metadata', namespaces=NSMAP)
