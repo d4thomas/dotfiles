@@ -1,0 +1,176 @@
+#!/usr/bin/env -S uv run
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "pillow>=10.0.0",
+# ]
+# ///
+"""
+Compress images in EPUB files while maintaining 300 DPI quality.
+"""
+import os
+import sys
+import zipfile
+import shutil
+from pathlib import Path
+from PIL import Image
+import io
+
+def compress_image(image_data, max_dimension=2400, quality=85, dpi=300):
+    """
+    Compress an image while maintaining aspect ratio and setting DPI.
+    max_dimension: maximum width or height in pixels (2400px @ 300dpi = 8 inches)
+    """
+    try:
+        img = Image.open(io.BytesIO(image_data))
+
+        # Convert RGBA to RGB if saving as JPEG
+        original_format = img.format
+        if img.mode in ('RGBA', 'LA', 'P'):
+            if original_format == 'PNG':
+                # Keep as PNG for transparency
+                pass
+            else:
+                # Convert to RGB for JPEG
+                background = Image.new('RGB', img.size, (255, 255, 255))
+                if img.mode == 'P':
+                    img = img.convert('RGBA')
+                background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+                img = background
+
+        # Resize if image is too large
+        width, height = img.size
+        if width > max_dimension or height > max_dimension:
+            if width > height:
+                new_width = max_dimension
+                new_height = int(height * (max_dimension / width))
+            else:
+                new_height = max_dimension
+                new_width = int(width * (max_dimension / height))
+
+            img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            print(f"    Resized from {width}x{height} to {new_width}x{new_height}")
+
+        # Save compressed image
+        output = io.BytesIO()
+
+        # Determine format
+        if original_format == 'PNG' and img.mode in ('RGBA', 'LA', 'P'):
+            img.save(output, format='PNG', optimize=True, dpi=(dpi, dpi))
+        elif original_format == 'JPEG' or original_format == 'JPG':
+            img.save(output, format='JPEG', quality=quality, optimize=True, dpi=(dpi, dpi))
+        else:
+            # Default to original format or JPEG
+            try:
+                img.save(output, format=original_format or 'JPEG', quality=quality, optimize=True, dpi=(dpi, dpi))
+            except:
+                img.save(output, format='JPEG', quality=quality, optimize=True, dpi=(dpi, dpi))
+
+        compressed_data = output.getvalue()
+
+        original_size = len(image_data) / 1024
+        compressed_size = len(compressed_data) / 1024
+        savings = ((original_size - compressed_size) / original_size * 100) if original_size > 0 else 0
+
+        print(f"    Original: {original_size:.1f}KB -> Compressed: {compressed_size:.1f}KB (saved {savings:.1f}%)")
+
+        return compressed_data
+
+    except Exception as e:
+        print(f"    Error compressing image: {e}")
+        return image_data
+
+def compress_epub(epub_path, output_path=None, target_size_mb=500):
+    """
+    Compress images in an EPUB file.
+    """
+    if output_path is None:
+        base, ext = os.path.splitext(epub_path)
+        output_path = f"{base}_compressed{ext}"
+
+    print(f"\nProcessing: {epub_path}")
+    print(f"Output: {output_path}")
+
+    # Create temporary directory
+    temp_dir = Path("temp_epub_extract")
+    if temp_dir.exists():
+        shutil.rmtree(temp_dir)
+    temp_dir.mkdir()
+
+    try:
+        # Extract EPUB
+        print("Extracting EPUB...")
+        with zipfile.ZipFile(epub_path, 'r') as zip_ref:
+            zip_ref.extractall(temp_dir)
+
+        # Find and compress images
+        image_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+        image_files = []
+
+        for root, dirs, files in os.walk(temp_dir):
+            for file in files:
+                if Path(file).suffix.lower() in image_extensions:
+                    image_files.append(Path(root) / file)
+
+        print(f"Found {len(image_files)} images to compress...")
+
+        total_original = 0
+        total_compressed = 0
+
+        for img_path in image_files:
+            print(f"  Processing: {img_path.name}")
+
+            with open(img_path, 'rb') as f:
+                original_data = f.read()
+
+            total_original += len(original_data)
+            compressed_data = compress_image(original_data)
+            total_compressed += len(compressed_data)
+
+            with open(img_path, 'wb') as f:
+                f.write(compressed_data)
+
+        # Repackage EPUB
+        print("\nRepackaging EPUB...")
+        with zipfile.ZipFile(output_path, 'w', zipfile.ZIP_DEFLATED) as epub_zip:
+            # EPUB requires mimetype to be first and uncompressed
+            mimetype_path = temp_dir / 'mimetype'
+            if mimetype_path.exists():
+                epub_zip.write(mimetype_path, 'mimetype', compress_type=zipfile.ZIP_STORED)
+
+            # Add all other files
+            for root, dirs, files in os.walk(temp_dir):
+                for file in files:
+                    if file == 'mimetype':
+                        continue
+                    file_path = Path(root) / file
+                    arcname = file_path.relative_to(temp_dir)
+                    epub_zip.write(file_path, arcname, compress_type=zipfile.ZIP_DEFLATED)
+
+        # Show results
+        original_size_mb = os.path.getsize(epub_path) / (1024 * 1024)
+        compressed_size_mb = os.path.getsize(output_path) / (1024 * 1024)
+
+        print(f"\n{'='*60}")
+        print(f"Original EPUB size: {original_size_mb:.1f} MB")
+        print(f"Compressed EPUB size: {compressed_size_mb:.1f} MB")
+        print(f"Total savings: {original_size_mb - compressed_size_mb:.1f} MB ({(1 - compressed_size_mb/original_size_mb)*100:.1f}%)")
+        print(f"{'='*60}")
+
+    finally:
+        # Cleanup
+        if temp_dir.exists():
+            shutil.rmtree(temp_dir)
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: EPUBCompress <epub_file>")
+        sys.exit(1)
+
+    epub_file = sys.argv[1]
+    if not os.path.exists(epub_file):
+        print(f"Error: File not found: {epub_file}")
+        sys.exit(1)
+
+    compress_epub(epub_file)
+    print("\nDone!")
