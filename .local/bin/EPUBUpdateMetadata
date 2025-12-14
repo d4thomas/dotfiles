@@ -20,6 +20,29 @@ NSMAP = {
 }
 
 
+def convert_to_sort_name(name):
+    """Convert 'FirstName LastName' to 'LastName, FirstName' for sorting"""
+    if not name:
+        return name
+
+    # If already contains a comma, assume it's already in sort format
+    if ',' in name:
+        return name
+
+    # Split the name into parts
+    parts = name.strip().split()
+
+    # If only one part (single name), return as-is
+    if len(parts) <= 1:
+        return name
+
+    # Take last part as last name, everything else as first name
+    last_name = parts[-1]
+    first_names = ' '.join(parts[:-1])
+
+    return f"{last_name}, {first_names}"
+
+
 def find_opf_file(epub_path):
     """Find the OPF file path within the EPUB"""
     with zipfile.ZipFile(epub_path, 'r') as zip_ref:
@@ -159,11 +182,12 @@ def update_metadata(epub_file, new_title=None, new_author=None, new_publisher=No
                     # Update author-sort (file-as) if it exists
                     author_id = author_elem.get('id')
                     if author_id:
+                        sort_author = convert_to_sort_name(new_author)
                         for meta in root.findall('.//opf:meta', namespaces=NSMAP):
                             if meta.get('refines') == f'#{author_id}' and meta.get('property') == 'file-as':
                                 old_sort_author = meta.text
-                                meta.text = new_author
-                                print(f"  Sort author: '{old_sort_author}' -> '{new_author}'")
+                                meta.text = sort_author
+                                print(f"  Sort author: '{old_sort_author}' -> '{sort_author}'")
                                 break
                     updated = True
                 else:
