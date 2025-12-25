@@ -37,9 +37,7 @@ def show_counts():
     """Show overall counts for all categories."""
     categories = {
         "Manga": "Manga",
-        "Light Novels": "Light Novels",
-        "Manga Loans": "Loans/Manga",
-        "Light Novel Loans": "Loans/Light Novels"
+        "Light Novels": "Light Novels"
     }
 
     total = 0
@@ -55,9 +53,7 @@ def show_all_series():
     """Show series breakdown for all categories."""
     categories = [
         ("Manga", "Manga"),
-        ("Light Novels", "Light Novels"),
-        ("Manga Loans", "Loans/Manga"),
-        ("Light Novel Loans", "Loans/Light Novels")
+        ("Light Novels", "Light Novels")
     ]
 
     for label, directory in categories:
@@ -72,8 +68,6 @@ def show_help():
     print("  all, --all               - Show all series for all categories")
     print("  manga, m                 - Show Manga series breakdown")
     print("  light-novels, ln         - Show Light Novels series breakdown")
-    print("  manga-loans, ml          - Show Manga Loans series breakdown")
-    print("  light-novel-loans, lnl   - Show Light Novel Loans series breakdown")
     print("  help, --help, -h         - Show this help message")
 
 def main():
@@ -86,10 +80,6 @@ def main():
         show_series_breakdown("Manga", "Manga")
     elif arg in ["light-novels", "ln"]:
         show_series_breakdown("Light Novels", "Light Novels")
-    elif arg in ["manga-loans", "ml"]:
-        show_series_breakdown("Loans/Manga", "Manga Loans")
-    elif arg in ["light-novel-loans", "lnl"]:
-        show_series_breakdown("Loans/Light Novels", "Light Novel Loans")
     elif arg in ["help", "--help", "-h"]:
         show_help()
     elif arg == "":
