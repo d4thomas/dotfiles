@@ -12,6 +12,11 @@ alias less="less -R"
 # Gemini
 alias gemini="npx @google/gemini-cli"
 
+# Rclone
+if command -v rclone &> /dev/null; then
+    alias rcopy="rclone copy --transfers 8 --fast-list -P"
+fi
+
 # VS Code
 if command -v code &> /dev/null; then
     alias code="open -b com.microsoft.VSCode"

@@ -15,6 +15,11 @@ if status is-interactive
     # Gemini
     alias gemini "npx @google/gemini-cli"
 
+    # Rclone
+    if type -q rclone
+        alias rcopy "rclone copy --transfers 8 --fast-list -P"
+    end
+
     # VS Code
     if type -q code
         alias code "open -b com.microsoft.VSCode $argv"
