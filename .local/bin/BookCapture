@@ -11,6 +11,14 @@
 Screenshot capture script for Mac with image processing
 c: Capture Pages (using mss for direct screenshot)
 p: Process Pages
+
+Usage:
+  BookCapture [--ltr] [--single]
+
+Options:
+  --ltr      Use left-to-right mode (changes arrow key to Left and reverses page processing)
+             Default is right-to-left mode
+  --single   Treat all captures as single pages (no spread splitting)
 """
 
 from mss import mss
@@ -22,10 +30,15 @@ import zipfile
 import shutil
 from pynput.keyboard import Key, Listener
 from pynput import mouse
+import sys
 
 # SET YOUR CAPTURE REGION HERE
 # Format: {"top": y, "left": x, "width": w, "height": h}
 CAPTURE_REGION = {'top': 0.0, 'left': 317.93359375, 'width': 2374.484375, 'height': 1691.98046875}
+
+# Global flags
+RTL_MODE = '--ltr' not in sys.argv
+SINGLE_PAGE_MODE = '--single' in sys.argv
 
 def capture_screenshot(output_path="screenshot.png"):
     """
@@ -57,6 +70,42 @@ def wait_for_navigation():
 
     print("Navigating to next page...")
     time.sleep(0.5)  # Small delay after navigation
+
+def press_arrow_and_wait():
+    """
+    Simulate pressing arrow key (left or right depending on mode) and wait 2.5 seconds.
+    """
+    from pynput.keyboard import Controller
+    keyboard = Controller()
+
+    # RTL: press LEFT to go forward (next page)
+    # LTR: press RIGHT to go forward (next page)
+    arrow_key = Key.left if RTL_MODE else Key.right
+    arrow_name = "LEFT" if RTL_MODE else "RIGHT"
+
+    print(f"Pressing {arrow_name} ARROW...")
+    keyboard.press(arrow_key)
+    keyboard.release(arrow_key)
+
+    print("Waiting 2.5 seconds...")
+    time.sleep(2.5)
+
+def wait_for_mouse_click():
+    """
+    Wait for user to click the mouse in the capture window.
+    """
+    print("Click in the capture window to start capturing...")
+
+    clicked = {'done': False}
+
+    def on_click(x, y, button, pressed):
+        if pressed and button == mouse.Button.left:
+            clicked['done'] = True
+            print("✓ Click detected! Starting capture...")
+            return False  # Stop listener
+
+    with mouse.Listener(on_click=on_click) as listener:
+        listener.join()
 
 def find_coordinates():
     """
@@ -107,20 +156,15 @@ def find_coordinates():
 
 def process_images():
     """
-    Process manga images:
+    Process images:
     1. Find all PNG/JPG images in current directory
     2. Sort by filename
-    3. Crop first image (single centered page)
-    4. Split remaining images (two-page spreads) into individual pages
+    3. In single-page mode: crop all images to center
+    4. In spread mode: crop first image (single centered page), split remaining images (two-page spreads)
     """
-    # Ask for reading direction
-    print("\nReading direction:")
-    print("Press Enter for Right-to-Left")
-    print("Type 'ltr' for Left-to-Right")
-    choice = input("Choice: ").strip().lower()
-    rtl = choice != 'ltr'
-    direction = "Right-to-Left" if rtl else "Left-to-Right"
-    print(f"Using {direction} mode...\n")
+    direction = "Right-to-Left" if RTL_MODE else "Left-to-Right"
+    mode = "Single page" if SINGLE_PAGE_MODE else "Spread"
+    print(f"\nUsing {direction} mode, {mode} processing...\n")
 
     # Get all image files (looking for screenshot files)
     image_extensions = ('.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG')
@@ -143,57 +187,68 @@ def process_images():
 
     page_number = 1
 
-    for idx, img_file in enumerate(images):
-        print(f"Processing {img_file}...")
-        img = Image.open(img_file)
-        # Convert RGBA to RGB if needed
-        if img.mode == 'RGBA':
-            img = img.convert('RGB')
-        width, height = img.size
+    if SINGLE_PAGE_MODE:
+        # Single page mode: just convert to JPG without cropping or splitting
+        for idx, img_file in enumerate(images):
+            print(f"Processing {img_file}...")
+            img = Image.open(img_file)
+            # Convert RGBA to RGB if needed
+            if img.mode == 'RGBA':
+                img = img.convert('RGB')
 
-        if idx == 0:
-            # First image - single page centered, crop to fit
-            # Assuming the page is centered, crop to half width
-            left = width // 4
-            right = left + (width // 2)
-            cropped = img.crop((left, 0, right, height))
             output_path = output_dir / f"{page_number:03d}.jpg"
-            cropped.save(output_path, 'JPEG', quality=85, optimize=True)
-            print(f"  Saved cropped single page as {output_path}")
+            img.save(output_path, 'JPEG', quality=85, optimize=True)
+            print(f"  Saved page {page_number}")
             page_number += 1
-        else:
-            # Two-page spread - split into two images
-            mid = width // 2
+    else:
+        # Spread mode: crop and split images
+        for idx, img_file in enumerate(images):
+            print(f"Processing {img_file}...")
+            img = Image.open(img_file)
+            # Convert RGBA to RGB if needed
+            if img.mode == 'RGBA':
+                img = img.convert('RGB')
+            width, height = img.size
 
-            # In digital manga readers, the screen layout is:
-            # RTL: [Right page | Left page] (left side of screen is read first)
-            # LTR: [Left page | Right page] (left side of screen is read first)
-
-            left_half = img.crop((0, 0, mid, height))
-            right_half = img.crop((mid, 0, width, height))
-
-            if rtl:
-                # RTL: Right side of screen is read first, then left side
-                first_path = output_dir / f"{page_number:03d}.jpg"
-                right_half.save(first_path, 'JPEG', quality=85, optimize=True)
-                print(f"  Saved page {page_number} (right page)")
-                page_number += 1
-
-                second_path = output_dir / f"{page_number:03d}.jpg"
-                left_half.save(second_path, 'JPEG', quality=85, optimize=True)
-                print(f"  Saved page {page_number} (left page)")
+            if idx == 0:
+                # First image - single page centered, crop to fit
+                # Assuming the page is centered, crop to half width
+                left = width // 4
+                right = left + (width // 2)
+                cropped = img.crop((left, 0, right, height))
+                output_path = output_dir / f"{page_number:03d}.jpg"
+                cropped.save(output_path, 'JPEG', quality=85, optimize=True)
+                print(f"  Saved cropped single page as {output_path}")
                 page_number += 1
             else:
-                # LTR: Left side of screen = Left page (read first)
-                first_path = output_dir / f"{page_number:03d}.jpg"
-                left_half.save(first_path, 'JPEG', quality=85, optimize=True)
-                print(f"  Saved page {page_number} (left page)")
-                page_number += 1
+                # Two-page spread - split into two images
+                mid = width // 2
 
-                second_path = output_dir / f"{page_number:03d}.jpg"
-                right_half.save(second_path, 'JPEG', quality=85, optimize=True)
-                print(f"  Saved page {page_number} (right page)")
-                page_number += 1
+                left_half = img.crop((0, 0, mid, height))
+                right_half = img.crop((mid, 0, width, height))
+
+                if RTL_MODE:
+                    # RTL: Right side of screen is read first, then left side
+                    first_path = output_dir / f"{page_number:03d}.jpg"
+                    right_half.save(first_path, 'JPEG', quality=85, optimize=True)
+                    print(f"  Saved page {page_number} (right page)")
+                    page_number += 1
+
+                    second_path = output_dir / f"{page_number:03d}.jpg"
+                    left_half.save(second_path, 'JPEG', quality=85, optimize=True)
+                    print(f"  Saved page {page_number} (left page)")
+                    page_number += 1
+                else:
+                    # LTR: Left side of screen = Left page (read first)
+                    first_path = output_dir / f"{page_number:03d}.jpg"
+                    left_half.save(first_path, 'JPEG', quality=85, optimize=True)
+                    print(f"  Saved page {page_number} (left page)")
+                    page_number += 1
+
+                    second_path = output_dir / f"{page_number:03d}.jpg"
+                    right_half.save(second_path, 'JPEG', quality=85, optimize=True)
+                    print(f"  Saved page {page_number} (right page)")
+                    page_number += 1
 
     print(f"\n✓ Processing complete! {page_number - 1} pages created")
 
@@ -236,28 +291,66 @@ def run_capture():
     print("SCREENSHOT CAPTURE MODE")
     print("=" * 50)
     print(f"Using capture region: {CAPTURE_REGION}")
-    print("\nStarting capture loop...")
-    print("After each capture, press LEFT ARROW to continue")
-    print("Press Ctrl+C to stop")
-    print("=" * 50)
-    time.sleep(2)
+
+    # Ask user for number of pages
+    while True:
+        try:
+            total_pages = int(input("\nHow many pages to capture? "))
+            if total_pages <= 0:
+                print("Please enter a positive number.")
+                continue
+            break
+        except ValueError:
+            print("Please enter a valid number.")
+
+    # Calculate number of captures needed
+    if SINGLE_PAGE_MODE:
+        # Single page mode: 1 capture = 1 page
+        num_captures = total_pages
+        print(f"\nTotal pages: {total_pages}")
+        print(f"Number of captures: {num_captures}")
+        print(f"  - All captures: 1 page each (single page mode)")
+    else:
+        # Spread mode: First capture = 1 page, remaining captures = 2 pages each
+        # Formula: total_pages = 1 + (num_captures - 1) * 2
+        # Solving: num_captures = (total_pages - 1) / 2 + 1 = (total_pages + 1) / 2
+        num_captures = (total_pages + 1) // 2
+        print(f"\nTotal pages: {total_pages}")
+        print(f"Number of captures: {num_captures}")
+        print(f"  - First capture: 1 page")
+        if num_captures > 1:
+            print(f"  - Remaining {num_captures - 1} captures: 2 pages each")
+
+    print("\n" + "=" * 50)
+    time.sleep(1)
 
     try:
-        count = 1
-        while True:
-            print(f"\n--- Capture {count} ---")
+        timestamp_base = time.strftime("%Y%m%d_%H%M%S")
 
-            # Generate filename with timestamp or count
-            timestamp = time.strftime("%Y%m%d_%H%M%S")
-            filename = f"screenshot_{timestamp}_{count:03d}.png"
+        for count in range(1, num_captures + 1):
+            print(f"\n--- Capture {count} of {num_captures} ---")
 
+            # First capture waits for mouse click, then waits 2.5 seconds
+            if count == 1:
+                wait_for_mouse_click()
+                print("Waiting 2.5 seconds...")
+                time.sleep(2.5)
+
+            # Generate filename
+            filename = f"screenshot_{timestamp_base}_{count:03d}.png"
+
+            # Capture screenshot
             if capture_screenshot(filename):
-                print(f"✓ Captured page {count}")
-                wait_for_navigation()
-                count += 1
+                print(f"✓ Captured screenshot {count}")
             else:
                 print("Capture failed. Stopping...")
                 break
+
+            # If not the last capture, press arrow key and wait
+            if count < num_captures:
+                press_arrow_and_wait()
+
+        print(f"\n✓ All {num_captures} captures completed!")
 
     except KeyboardInterrupt:
         print("\n\nCapture stopped. Returning to menu...")
