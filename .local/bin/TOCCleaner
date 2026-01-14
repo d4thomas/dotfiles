@@ -1,0 +1,90 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = []
+# ///
+
+import os
+import argparse
+import zipfile
+import xml.etree.ElementTree as ET
+from io import BytesIO
+
+def clean_epub(epub_path):
+    # Define namespaces to work with ElementTree
+    namespaces = {
+        'container': 'urn:oasis:names:tc:opendocument:xmlns:container',
+        'opf': 'http://www.idpf.org/2007/opf',
+        'ncx': 'http://www.daisy.org/z3986/2005/ncx/'
+    }
+
+    try:
+        # Create an in-memory buffer for the new zip file
+        zip_buffer = BytesIO()
+
+        with zipfile.ZipFile(epub_path, 'r') as zin, zipfile.ZipFile(zip_buffer, 'w') as zout:
+            # Find the .opf file from container.xml
+            container_xml = zin.read('META-INF/container.xml')
+            container_root = ET.fromstring(container_xml)
+            opf_path = container_root.find('.//container:rootfile', namespaces).get('full-path')
+            opf_dir = os.path.dirname(opf_path)
+
+            # Find the .ncx file from the .opf file
+            opf_xml = zin.read(opf_path)
+            opf_root = ET.fromstring(opf_xml)
+            ncx_manifest_item = opf_root.find(f".//opf:item[@media-type='application/x-dtbncx+xml']", namespaces)
+            ncx_href = ncx_manifest_item.get('href')
+            ncx_path = os.path.join(opf_dir, ncx_href).replace('\\', '/')
+
+
+            # Read and parse the .ncx file
+            ncx_xml = zin.read(ncx_path)
+            ncx_root = ET.fromstring(ncx_xml)
+
+            # Find all navPoint elements and check their labels
+            for nav_map in ncx_root.findall('.//ncx:navMap', namespaces):
+                parents = {c: p for p in nav_map.iter() for c in p}
+                for nav_point in nav_map.findall('.//ncx:navPoint', namespaces):
+                    nav_label = nav_point.find('.//ncx:text', namespaces)
+                    if nav_label is not None and (nav_label.text == '...' or nav_label.text == '>'):
+                        parent = parents.get(nav_point)
+                        if parent is not None:
+                            parent.remove(nav_point)
+            
+            modified_ncx_xml = ET.tostring(ncx_root, encoding='utf-8', xml_declaration=True)
+
+            # Write all files to the new zip, replacing the ncx file
+            for item in zin.infolist():
+                if item.filename != ncx_path:
+                    zout.writestr(item, zin.read(item.filename))
+            
+            zout.writestr(ncx_path, modified_ncx_xml)
+
+        # Write the in-memory zip to the original file path
+        with open(epub_path, 'wb') as f:
+            f.write(zip_buffer.getvalue())
+
+        print(f"Successfully cleaned and saved {os.path.basename(epub_path)}")
+
+    except Exception as e:
+        print(f"Error processing {epub_path}: {e}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Remove "..." TOC entries from EPUB files.')
+    parser.add_argument('path', nargs='?', default='.', help='Path to an EPUB file or a directory containing EPUB files.')
+    args = parser.parse_args()
+
+    path = args.path
+
+    if os.path.isfile(path) and path.lower().endswith('.epub'):
+        clean_epub(path)
+    elif os.path.isdir(path):
+        for filename in os.listdir(path):
+            if filename.lower().endswith('.epub'):
+                epub_path = os.path.join(path, filename)
+                clean_epub(epub_path)
+    else:
+        print(f"Error: Invalid path '{path}'. Please provide a valid EPUB file or directory.")
+
+if __name__ == '__main__':
+    main()
