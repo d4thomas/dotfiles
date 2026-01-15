@@ -13,12 +13,15 @@ c: Capture Pages (using mss for direct screenshot)
 p: Process Pages
 
 Usage:
-  BookCapture [--ltr] [--single]
+  BookCapture [--ltr] [--single] [--no-cover]
+  BookCapture --help
 
 Options:
-  --ltr      Use left-to-right mode (changes arrow key to Left and reverses page processing)
-             Default is right-to-left mode
-  --single   Treat all captures as single pages (no spread splitting)
+  --ltr       Use left-to-right mode (changes arrow key to Left and reverses page processing)
+              Default is right-to-left mode
+  --single    Treat all captures as single pages (no spread splitting)
+  --no-cover  Treat first page as a spread (two pages) instead of a single cover page
+  --help      Show this help message and exit
 """
 
 from mss import mss
@@ -31,14 +34,21 @@ import shutil
 from pynput.keyboard import Key, Listener
 from pynput import mouse
 import sys
+import re
 
 # SET YOUR CAPTURE REGION HERE
 # Format: {"top": y, "left": x, "width": w, "height": h}
-CAPTURE_REGION = {'top': 0.0, 'left': 317.93359375, 'width': 2374.484375, 'height': 1691.98046875}
+CAPTURE_REGION = {'top': 53.48046875, 'left': 411.1484375, 'width': 2186.140625, 'height': 1638.5}
+
+# Handle --help
+if '--help' in sys.argv:
+    print(__doc__)
+    sys.exit(0)
 
 # Global flags
 RTL_MODE = '--ltr' not in sys.argv
 SINGLE_PAGE_MODE = '--single' in sys.argv
+NO_COVER_MODE = '--no-cover' in sys.argv
 
 def capture_screenshot(output_path="screenshot.png"):
     """
@@ -110,7 +120,10 @@ def wait_for_mouse_click():
 def find_coordinates():
     """
     Interactive coordinate finder - click two corners to get region coordinates.
+    Updates the script file automatically with the new region.
     """
+    global CAPTURE_REGION
+
     print("\n" + "=" * 50)
     print("FIND SCREEN COORDINATES")
     print("=" * 50)
@@ -120,6 +133,7 @@ def find_coordinates():
     print("\nReady? Click the TOP-LEFT corner now...")
 
     clicks = []
+    result = {'region': None}
 
     def on_click(x, y, button, pressed):
         if pressed and button == mouse.Button.left:
@@ -134,25 +148,37 @@ def find_coordinates():
                 x1, y1 = clicks[0]
                 x2, y2 = clicks[1]
 
-                region = {
+                result['region'] = {
                     "top": min(y1, y2),
                     "left": min(x1, x2),
                     "width": abs(x2 - x1),
                     "height": abs(y2 - y1)
                 }
 
-                print("\n" + "=" * 50)
-                print("YOUR CAPTURE REGION:")
-                print("=" * 50)
-                print(f"\nCAPTURE_REGION = {region}")
-                print("\n" + "=" * 50)
-                print("Copy the line above and replace line 28 in this script")
-                print("=" * 50)
-
                 return False  # Stop listener
 
     with mouse.Listener(on_click=on_click) as listener:
         listener.join()
+
+    if result['region']:
+        region = result['region']
+        print("\n" + "=" * 50)
+        print("YOUR CAPTURE REGION:")
+        print("=" * 50)
+        print(f"\nCAPTURE_REGION = {region}")
+
+        # Update the script file
+        script_path = Path(__file__).resolve()
+        content = script_path.read_text()
+        new_line = f"CAPTURE_REGION = {region}"
+        updated = re.sub(r"^CAPTURE_REGION = \{.*\}$", new_line, content, flags=re.MULTILINE)
+        script_path.write_text(updated)
+
+        # Update the global variable for current session
+        CAPTURE_REGION = region
+
+        print("\n✓ Script updated with new capture region!")
+        print("=" * 50)
 
 def process_images():
     """
@@ -164,7 +190,8 @@ def process_images():
     """
     direction = "Right-to-Left" if RTL_MODE else "Left-to-Right"
     mode = "Single page" if SINGLE_PAGE_MODE else "Spread"
-    print(f"\nUsing {direction} mode, {mode} processing...\n")
+    cover_mode = "no cover (all spreads)" if NO_COVER_MODE else "with cover"
+    print(f"\nUsing {direction} mode, {mode} processing, {cover_mode}...\n")
 
     # Get all image files (looking for screenshot files)
     image_extensions = ('.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG')
@@ -210,7 +237,7 @@ def process_images():
                 img = img.convert('RGB')
             width, height = img.size
 
-            if idx == 0:
+            if idx == 0 and not NO_COVER_MODE:
                 # First image - single page centered, crop to fit
                 # Assuming the page is centered, crop to half width
                 left = width // 4
@@ -310,6 +337,13 @@ def run_capture():
         print(f"\nTotal pages: {total_pages}")
         print(f"Number of captures: {num_captures}")
         print(f"  - All captures: 1 page each (single page mode)")
+    elif NO_COVER_MODE:
+        # No cover mode: all captures are spreads (2 pages each)
+        # Formula: total_pages = num_captures * 2
+        num_captures = (total_pages + 1) // 2
+        print(f"\nTotal pages: {total_pages}")
+        print(f"Number of captures: {num_captures}")
+        print(f"  - All captures: 2 pages each (no cover mode)")
     else:
         # Spread mode: First capture = 1 page, remaining captures = 2 pages each
         # Formula: total_pages = 1 + (num_captures - 1) * 2
