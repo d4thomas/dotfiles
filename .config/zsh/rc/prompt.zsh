@@ -1,5 +1,7 @@
 # Configure prompt
-if [ -f "$BREW_PREFIX/share/zsh/site-functions/prompt_pure_setup" ]; then
+if command -v starship &> /dev/null; then
+    eval "$(starship init zsh)"
+elif [ -f "$BREW_PREFIX/share/zsh/site-functions/prompt_pure_setup" ]; then
     export VIRTUAL_ENV_DISABLE_PROMPT=12
 
     PURE_GIT_UP_ARROW="▲"
@@ -13,8 +15,6 @@ if [ -f "$BREW_PREFIX/share/zsh/site-functions/prompt_pure_setup" ]; then
 
     autoload -U promptinit; promptinit
     prompt pure
-elif command -v starship &> /dev/null; then
-    eval "$(starship init zsh)"
 else
     autoload -U colors && colors
     local success="%{$fg[green]%}❯%{$reset_color%}"
@@ -27,11 +27,11 @@ else
     }
 
     precmd() {
-    if [[ $? -eq 0 ]]; then
-        build_prompt "${success}"
-    else
-        build_prompt "${error}"
-    fi
+        if [[ $? -eq 0 ]]; then
+            build_prompt "${success}"
+        else
+            build_prompt "${error}"
+        fi
     }
 
     build_prompt "${success}"

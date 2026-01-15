@@ -99,13 +99,7 @@ function validPath
 end
 
 validPath $HOME/.local/bin
-validPath $HOME/.dotnet/tools
 validPath (brew --prefix)/opt/openjdk/bin
-
-# Coursier
-if type -q coursier
-    set -gx COURSIER_BIN_DIR $HOME/.local/bin
-end
 
 # Less
 set -gx LESSHISTFILE -

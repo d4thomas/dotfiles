@@ -6,10 +6,4 @@ function validPath() {
 }
 
 validPath "$HOME/.local/bin"
-validPath "$HOME/.dotnet/tools"
 validPath "$BREW_PREFIX/opt/openjdk/bin"
-
-# Coursier
-if command -v coursier >/dev/null 2>&1; then
-    export COURSIER_BIN_DIR="$HOME/.local/bin"
-fi
