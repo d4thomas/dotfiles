@@ -3,21 +3,32 @@
 # requires-python = ">=3.10"
 # dependencies = [
 #     "lxml",
+#     "pillow",
 # ]
 # ///
 """
-Convert EPUB to CBZ, preserving image order from the spine.
+CBZ utilities: convert EPUB to CBZ, rename images, extract pages, split spreads.
 
-Usage: uv run --script epub2cbz.py <input.epub>
+Usage:
+    cbz -c <input.epub>       Convert EPUB to CBZ
+    cbz -r <input.cbz>        Rename images to 001.ext, 002.ext, ...
+    cbz -e <N> <input.cbz>    Extract Nth page from end (1=last, 2=second-to-last)
+    cbz -s <input.cbz>        Split two-page spreads (RTL by default)
+    cbz -s <input.cbz> --ltr  Split two-page spreads for left-to-right reading
+    cbz -a <input.cbz>        Add blank page after cover (same size as cover)
 """
 
+import argparse
+import io
 import os
+import re
 import sys
 import tempfile
 import zipfile
 from pathlib import Path
 from urllib.parse import unquote, urljoin
 from lxml import etree
+from PIL import Image
 
 NAMESPACES = {
     "container": "urn:oasis:names:tc:opendocument:xmlns:container",
@@ -156,12 +167,8 @@ def create_cbz(output_path: Path, images: list[tuple[str, bytes]]) -> None:
             pass
 
 
-def main():
-    if len(sys.argv) != 2:
-        print(f"Usage: uv run --script {sys.argv[0]} <input.epub>", file=sys.stderr)
-        sys.exit(1)
-
-    epub_path = Path(sys.argv[1])
+def convert_epub_to_cbz(epub_path: Path) -> None:
+    """Convert EPUB to CBZ."""
     if not epub_path.exists():
         print(f"Error: File not found: {epub_path}", file=sys.stderr)
         sys.exit(1)
@@ -189,6 +196,298 @@ def main():
 
     create_cbz(output_path, images)
     print(f"Created: {output_path}")
+
+
+def natural_sort_key(s: str) -> list:
+    """Generate a key for natural sorting (handles numeric parts correctly).
+
+    '2.jpg' comes before '10.jpg', 'page1' before 'page10', etc.
+    Sorts by basename only (ignores directory path).
+    """
+    # Use only the filename for sorting, not the full path
+    basename = Path(s).name
+    return [
+        int(part) if part.isdigit() else part.lower()
+        for part in re.split(r'(\d+)', basename)
+    ]
+
+
+def get_image_files(cbz: zipfile.ZipFile) -> list[str]:
+    """Get naturally sorted list of image files from CBZ."""
+    image_extensions = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".tiff", ".tif"}
+    images = []
+    for name in cbz.namelist():
+        # Skip macOS resource forks and metadata
+        if name.startswith("__MACOSX/") or Path(name).name.startswith("._"):
+            continue
+        if Path(name).suffix.lower() in image_extensions:
+            images.append(name)
+    return sorted(images, key=natural_sort_key)
+
+
+def rename_images_in_cbz(cbz_path: Path) -> None:
+    """Rename all images in CBZ to 001.ext, 002.ext, etc."""
+    if not cbz_path.exists():
+        print(f"Error: File not found: {cbz_path}", file=sys.stderr)
+        sys.exit(1)
+
+    temp_fd, temp_path = tempfile.mkstemp(suffix=".cbz", dir=cbz_path.parent)
+    try:
+        with zipfile.ZipFile(cbz_path, "r") as cbz_in:
+            images = get_image_files(cbz_in)
+            if not images:
+                print("No images found in CBZ.", file=sys.stderr)
+                sys.exit(1)
+
+            print(f"Renaming {len(images)} images...")
+            for i, img in enumerate(images[:5], 1):
+                print(f"  {i}: {img}")
+            if len(images) > 5:
+                print(f"  ... ({len(images) - 5} more)")
+
+            with zipfile.ZipFile(temp_path, "w", zipfile.ZIP_DEFLATED) as cbz_out:
+                for idx, img_path in enumerate(images, 1):
+                    ext = Path(img_path).suffix.lower()
+                    new_name = f"{idx:03d}{ext}"
+                    data = cbz_in.read(img_path)
+                    cbz_out.writestr(new_name, data)
+
+        Path(temp_path).replace(cbz_path)
+        print(f"Renamed images in: {cbz_path}")
+    finally:
+        try:
+            os.close(temp_fd)
+        except OSError:
+            pass
+        try:
+            Path(temp_path).unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
+def extract_page_from_end(cbz_path: Path, n: int) -> None:
+    """Extract the Nth page from the end (1=last, 2=second-to-last, etc.)."""
+    if not cbz_path.exists():
+        print(f"Error: File not found: {cbz_path}", file=sys.stderr)
+        sys.exit(1)
+
+    if n < 1:
+        print("Error: Page number must be >= 1", file=sys.stderr)
+        sys.exit(1)
+
+    with zipfile.ZipFile(cbz_path, "r") as cbz:
+        images = get_image_files(cbz)
+        if not images:
+            print("No images found in CBZ.", file=sys.stderr)
+            sys.exit(1)
+
+        if n > len(images):
+            print(f"Error: Only {len(images)} images in CBZ, cannot extract page {n} from end", file=sys.stderr)
+            sys.exit(1)
+
+        # n=1 means last page (index -1), n=2 means second-to-last (index -2), etc.
+        target_idx = len(images) - n
+        target_image = images[target_idx]
+
+        ext = Path(target_image).suffix.lower()
+        output_name = f"{cbz_path.stem}_page{len(images) - n + 1}{ext}"
+        output_path = cbz_path.parent / output_name
+
+        data = cbz.read(target_image)
+        output_path.write_bytes(data)
+        print(f"Extracted: {output_path}")
+
+
+def is_two_page_spread(img: Image.Image) -> bool:
+    """Check if image is a two-page spread (width > height)."""
+    return img.width > img.height
+
+
+def split_spread(img: Image.Image, ltr: bool) -> tuple[Image.Image, Image.Image]:
+    """Split a two-page spread into two images.
+
+    For RTL (default): returns (right_half, left_half) - right page comes first
+    For LTR: returns (left_half, right_half) - left page comes first
+    """
+    mid = img.width // 2
+    left_half = img.crop((0, 0, mid, img.height))
+    right_half = img.crop((mid, 0, img.width, img.height))
+
+    if ltr:
+        return left_half, right_half
+    else:
+        return right_half, left_half
+
+
+def image_to_bytes(img: Image.Image, fmt: str) -> bytes:
+    """Convert PIL Image to bytes."""
+    buf = io.BytesIO()
+    # Handle format mapping
+    save_fmt = fmt.upper()
+    if save_fmt == "JPG":
+        save_fmt = "JPEG"
+    img.save(buf, format=save_fmt)
+    return buf.getvalue()
+
+
+def format_cbz(cbz_path: Path, ltr: bool = False) -> None:
+    """Format CBZ: split two-page spreads into individual pages."""
+    if not cbz_path.exists():
+        print(f"Error: File not found: {cbz_path}", file=sys.stderr)
+        sys.exit(1)
+
+    temp_fd, temp_path = tempfile.mkstemp(suffix=".cbz", dir=cbz_path.parent)
+    try:
+        with zipfile.ZipFile(cbz_path, "r") as cbz_in:
+            images = get_image_files(cbz_in)
+            if not images:
+                print("No images found in CBZ.", file=sys.stderr)
+                sys.exit(1)
+
+            print(f"Processing {len(images)} images...")
+            spreads_split = 0
+            output_images: list[tuple[str, bytes]] = []
+
+            for img_path in images:
+                data = cbz_in.read(img_path)
+                ext = Path(img_path).suffix.lower().lstrip(".")
+
+                try:
+                    img = Image.open(io.BytesIO(data))
+
+                    if is_two_page_spread(img):
+                        # Split the spread
+                        first_page, second_page = split_spread(img, ltr)
+                        output_images.append((f"split.{ext}", image_to_bytes(first_page, ext)))
+                        output_images.append((f"split.{ext}", image_to_bytes(second_page, ext)))
+                        spreads_split += 1
+                    else:
+                        # Keep single page as-is
+                        output_images.append((img_path, data))
+                except Exception as e:
+                    print(f"Warning: Could not process {img_path}: {e}", file=sys.stderr)
+                    output_images.append((img_path, data))
+
+            # Write output CBZ with renumbered images
+            with zipfile.ZipFile(temp_path, "w", zipfile.ZIP_DEFLATED) as cbz_out:
+                for idx, (original_path, img_data) in enumerate(output_images, 1):
+                    ext = Path(original_path).suffix.lower()
+                    new_name = f"{idx:03d}{ext}"
+                    cbz_out.writestr(new_name, img_data)
+
+        Path(temp_path).replace(cbz_path)
+        direction = "LTR" if ltr else "RTL"
+        print(f"Formatted ({direction}): {cbz_path}")
+        print(f"  Split {spreads_split} spreads, {len(output_images)} total pages")
+    finally:
+        try:
+            os.close(temp_fd)
+        except OSError:
+            pass
+        try:
+            Path(temp_path).unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
+def add_page_after_cover(cbz_path: Path) -> None:
+    """Add a blank page after the cover, matching the cover's dimensions."""
+    if not cbz_path.exists():
+        print(f"Error: File not found: {cbz_path}", file=sys.stderr)
+        sys.exit(1)
+
+    temp_fd, temp_path = tempfile.mkstemp(suffix=".cbz", dir=cbz_path.parent)
+    try:
+        with zipfile.ZipFile(cbz_path, "r") as cbz_in:
+            images = get_image_files(cbz_in)
+            if not images:
+                print("No images found in CBZ.", file=sys.stderr)
+                sys.exit(1)
+
+            # Read cover image to get dimensions
+            cover_path = images[0]
+            cover_data = cbz_in.read(cover_path)
+            cover_img = Image.open(io.BytesIO(cover_data))
+            cover_ext = Path(cover_path).suffix.lower().lstrip(".")
+
+            # Create blank page same size as cover (white)
+            blank_page = Image.new("RGB", (cover_img.width, cover_img.height), (255, 255, 255))
+            blank_data = image_to_bytes(blank_page, cover_ext)
+
+            # Write output CBZ: cover, blank page, then rest
+            with zipfile.ZipFile(temp_path, "w", zipfile.ZIP_DEFLATED) as cbz_out:
+                # Page 1: cover
+                ext = Path(cover_path).suffix.lower()
+                cbz_out.writestr(f"001{ext}", cover_data)
+
+                # Page 2: blank page
+                cbz_out.writestr(f"002{ext}", blank_data)
+
+                # Pages 3+: remaining images
+                for idx, img_path in enumerate(images[1:], 3):
+                    data = cbz_in.read(img_path)
+                    img_ext = Path(img_path).suffix.lower()
+                    cbz_out.writestr(f"{idx:03d}{img_ext}", data)
+
+        Path(temp_path).replace(cbz_path)
+        print(f"Added blank page after cover: {cbz_path}")
+        print(f"  Cover size: {cover_img.width}x{cover_img.height}, now {len(images) + 1} pages")
+    finally:
+        try:
+            os.close(temp_fd)
+        except OSError:
+            pass
+        try:
+            Path(temp_path).unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="CBZ utilities: convert, rename, extract, split, add page",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+    cbz -c book.epub                            Convert EPUB to CBZ
+    cbz -r comic.cbz                            Rename images to 001.ext, 002.ext, ...
+    cbz -e 1 comic.cbz                          Extract last page
+    cbz -e 2 comic.cbz                          Extract second-to-last page
+    cbz -s comic.cbz                            Split two-page spreads (RTL)
+    cbz -s comic.cbz --ltr                      Split two-page spreads (LTR)
+    cbz -a comic.cbz                            Add blank page after cover
+
+    find . -name "*.cbz" -exec cbz -s {} \\;     Split all files
+        """
+    )
+
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("-c", "--convert", metavar="EPUB", help="Convert EPUB to CBZ")
+    group.add_argument("-r", "--rename", metavar="CBZ", help="Rename images to 001, 002, ...")
+    group.add_argument("-e", "--extract", nargs=2, metavar=("N", "CBZ"),
+                       help="Extract Nth page from end (1=last)")
+    group.add_argument("-s", "--split", metavar="CBZ",
+                       help="Split two-page spreads (use --ltr for left-to-right)")
+    group.add_argument("-a", "--add-page", metavar="CBZ",
+                       help="Add blank page after cover (same size as cover)")
+
+    parser.add_argument("--ltr", action="store_true",
+                        help="Left-to-right reading order (default is RTL)")
+
+    args = parser.parse_args()
+
+    if args.convert:
+        convert_epub_to_cbz(Path(args.convert))
+    elif args.rename:
+        rename_images_in_cbz(Path(args.rename))
+    elif args.extract:
+        n = int(args.extract[0])
+        cbz_path = Path(args.extract[1])
+        extract_page_from_end(cbz_path, n)
+    elif args.split:
+        format_cbz(Path(args.split), ltr=args.ltr)
+    elif args.add_page:
+        add_page_after_cover(Path(args.add_page))
 
 
 if __name__ == "__main__":
