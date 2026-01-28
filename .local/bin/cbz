@@ -229,8 +229,23 @@ def convert_epub_to_cbz(epub_path: Path) -> None:
             else:
                 try:
                     data = epub.read(img_path)
-                    images.append((img_path, data))
-                    spread_info.append((img_path, properties))
+                    img = Image.open(io.BytesIO(data))
+
+                    # Check for transparent images and skip them
+                    is_transparent = False
+                    if img.mode == 'RGBA':
+                        extrema = img.getchannel('A').getextrema()
+                        # If max alpha is very low, it's basically transparent
+                        if extrema[1] < 10:
+                            is_transparent = True
+
+                    if is_transparent:
+                        # Skip adding the transparent image to the list
+                        print(f"  Info: Skipped transparent image {img_path}.")
+                    else:
+                        images.append((img_path, data))
+                        spread_info.append((img_path, properties))
+
                 except KeyError:
                     print(f"Warning: Could not read {img_path}", file=sys.stderr)
 
