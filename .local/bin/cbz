@@ -46,8 +46,8 @@ def get_opf_path(epub: zipfile.ZipFile) -> str:
     return rootfile.get("full-path")
 
 
-def parse_opf(epub: zipfile.ZipFile, opf_path: str) -> tuple[list[str], dict[str, str]]:
-    """Parse OPF and return spine order (list of hrefs) and manifest (id -> href)."""
+def parse_opf(epub: zipfile.ZipFile, opf_path: str) -> tuple[list[tuple[str, str]], dict[str, str]]:
+    """Parse OPF and return spine order (list of (href, properties)) and manifest (id -> href)."""
     opf_content = epub.read(opf_path)
     opf = etree.fromstring(opf_content)
     opf_dir = str(Path(opf_path).parent)
@@ -62,15 +62,15 @@ def parse_opf(epub: zipfile.ZipFile, opf_path: str) -> tuple[list[str], dict[str
             full_path = urljoin(opf_dir + "/", unquote(href))
             manifest[item_id] = full_path.lstrip("/")
 
-    # Get spine order
-    spine_ids = []
+    # Get spine order with properties
+    spine_items = []
     for itemref in opf.findall(".//opf:spine/opf:itemref", NAMESPACES):
         idref = itemref.get("idref")
-        if idref:
-            spine_ids.append(idref)
+        properties = itemref.get("properties", "")
+        if idref and idref in manifest:
+            spine_items.append((manifest[idref], properties))
 
-    spine_hrefs = [manifest[id_] for id_ in spine_ids if id_ in manifest]
-    return spine_hrefs, manifest
+    return spine_items, manifest
 
 
 def extract_images_from_xhtml(
@@ -114,10 +114,16 @@ def extract_images_from_xhtml(
     return images
 
 
-def get_spine_images(epub: zipfile.ZipFile, opf_path: str) -> list[str]:
-    """Get all images referenced in the spine, in order."""
-    spine_hrefs, manifest = parse_opf(epub, opf_path)
+def get_spine_images(epub: zipfile.ZipFile, opf_path: str) -> list[tuple[str | None, str]]:
+    """Get all images referenced in the spine, in order.
+
+    Returns list of (image_path or None for blank, properties).
+    """
+    spine_items, manifest = parse_opf(epub, opf_path)
     manifest_hrefs = set(manifest.values())
+
+    # Check if this EPUB uses spread properties (indicates manga/comic with two-page layout)
+    has_spread_properties = any("page-spread" in props for _, props in spine_items)
 
     # Also create a lookup for files that exist in the EPUB
     epub_files = set(epub.namelist())
@@ -125,23 +131,30 @@ def get_spine_images(epub: zipfile.ZipFile, opf_path: str) -> list[str]:
     seen = set()
     ordered_images = []
 
-    for xhtml_path in spine_hrefs:
+    for xhtml_path, properties in spine_items:
         images = extract_images_from_xhtml(epub, xhtml_path, manifest_hrefs)
-        for img in images:
-            # Try to find the actual file path in the EPUB
-            actual_path = None
-            if img in epub_files:
-                actual_path = img
-            else:
-                # Try without leading components or with different path
-                for f in epub_files:
-                    if f.endswith(img.split("/")[-1]):
-                        actual_path = f
-                        break
 
-            if actual_path and actual_path not in seen:
-                seen.add(actual_path)
-                ordered_images.append(actual_path)
+        if not images:
+            # Only preserve blank slots if EPUB uses spread properties (for proper alignment)
+            if has_spread_properties:
+                ordered_images.append((None, properties))
+            # Otherwise skip pages with no images (old behavior for non-spread EPUBs)
+        else:
+            for img in images:
+                # Try to find the actual file path in the EPUB
+                actual_path = None
+                if img in epub_files:
+                    actual_path = img
+                else:
+                    # Try without leading components or with different path
+                    for f in epub_files:
+                        if f.endswith(img.split("/")[-1]):
+                            actual_path = f
+                            break
+
+                if actual_path and actual_path not in seen:
+                    seen.add(actual_path)
+                    ordered_images.append((actual_path, properties))
 
     return ordered_images
 
@@ -168,7 +181,7 @@ def create_cbz(output_path: Path, images: list[tuple[str, bytes]]) -> None:
 
 
 def convert_epub_to_cbz(epub_path: Path) -> None:
-    """Convert EPUB to CBZ."""
+    """Convert EPUB to CBZ, preserving blank pages for proper spread alignment."""
     if not epub_path.exists():
         print(f"Error: File not found: {epub_path}", file=sys.stderr)
         sys.exit(1)
@@ -177,22 +190,55 @@ def convert_epub_to_cbz(epub_path: Path) -> None:
 
     with zipfile.ZipFile(epub_path, "r") as epub:
         opf_path = get_opf_path(epub)
-        image_paths = get_spine_images(epub, opf_path)
+        spine_images = get_spine_images(epub, opf_path)
 
-        if not image_paths:
-            print("No images found in spine.", file=sys.stderr)
+        if not spine_images:
+            print("No pages found in spine.", file=sys.stderr)
             sys.exit(1)
 
-        print(f"Found {len(image_paths)} images in spine order")
+        # Count actual images vs blank pages
+        image_count = sum(1 for img, _ in spine_images if img is not None)
+        blank_count = sum(1 for img, _ in spine_images if img is None)
 
-        # Read all image data
+        print(f"Found {len(spine_images)} pages in spine ({image_count} images, {blank_count} blank)")
+
+        # Find reference dimensions from first actual image
+        ref_width, ref_height = 900, 1350  # Default fallback
+        ref_ext = ".jpg"
+        for img_path, _ in spine_images:
+            if img_path is not None:
+                try:
+                    data = epub.read(img_path)
+                    img = Image.open(io.BytesIO(data))
+                    ref_width, ref_height = img.width, img.height
+                    ref_ext = Path(img_path).suffix.lower()
+                    break
+                except Exception:
+                    pass
+
+        # Read all image data, generating blank pages as needed
         images = []
-        for img_path in image_paths:
-            try:
-                data = epub.read(img_path)
-                images.append((img_path, data))
-            except KeyError:
-                print(f"Warning: Could not read {img_path}", file=sys.stderr)
+        spread_info = []
+        for img_path, properties in spine_images:
+            if img_path is None:
+                # Generate blank page with reference dimensions
+                blank_img = Image.new("RGB", (ref_width, ref_height), (255, 255, 255))
+                data = image_to_bytes(blank_img, ref_ext.lstrip("."))
+                images.append((f"blank{ref_ext}", data))
+                spread_info.append(("blank", properties))
+            else:
+                try:
+                    data = epub.read(img_path)
+                    images.append((img_path, data))
+                    spread_info.append((img_path, properties))
+                except KeyError:
+                    print(f"Warning: Could not read {img_path}", file=sys.stderr)
+
+        # Report spread alignment
+        spread_left = sum(1 for _, p in spread_info if "page-spread-left" in p)
+        spread_right = sum(1 for _, p in spread_info if "page-spread-right" in p)
+        if spread_left or spread_right:
+            print(f"  Spread layout: {spread_left} left, {spread_right} right")
 
     create_cbz(output_path, images)
     print(f"Created: {output_path}")
