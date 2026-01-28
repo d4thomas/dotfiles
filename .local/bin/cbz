@@ -1,0 +1,195 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "lxml",
+# ]
+# ///
+"""
+Convert EPUB to CBZ, preserving image order from the spine.
+
+Usage: uv run --script epub2cbz.py <input.epub>
+"""
+
+import os
+import sys
+import tempfile
+import zipfile
+from pathlib import Path
+from urllib.parse import unquote, urljoin
+from lxml import etree
+
+NAMESPACES = {
+    "container": "urn:oasis:names:tc:opendocument:xmlns:container",
+    "opf": "http://www.idpf.org/2007/opf",
+    "xhtml": "http://www.w3.org/1999/xhtml",
+}
+
+
+def get_opf_path(epub: zipfile.ZipFile) -> str:
+    """Get the path to the OPF file from container.xml."""
+    container = etree.fromstring(epub.read("META-INF/container.xml"))
+    rootfile = container.find(".//container:rootfile", NAMESPACES)
+    if rootfile is None:
+        raise ValueError("Could not find rootfile in container.xml")
+    return rootfile.get("full-path")
+
+
+def parse_opf(epub: zipfile.ZipFile, opf_path: str) -> tuple[list[str], dict[str, str]]:
+    """Parse OPF and return spine order (list of hrefs) and manifest (id -> href)."""
+    opf_content = epub.read(opf_path)
+    opf = etree.fromstring(opf_content)
+    opf_dir = str(Path(opf_path).parent)
+
+    # Build manifest: id -> href (resolved to full path in EPUB)
+    manifest = {}
+    for item in opf.findall(".//opf:manifest/opf:item", NAMESPACES):
+        item_id = item.get("id")
+        href = item.get("href")
+        if item_id and href:
+            # Resolve relative path
+            full_path = urljoin(opf_dir + "/", unquote(href))
+            manifest[item_id] = full_path.lstrip("/")
+
+    # Get spine order
+    spine_ids = []
+    for itemref in opf.findall(".//opf:spine/opf:itemref", NAMESPACES):
+        idref = itemref.get("idref")
+        if idref:
+            spine_ids.append(idref)
+
+    spine_hrefs = [manifest[id_] for id_ in spine_ids if id_ in manifest]
+    return spine_hrefs, manifest
+
+
+def extract_images_from_xhtml(
+    epub: zipfile.ZipFile, xhtml_path: str, manifest_hrefs: set[str]
+) -> list[str]:
+    """Extract image paths from an XHTML document in spine order."""
+    try:
+        content = epub.read(xhtml_path)
+    except KeyError:
+        return []
+
+    try:
+        doc = etree.fromstring(content)
+    except etree.XMLSyntaxError:
+        # Try as HTML
+        doc = etree.HTML(content)
+
+    xhtml_dir = str(Path(xhtml_path).parent)
+    images = []
+
+    # Find all img tags and image elements (including SVG images)
+    for img in doc.iter():
+        src = None
+        if img.tag in ("{http://www.w3.org/1999/xhtml}img", "img"):
+            src = img.get("src")
+        elif img.tag in ("{http://www.w3.org/1999/xhtml}image", "image", "{http://www.w3.org/2000/svg}image"):
+            src = img.get("{http://www.w3.org/1999/xlink}href") or img.get("href")
+
+        if src:
+            # Resolve relative path
+            full_path = urljoin(xhtml_dir + "/", unquote(src))
+            full_path = full_path.lstrip("/")
+            # Normalize path (handle ../)
+            full_path = str(Path(full_path).as_posix())
+            # Only include if it's in the manifest (i.e., it's a real image in the EPUB)
+            if full_path in manifest_hrefs or any(
+                h.endswith("/" + full_path.split("/")[-1]) for h in manifest_hrefs
+            ):
+                images.append(full_path)
+
+    return images
+
+
+def get_spine_images(epub: zipfile.ZipFile, opf_path: str) -> list[str]:
+    """Get all images referenced in the spine, in order."""
+    spine_hrefs, manifest = parse_opf(epub, opf_path)
+    manifest_hrefs = set(manifest.values())
+
+    # Also create a lookup for files that exist in the EPUB
+    epub_files = set(epub.namelist())
+
+    seen = set()
+    ordered_images = []
+
+    for xhtml_path in spine_hrefs:
+        images = extract_images_from_xhtml(epub, xhtml_path, manifest_hrefs)
+        for img in images:
+            # Try to find the actual file path in the EPUB
+            actual_path = None
+            if img in epub_files:
+                actual_path = img
+            else:
+                # Try without leading components or with different path
+                for f in epub_files:
+                    if f.endswith(img.split("/")[-1]):
+                        actual_path = f
+                        break
+
+            if actual_path and actual_path not in seen:
+                seen.add(actual_path)
+                ordered_images.append(actual_path)
+
+    return ordered_images
+
+
+def create_cbz(output_path: Path, images: list[tuple[str, bytes]]) -> None:
+    """Create a CBZ file from a list of images."""
+    temp_fd, temp_path = tempfile.mkstemp(suffix=".cbz", dir=output_path.parent)
+    try:
+        with zipfile.ZipFile(temp_path, "w", zipfile.ZIP_DEFLATED) as cbz:
+            for idx, (original_path, data) in enumerate(images, 1):
+                ext = Path(original_path).suffix.lower()
+                new_name = f"{idx:03d}{ext}"
+                cbz.writestr(new_name, data)
+        Path(temp_path).replace(output_path)
+    finally:
+        try:
+            os.close(temp_fd)
+        except OSError:
+            pass
+        try:
+            Path(temp_path).unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
+def main():
+    if len(sys.argv) != 2:
+        print(f"Usage: uv run --script {sys.argv[0]} <input.epub>", file=sys.stderr)
+        sys.exit(1)
+
+    epub_path = Path(sys.argv[1])
+    if not epub_path.exists():
+        print(f"Error: File not found: {epub_path}", file=sys.stderr)
+        sys.exit(1)
+
+    output_path = epub_path.with_suffix(".cbz")
+
+    with zipfile.ZipFile(epub_path, "r") as epub:
+        opf_path = get_opf_path(epub)
+        image_paths = get_spine_images(epub, opf_path)
+
+        if not image_paths:
+            print("No images found in spine.", file=sys.stderr)
+            sys.exit(1)
+
+        print(f"Found {len(image_paths)} images in spine order")
+
+        # Read all image data
+        images = []
+        for img_path in image_paths:
+            try:
+                data = epub.read(img_path)
+                images.append((img_path, data))
+            except KeyError:
+                print(f"Warning: Could not read {img_path}", file=sys.stderr)
+
+    create_cbz(output_path, images)
+    print(f"Created: {output_path}")
+
+
+if __name__ == "__main__":
+    main()
