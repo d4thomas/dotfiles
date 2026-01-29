@@ -9,9 +9,6 @@ alias grep="grep --color=always"
 # Less
 alias less="less -R"
 
-# Gemini
-alias gemini="npx @google/gemini-cli"
-
 # Rclone
 if command -v rclone &> /dev/null; then
     alias rcopy="rclone copy --transfers 8 --fast-list -P"

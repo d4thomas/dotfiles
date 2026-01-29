@@ -12,9 +12,6 @@ if status is-interactive
     # Less
     alias less "less -R"
 
-    # Gemini
-    alias gemini "npx @google/gemini-cli"
-
     # Rclone
     if type -q rclone
         alias rcopy "rclone copy --transfers 8 --fast-list -P"
