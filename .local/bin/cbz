@@ -11,8 +11,8 @@
 CBZ utilities: convert EPUB/PDF to CBZ, rename images, extract pages, split spreads.
 
 Usage:
-    cbz -c [input.epub|pdf]   Convert EPUB/PDF to CBZ with WebP images (no arg = all .epub/.pdf)
-    cbz -c [input] --jpg      Keep original format (EPUB) or use PNG (PDF) instead of WebP
+    cbz -c [input.epub|pdf]   Convert EPUB/PDF to CBZ with original format (no arg = all .epub/.pdf)
+    cbz -c [input] --webp     Convert to WebP (default quality 85)
     cbz -r [input.cbz]        Rename images to 001.ext, 002.ext, ... (no arg = all .cbz)
     cbz -e <N> [input.cbz]    Extract Nth page from end (no arg = all .cbz)
     cbz -s [input.cbz]        Split two-page spreads RTL (no arg = all .cbz)
@@ -186,7 +186,7 @@ def create_cbz(output_path: Path, images: list[tuple[str, bytes]]) -> None:
             pass
 
 
-def convert_epub_to_cbz(epub_path: Path, use_webp: bool = True, quality: int = 80) -> None:
+def convert_epub_to_cbz(epub_path: Path, use_webp: bool = False, quality: int = 85) -> None:
     """Convert EPUB to CBZ, preserving blank pages for proper spread alignment."""
     if not epub_path.exists():
         print(f"Error: File not found: {epub_path}", file=sys.stderr)
@@ -283,7 +283,7 @@ def convert_epub_to_cbz(epub_path: Path, use_webp: bool = True, quality: int = 8
     print(f"Created: {output_path}")
 
 
-def convert_pdf_to_cbz(pdf_path: Path, use_webp: bool = True, quality: int = 80) -> None:
+def convert_pdf_to_cbz(pdf_path: Path, use_webp: bool = False, quality: int = 85) -> None:
     """Convert PDF to CBZ, rendering each page as an image."""
     if not pdf_path.exists():
         print(f"Error: File not found: {pdf_path}", file=sys.stderr)
@@ -676,10 +676,10 @@ def main():
 
     parser.add_argument("--ltr", action="store_true",
                         help="Left-to-right reading order (default is RTL)")
-    parser.add_argument("--jpg", action="store_true",
-                        help="Keep original image format instead of converting to WebP")
-    parser.add_argument("-q", "--quality", type=int, default=80, metavar="Q",
-                        help="WebP quality 1-100 (default: 80)")
+    parser.add_argument("--webp", action="store_true",
+                        help="Convert to WebP instead of keeping original format")
+    parser.add_argument("-q", "--quality", type=int, default=85, metavar="Q",
+                        help="WebP quality 1-100 (default: 85)")
     parser.add_argument("--lossless", action="store_true",
                         help="Use lossless WebP (default is lossy)")
 
@@ -715,9 +715,9 @@ def main():
                 print(f"\n=== {f} ===")
             ext = f.suffix.lower()
             if ext == ".pdf":
-                convert_pdf_to_cbz(f, use_webp=not args.jpg, quality=args.quality)
+                convert_pdf_to_cbz(f, use_webp=args.webp, quality=args.quality)
             elif ext == ".epub":
-                convert_epub_to_cbz(f, use_webp=not args.jpg, quality=args.quality)
+                convert_epub_to_cbz(f, use_webp=args.webp, quality=args.quality)
             else:
                 print(f"Error: Unsupported format {ext}, use .epub or .pdf", file=sys.stderr)
                 sys.exit(1)
