@@ -4,18 +4,23 @@
 # dependencies = [
 #     "lxml",
 #     "pillow",
+#     "pymupdf",
 # ]
 # ///
 """
-CBZ utilities: convert EPUB to CBZ, rename images, extract pages, split spreads.
+CBZ utilities: convert EPUB/PDF to CBZ, rename images, extract pages, split spreads.
 
 Usage:
-    cbz -c <input.epub>       Convert EPUB to CBZ
-    cbz -r <input.cbz>        Rename images to 001.ext, 002.ext, ...
-    cbz -e <N> <input.cbz>    Extract Nth page from end (1=last, 2=second-to-last)
-    cbz -s <input.cbz>        Split two-page spreads (RTL by default)
-    cbz -s <input.cbz> --ltr  Split two-page spreads for left-to-right reading
-    cbz -a <input.cbz>        Add blank page after cover (same size as cover)
+    cbz -c [input.epub|pdf]   Convert EPUB/PDF to CBZ with WebP images (no arg = all .epub/.pdf)
+    cbz -c [input] --jpg      Keep original format (EPUB) or use PNG (PDF) instead of WebP
+    cbz -r [input.cbz]        Rename images to 001.ext, 002.ext, ... (no arg = all .cbz)
+    cbz -e <N> [input.cbz]    Extract Nth page from end (no arg = all .cbz)
+    cbz -s [input.cbz]        Split two-page spreads RTL (no arg = all .cbz)
+    cbz -s [input.cbz] --ltr  Split two-page spreads LTR (no arg = all .cbz)
+    cbz -a [input.cbz]        Add blank page after cover (no arg = all .cbz)
+    cbz -w [input.cbz]        Convert images to WebP lossy q80 (no arg = all .cbz)
+    cbz -w [input.cbz] -q 90  Convert to WebP with quality 90
+    cbz -w [input.cbz] --lossless  Convert to lossless WebP
 """
 
 import argparse
@@ -27,6 +32,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 from urllib.parse import unquote, urljoin
+import fitz
 from lxml import etree
 from PIL import Image
 
@@ -180,7 +186,7 @@ def create_cbz(output_path: Path, images: list[tuple[str, bytes]]) -> None:
             pass
 
 
-def convert_epub_to_cbz(epub_path: Path) -> None:
+def convert_epub_to_cbz(epub_path: Path, use_webp: bool = True, quality: int = 80) -> None:
     """Convert EPUB to CBZ, preserving blank pages for proper spread alignment."""
     if not epub_path.exists():
         print(f"Error: File not found: {epub_path}", file=sys.stderr)
@@ -200,18 +206,20 @@ def convert_epub_to_cbz(epub_path: Path) -> None:
         image_count = sum(1 for img, _ in spine_images if img is not None)
         blank_count = sum(1 for img, _ in spine_images if img is None)
 
-        print(f"Found {len(spine_images)} pages in spine ({image_count} images, {blank_count} blank)")
+        fmt_info = f"WebP q{quality}" if use_webp else "original format"
+        print(f"Found {len(spine_images)} pages in spine ({image_count} images, {blank_count} blank) -> {fmt_info}")
 
         # Find reference dimensions from first actual image
         ref_width, ref_height = 900, 1350  # Default fallback
-        ref_ext = ".jpg"
+        ref_ext = ".webp" if use_webp else ".jpg"
         for img_path, _ in spine_images:
             if img_path is not None:
                 try:
                     data = epub.read(img_path)
                     img = Image.open(io.BytesIO(data))
                     ref_width, ref_height = img.width, img.height
-                    ref_ext = Path(img_path).suffix.lower()
+                    if not use_webp:
+                        ref_ext = Path(img_path).suffix.lower()
                     break
                 except Exception:
                     pass
@@ -223,8 +231,14 @@ def convert_epub_to_cbz(epub_path: Path) -> None:
             if img_path is None:
                 # Generate blank page with reference dimensions
                 blank_img = Image.new("RGB", (ref_width, ref_height), (255, 255, 255))
-                data = image_to_bytes(blank_img, ref_ext.lstrip("."))
-                images.append((f"blank{ref_ext}", data))
+                if use_webp:
+                    buf = io.BytesIO()
+                    blank_img.save(buf, format="WEBP", quality=quality)
+                    data = buf.getvalue()
+                    images.append(("blank.webp", data))
+                else:
+                    data = image_to_bytes(blank_img, ref_ext.lstrip("."))
+                    images.append((f"blank{ref_ext}", data))
                 spread_info.append(("blank", properties))
             else:
                 try:
@@ -243,7 +257,17 @@ def convert_epub_to_cbz(epub_path: Path) -> None:
                         # Skip adding the transparent image to the list
                         print(f"  Info: Skipped transparent image {img_path}.")
                     else:
-                        images.append((img_path, data))
+                        if use_webp:
+                            # Convert to WebP
+                            if img.mode in ("RGBA", "LA", "PA"):
+                                pass  # Keep alpha
+                            elif img.mode != "RGB":
+                                img = img.convert("RGB")
+                            buf = io.BytesIO()
+                            img.save(buf, format="WEBP", quality=quality)
+                            images.append(("converted.webp", buf.getvalue()))
+                        else:
+                            images.append((img_path, data))
                         spread_info.append((img_path, properties))
 
                 except KeyError:
@@ -254,6 +278,45 @@ def convert_epub_to_cbz(epub_path: Path) -> None:
         spread_right = sum(1 for _, p in spread_info if "page-spread-right" in p)
         if spread_left or spread_right:
             print(f"  Spread layout: {spread_left} left, {spread_right} right")
+
+    create_cbz(output_path, images)
+    print(f"Created: {output_path}")
+
+
+def convert_pdf_to_cbz(pdf_path: Path, use_webp: bool = True, quality: int = 80) -> None:
+    """Convert PDF to CBZ, rendering each page as an image."""
+    if not pdf_path.exists():
+        print(f"Error: File not found: {pdf_path}", file=sys.stderr)
+        sys.exit(1)
+
+    output_path = pdf_path.with_suffix(".cbz")
+
+    doc = fitz.open(pdf_path)
+    total_pages = len(doc)
+
+    fmt_info = f"WebP q{quality}" if use_webp else "PNG"
+    print(f"Converting {total_pages} pages -> {fmt_info}")
+
+    images = []
+    for page_num in range(total_pages):
+        print(f"\r  Processing page {page_num + 1}/{total_pages}...", end="", flush=True)
+        page = doc[page_num]
+        # Render at 2x for good quality (default is 72 DPI, this gives 144 DPI)
+        mat = fitz.Matrix(2, 2)
+        pix = page.get_pixmap(matrix=mat)
+
+        if use_webp:
+            # Convert to PIL Image then to WebP
+            img = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
+            buf = io.BytesIO()
+            img.save(buf, format="WEBP", quality=quality)
+            images.append(("page.webp", buf.getvalue()))
+        else:
+            # Use PNG
+            images.append(("page.png", pix.tobytes("png")))
+
+    doc.close()
+    print()  # Clear progress line
 
     create_cbz(output_path, images)
     print(f"Created: {output_path}")
@@ -504,51 +567,190 @@ def add_page_after_cover(cbz_path: Path) -> None:
             pass
 
 
+def convert_to_webp(cbz_path: Path, lossy: bool = False, quality: int = 90) -> None:
+    """Convert all images in CBZ to WebP format."""
+    if not cbz_path.exists():
+        print(f"Error: File not found: {cbz_path}", file=sys.stderr)
+        sys.exit(1)
+
+    temp_fd, temp_path = tempfile.mkstemp(suffix=".cbz", dir=cbz_path.parent)
+    try:
+        with zipfile.ZipFile(cbz_path, "r") as cbz_in:
+            images = get_image_files(cbz_in)
+            if not images:
+                print("No images found in CBZ.", file=sys.stderr)
+                sys.exit(1)
+
+            # Check if already all WebP
+            non_webp = [img for img in images if not img.lower().endswith(".webp")]
+            if not non_webp:
+                print(f"All images already WebP: {cbz_path}")
+                return
+
+            mode = f"lossy (quality={quality})" if lossy else "lossless"
+            total = len(images)
+            print(f"Converting {total} images to WebP ({mode})...")
+
+            original_size = 0
+            new_size = 0
+
+            with zipfile.ZipFile(temp_path, "w", zipfile.ZIP_STORED) as cbz_out:
+                for idx, img_path in enumerate(images, 1):
+                    print(f"\r  Processing {idx}/{total}...", end="", flush=True)
+                    data = cbz_in.read(img_path)
+                    original_size += len(data)
+
+                    # If already WebP, keep as-is
+                    if img_path.lower().endswith(".webp"):
+                        new_name = f"{idx:03d}.webp"
+                        cbz_out.writestr(new_name, data)
+                        new_size += len(data)
+                        continue
+
+                    try:
+                        img = Image.open(io.BytesIO(data))
+
+                        # Convert to RGB if necessary (WebP doesn't support all modes)
+                        if img.mode in ("RGBA", "LA", "PA"):
+                            # Keep alpha for formats that have it
+                            pass
+                        elif img.mode != "RGB":
+                            img = img.convert("RGB")
+
+                        buf = io.BytesIO()
+                        if lossy:
+                            img.save(buf, format="WEBP", quality=quality)
+                        else:
+                            img.save(buf, format="WEBP", lossless=True)
+
+                        webp_data = buf.getvalue()
+                        new_name = f"{idx:03d}.webp"
+                        cbz_out.writestr(new_name, webp_data)
+                        new_size += len(webp_data)
+
+                    except Exception as e:
+                        print(f"\nWarning: Could not convert {img_path}: {e}", file=sys.stderr)
+                        # Keep original
+                        ext = Path(img_path).suffix.lower()
+                        new_name = f"{idx:03d}{ext}"
+                        cbz_out.writestr(new_name, data)
+                        new_size += len(data)
+
+            print()  # Clear progress line
+        Path(temp_path).replace(cbz_path)
+        reduction = (1 - new_size / original_size) * 100 if original_size > 0 else 0
+        print(f"Converted to WebP: {cbz_path}")
+        print(f"  {original_size // 1024:,} KB -> {new_size // 1024:,} KB ({reduction:.1f}% reduction)")
+    finally:
+        try:
+            os.close(temp_fd)
+        except OSError:
+            pass
+        try:
+            Path(temp_path).unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="CBZ utilities: convert, rename, extract, split, add page",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-    cbz -c book.epub                            Convert EPUB to CBZ
-    cbz -r comic.cbz                            Rename images to 001.ext, 002.ext, ...
-    cbz -e 1 comic.cbz                          Extract last page
-    cbz -e 2 comic.cbz                          Extract second-to-last page
-    cbz -s comic.cbz                            Split two-page spreads (RTL)
-    cbz -s comic.cbz --ltr                      Split two-page spreads (LTR)
-    cbz -a comic.cbz                            Add blank page after cover
-
-    find . -name "*.cbz" -exec cbz -s {} \\;     Split all files
-        """
+        description="CBZ utilities: convert, rename, extract, split, add page, webp"
     )
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("-c", "--convert", metavar="EPUB", help="Convert EPUB to CBZ")
-    group.add_argument("-r", "--rename", metavar="CBZ", help="Rename images to 001, 002, ...")
-    group.add_argument("-e", "--extract", nargs=2, metavar=("N", "CBZ"),
+    group.add_argument("-c", "--convert", action="store_true",
+                       help="Convert EPUB/PDF to CBZ (WebP by default)")
+    group.add_argument("-r", "--rename", action="store_true",
+                       help="Rename images to 001, 002, ...")
+    group.add_argument("-e", "--extract", type=int, metavar="N",
                        help="Extract Nth page from end (1=last)")
-    group.add_argument("-s", "--split", metavar="CBZ",
-                       help="Split two-page spreads (use --ltr for left-to-right)")
-    group.add_argument("-a", "--add-page", metavar="CBZ",
-                       help="Add blank page after cover (same size as cover)")
+    group.add_argument("-s", "--split", action="store_true",
+                       help="Split two-page spreads")
+    group.add_argument("-a", "--add-page", action="store_true",
+                       help="Add blank page after cover")
+    group.add_argument("-w", "--webp", action="store_true",
+                       help="Convert images to WebP")
+
+    parser.add_argument("files", nargs="*",
+                        help="Input files (default: all .epub or .cbz in current dir)")
 
     parser.add_argument("--ltr", action="store_true",
                         help="Left-to-right reading order (default is RTL)")
+    parser.add_argument("--jpg", action="store_true",
+                        help="Keep original image format instead of converting to WebP")
+    parser.add_argument("-q", "--quality", type=int, default=80, metavar="Q",
+                        help="WebP quality 1-100 (default: 80)")
+    parser.add_argument("--lossless", action="store_true",
+                        help="Use lossless WebP (default is lossy)")
 
     args = parser.parse_args()
 
+    def get_default_files(pattern: str) -> list[Path]:
+        """Get all files matching pattern in current directory, sorted."""
+        files = sorted(Path(".").glob(pattern))
+        if not files:
+            print(f"No {pattern} files found in current directory.", file=sys.stderr)
+            sys.exit(1)
+        return files
+
+    def get_input_files(pattern: str) -> list[Path]:
+        """Get input files from args or default to pattern in current dir."""
+        if args.files:
+            return [Path(f) for f in args.files]
+        return get_default_files(pattern)
+
     if args.convert:
-        convert_epub_to_cbz(Path(args.convert))
+        if args.files:
+            files = [Path(f) for f in args.files]
+        else:
+            # Find both EPUB and PDF files
+            epubs = sorted(Path(".").glob("*.epub"))
+            pdfs = sorted(Path(".").glob("*.pdf"))
+            files = epubs + pdfs
+            if not files:
+                print("No .epub or .pdf files found in current directory.", file=sys.stderr)
+                sys.exit(1)
+        for f in files:
+            if len(files) > 1:
+                print(f"\n=== {f} ===")
+            ext = f.suffix.lower()
+            if ext == ".pdf":
+                convert_pdf_to_cbz(f, use_webp=not args.jpg, quality=args.quality)
+            elif ext == ".epub":
+                convert_epub_to_cbz(f, use_webp=not args.jpg, quality=args.quality)
+            else:
+                print(f"Error: Unsupported format {ext}, use .epub or .pdf", file=sys.stderr)
+                sys.exit(1)
     elif args.rename:
-        rename_images_in_cbz(Path(args.rename))
+        files = get_input_files("*.cbz")
+        for f in files:
+            if len(files) > 1:
+                print(f"\n=== {f} ===")
+            rename_images_in_cbz(f)
     elif args.extract:
-        n = int(args.extract[0])
-        cbz_path = Path(args.extract[1])
-        extract_page_from_end(cbz_path, n)
+        files = get_input_files("*.cbz")
+        for f in files:
+            if len(files) > 1:
+                print(f"\n=== {f} ===")
+            extract_page_from_end(f, args.extract)
     elif args.split:
-        format_cbz(Path(args.split), ltr=args.ltr)
+        files = get_input_files("*.cbz")
+        for f in files:
+            if len(files) > 1:
+                print(f"\n=== {f} ===")
+            format_cbz(f, ltr=args.ltr)
     elif args.add_page:
-        add_page_after_cover(Path(args.add_page))
+        files = get_input_files("*.cbz")
+        for f in files:
+            if len(files) > 1:
+                print(f"\n=== {f} ===")
+            add_page_after_cover(f)
+    elif args.webp:
+        files = get_input_files("*.cbz")
+        for f in files:
+            if len(files) > 1:
+                print(f"\n=== {f} ===")
+            convert_to_webp(f, lossy=not args.lossless, quality=args.quality)
 
 
 if __name__ == "__main__":

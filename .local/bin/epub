@@ -1,0 +1,867 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "lxml",
+#     "pillow",
+# ]
+# ///
+"""
+EPUB utilities: convert CBZ to EPUB, compress, fix covers, edit metadata, rename, clean.
+
+Usage:
+    epub -c [input.cbz]       Convert CBZ to EPUB (no arg = all .cbz files)
+    epub -c [input.cbz] --ltr Use left-to-right reading direction
+    epub -z [input.epub]      Compress images in EPUB (no arg = all .epub)
+    epub -f [input.epub]      Fix cover/thumbnail metadata (no arg = all .epub)
+    epub -m [input.epub]      Show metadata (no arg = all .epub)
+    epub -m [input.epub] -t -a "Author" -p "Publisher"  Set metadata
+    epub -r [input.epub]      Rename to standardized format (no arg = all .epub)
+    epub -i [input.epub]      Remove iTunes metadata (no arg = all .epub)
+    epub -t [input.epub]      Clean "..." entries from TOC (no arg = all .epub)
+"""
+
+import argparse
+import io
+import os
+import re
+import shutil
+import sys
+import tempfile
+import zipfile
+from datetime import datetime
+from pathlib import Path
+from lxml import etree
+from PIL import Image
+
+NAMESPACES = {
+    "container": "urn:oasis:names:tc:opendocument:xmlns:container",
+    "opf": "http://www.idpf.org/2007/opf",
+    "dc": "http://purl.org/dc/elements/1.1/",
+    "ncx": "http://www.daisy.org/z3986/2005/ncx/",
+}
+
+
+# =============================================================================
+# Common utilities
+# =============================================================================
+
+def find_opf_path(epub_path: Path) -> str | None:
+    """Find the OPF file path within an EPUB."""
+    with zipfile.ZipFile(epub_path, "r") as zf:
+        try:
+            container = etree.fromstring(zf.read("META-INF/container.xml"))
+            rootfile = container.find(".//{urn:oasis:names:tc:opendocument:xmlns:container}rootfile")
+            if rootfile is not None:
+                return rootfile.get("full-path")
+        except Exception:
+            pass
+        # Fallback: search for .opf files
+        for name in zf.namelist():
+            if name.endswith(".opf"):
+                return name
+    return None
+
+
+def repack_epub(temp_dir: Path, output_path: Path) -> None:
+    """Repack an extracted EPUB directory into an EPUB file."""
+    with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        # mimetype must be first and uncompressed
+        mimetype_path = temp_dir / "mimetype"
+        if mimetype_path.exists():
+            zf.write(mimetype_path, "mimetype", compress_type=zipfile.ZIP_STORED)
+
+        for root, _, files in os.walk(temp_dir):
+            for file in files:
+                if file == "mimetype":
+                    continue
+                file_path = Path(root) / file
+                arcname = file_path.relative_to(temp_dir)
+                zf.write(file_path, arcname)
+
+
+def natural_sort_key(s: str) -> list:
+    """Natural sort key for filenames."""
+    return [int(t) if t.isdigit() else t.lower() for t in re.split(r"(\d+)", str(s))]
+
+
+# =============================================================================
+# CBZ to EPUB conversion
+# =============================================================================
+
+def convert_cbz_to_epub(cbz_path: Path, author: str = "Unknown", publisher: str = "Unknown",
+                        add_blank_page: bool = False, ltr: bool = False) -> None:
+    """Convert CBZ to EPUB with two-page spread detection and splitting."""
+    if not cbz_path.exists():
+        print(f"Error: File not found: {cbz_path}", file=sys.stderr)
+        sys.exit(1)
+
+    title = cbz_path.stem
+    output_path = cbz_path.with_suffix(".epub")
+    work_dir = cbz_path.parent / f"{title}_work"
+    work_dir.mkdir(exist_ok=True)
+
+    try:
+        # Extract CBZ
+        print(f"Extracting {cbz_path.name}...")
+        extract_dir = work_dir / "extracted"
+        extract_dir.mkdir(exist_ok=True)
+        with zipfile.ZipFile(cbz_path, "r") as zf:
+            zf.extractall(extract_dir)
+
+        # Get image files
+        image_extensions = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+        images = []
+        for root, _, files in os.walk(extract_dir):
+            for file in files:
+                if Path(file).suffix.lower() in image_extensions:
+                    images.append(Path(root) / file)
+        images = sorted(images, key=lambda p: natural_sort_key(p.name))
+
+        if not images:
+            print("No images found in CBZ.", file=sys.stderr)
+            return
+
+        direction = "left-to-right" if ltr else "right-to-left"
+        print(f"Processing {len(images)} images ({direction})...")
+
+        # Create EPUB structure
+        (work_dir / "META-INF").mkdir(exist_ok=True)
+        (work_dir / "item" / "xhtml").mkdir(parents=True, exist_ok=True)
+        (work_dir / "item" / "style").mkdir(parents=True, exist_ok=True)
+        (work_dir / "item" / "image").mkdir(parents=True, exist_ok=True)
+
+        # Process images
+        image_dir = work_dir / "item" / "image"
+        processed = []  # (filename, width, height)
+        page_num = 0
+
+        for idx, img_path in enumerate(images):
+            # Add blank page after cover if requested
+            if add_blank_page and idx == 1 and page_num == 1:
+                next_img = Image.open(img_path)
+                w, h = next_img.size
+                if w > h:  # spread
+                    w = w // 2
+                next_img.close()
+                blank = Image.new("RGB", (w, h), (255, 255, 255))
+                blank_name = f"i-{page_num:03d}.jpg"
+                blank.save(image_dir / blank_name, "JPEG", quality=90)
+                processed.append((blank_name, w, h))
+                page_num += 1
+
+            img = Image.open(img_path)
+            w, h = img.size
+
+            if w > h:  # Two-page spread
+                print(f"  Detected spread: {img_path.name} ({w}x{h})")
+                mid = w // 2
+
+                if ltr:
+                    pages = [(0, mid), (mid, w)]  # left first, then right
+                else:
+                    pages = [(mid, w), (0, mid)]  # right first, then left
+
+                for x1, x2 in pages:
+                    crop = img.crop((x1, 0, x2, h))
+                    filename = f"i-{page_num:03d}.jpg"
+                    if img_path.suffix.lower() in {".jpg", ".jpeg"}:
+                        crop.save(image_dir / filename, "JPEG", quality=90)
+                    else:
+                        if crop.mode != "RGB":
+                            crop = crop.convert("RGB")
+                        crop.save(image_dir / filename, "JPEG", quality=90)
+                    processed.append((filename, crop.width, crop.height))
+                    page_num += 1
+            else:
+                filename = f"i-{page_num:03d}.jpg"
+                if img_path.suffix.lower() in {".jpg", ".jpeg"}:
+                    shutil.copy(img_path, image_dir / filename)
+                else:
+                    if img.mode != "RGB":
+                        img = img.convert("RGB")
+                    img.save(image_dir / filename, "JPEG", quality=90)
+                processed.append((filename, w, h))
+                page_num += 1
+
+            img.close()
+
+        print(f"  Generated {len(processed)} pages")
+
+        # Create mimetype
+        (work_dir / "mimetype").write_text("application/epub+zip")
+
+        # Create container.xml
+        container = '''<?xml version="1.0"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+  <rootfiles>
+    <rootfile full-path="item/comic.opf" media-type="application/oebps-package+xml"/>
+  </rootfiles>
+</container>'''
+        (work_dir / "META-INF" / "container.xml").write_text(container)
+
+        # Create CSS
+        css = '''@charset "UTF-8";
+html, body { width: 100%; height: 100%; margin: 0; padding: 0; font-size: 0; }
+svg { margin: 0; padding: 0; }
+img { margin: 0; padding: 0; border: 0; }
+p { display: none; }'''
+        (work_dir / "item" / "style" / "fixed-layout.css").write_text(css)
+
+        # Create XHTML pages
+        for idx, (img_name, w, h) in enumerate(processed):
+            xhtml = f'''<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>{title}</title>
+    <meta name="viewport" content="width={w}, height={h}"/>
+    <link rel="stylesheet" type="text/css" href="../style/fixed-layout.css"/>
+  </head>
+  <body>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="100%" viewBox="0 0 {w} {h}">
+      <image width="{w}" height="{h}" xlink:href="../image/{img_name}"/>
+    </svg>
+  </body>
+</html>'''
+            (work_dir / "item" / "xhtml" / f"p-{idx:03d}.xhtml").write_text(xhtml)
+
+        # Create OPF
+        timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        ref_w, ref_h = processed[0][1], processed[0][2]
+        page_dir = "ltr" if ltr else "rtl"
+        writing_mode = "horizontal-lr" if ltr else "horizontal-rl"
+
+        manifest_items = []
+        for idx, (img_name, _, _) in enumerate(processed):
+            props = ' properties="svg"'
+            manifest_items.append(f'    <item id="page-{idx:03d}" href="xhtml/p-{idx:03d}.xhtml" media-type="application/xhtml+xml"{props}/>')
+
+        manifest_items.append('    <item properties="nav" id="toc" href="nav.xhtml" media-type="application/xhtml+xml"/>')
+        manifest_items.append('    <item id="ncx" href="nav.ncx" media-type="application/x-dtbncx+xml"/>')
+        manifest_items.append('    <item id="css" href="style/fixed-layout.css" media-type="text/css"/>')
+
+        for idx, (img_name, _, _) in enumerate(processed):
+            props = ' properties="cover-image"' if idx == 0 else ""
+            manifest_items.append(f'    <item id="page-img-{idx:03d}" href="image/{img_name}" media-type="image/jpeg"{props}/>')
+
+        spine_items = []
+        for idx in range(len(processed)):
+            if idx == 0:
+                spine_items.append(f'    <itemref linear="yes" idref="page-{idx:03d}" properties="rendition:page-spread-center"/>')
+            else:
+                if ltr:
+                    spread = "page-spread-left" if idx % 2 == 1 else "page-spread-right"
+                else:
+                    spread = "page-spread-right" if idx % 2 == 1 else "page-spread-left"
+                spine_items.append(f'    <itemref linear="yes" idref="page-{idx:03d}" properties="{spread}"/>')
+
+        opf = f'''<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" xml:lang="en" unique-identifier="pub-id" dir="{page_dir}">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:title id="id">{title}</dc:title>
+    <dc:creator id="creator">{author}</dc:creator>
+    <dc:identifier id="pub-id">urn:uuid:{title}</dc:identifier>
+    <dc:language>en</dc:language>
+    <dc:date>{timestamp}</dc:date>
+    <dc:publisher>{publisher}</dc:publisher>
+    <meta refines="#id" property="title-type">main</meta>
+    <meta refines="#id" property="file-as">{title}</meta>
+    <meta refines="#creator" property="role" scheme="marc:relators">aut</meta>
+    <meta property="dcterms:modified">{timestamp}</meta>
+    <meta name="cover" content="page-img-000"/>
+    <meta name="fixed-layout" content="true"/>
+    <meta name="original-resolution" content="{ref_w}x{ref_h}"/>
+    <meta name="book-type" content="comic"/>
+    <meta name="primary-writing-mode" content="{writing_mode}"/>
+    <meta property="rendition:layout">pre-paginated</meta>
+    <meta property="rendition:orientation">auto</meta>
+    <meta property="rendition:spread">landscape</meta>
+  </metadata>
+  <manifest>
+{chr(10).join(manifest_items)}
+  </manifest>
+  <spine toc="ncx" page-progression-direction="{page_dir}">
+{chr(10).join(spine_items)}
+  </spine>
+</package>'''
+        (work_dir / "item" / "comic.opf").write_text(opf)
+
+        # Create NCX
+        ncx = f'''<?xml version="1.0" encoding="UTF-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+  <head>
+    <meta name="dtb:uid" content="urn:uuid:{title}"/>
+    <meta name="dtb:depth" content="1"/>
+    <meta name="dtb:totalPageCount" content="0"/>
+    <meta name="dtb:maxPageNumber" content="0"/>
+  </head>
+  <docTitle><text>{title}</text></docTitle>
+  <navMap>
+    <navPoint id="page-000">
+      <navLabel><text>Cover</text></navLabel>
+      <content src="xhtml/p-000.xhtml"/>
+    </navPoint>
+  </navMap>
+</ncx>'''
+        (work_dir / "item" / "nav.ncx").write_text(ncx)
+
+        # Create nav.xhtml
+        nav = f'''<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+  <head><title>{title}</title></head>
+  <body>
+    <nav epub:type="toc" id="toc">
+      <h1>Table of Contents</h1>
+      <ol><li><a href="xhtml/p-000.xhtml">Cover</a></li></ol>
+    </nav>
+  </body>
+</html>'''
+        (work_dir / "item" / "nav.xhtml").write_text(nav)
+
+        # Package EPUB
+        print("Packaging EPUB...")
+        with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zf:
+            zf.write(work_dir / "mimetype", "mimetype", compress_type=zipfile.ZIP_STORED)
+            for root, _, files in os.walk(work_dir):
+                if "extracted" in Path(root).parts:
+                    continue
+                for file in files:
+                    if file == "mimetype":
+                        continue
+                    file_path = Path(root) / file
+                    arcname = file_path.relative_to(work_dir)
+                    zf.write(file_path, arcname)
+
+        print(f"Created: {output_path}")
+
+    finally:
+        if work_dir.exists():
+            shutil.rmtree(work_dir)
+
+
+# =============================================================================
+# Compress EPUB images
+# =============================================================================
+
+def compress_epub(epub_path: Path, max_dimension: int = 2400, quality: int = 85) -> None:
+    """Compress images in an EPUB file."""
+    if not epub_path.exists():
+        print(f"Error: File not found: {epub_path}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Compressing: {epub_path.name}")
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path = Path(temp_dir)
+
+        # Extract
+        with zipfile.ZipFile(epub_path, "r") as zf:
+            zf.extractall(temp_path)
+
+        # Find and compress images
+        image_extensions = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+        total_original = 0
+        total_compressed = 0
+
+        for root, _, files in os.walk(temp_path):
+            for file in files:
+                if Path(file).suffix.lower() not in image_extensions:
+                    continue
+
+                img_path = Path(root) / file
+                original_data = img_path.read_bytes()
+                total_original += len(original_data)
+
+                try:
+                    img = Image.open(io.BytesIO(original_data))
+                    original_format = img.format
+
+                    # Convert RGBA to RGB if needed
+                    if img.mode in ("RGBA", "LA", "P") and original_format != "PNG":
+                        bg = Image.new("RGB", img.size, (255, 255, 255))
+                        if img.mode == "P":
+                            img = img.convert("RGBA")
+                        bg.paste(img, mask=img.split()[-1] if img.mode == "RGBA" else None)
+                        img = bg
+
+                    # Resize if too large
+                    w, h = img.size
+                    if w > max_dimension or h > max_dimension:
+                        if w > h:
+                            new_w, new_h = max_dimension, int(h * max_dimension / w)
+                        else:
+                            new_h, new_w = max_dimension, int(w * max_dimension / h)
+                        img = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+                        print(f"  Resized {file}: {w}x{h} -> {new_w}x{new_h}")
+
+                    # Save compressed
+                    buf = io.BytesIO()
+                    if original_format == "PNG" and img.mode in ("RGBA", "LA", "P"):
+                        img.save(buf, format="PNG", optimize=True)
+                    else:
+                        if img.mode != "RGB":
+                            img = img.convert("RGB")
+                        img.save(buf, format="JPEG", quality=quality, optimize=True)
+
+                    compressed_data = buf.getvalue()
+                    total_compressed += len(compressed_data)
+                    img_path.write_bytes(compressed_data)
+
+                except Exception as e:
+                    print(f"  Warning: Could not compress {file}: {e}", file=sys.stderr)
+                    total_compressed += len(original_data)
+
+        # Repack
+        repack_epub(temp_path, epub_path)
+
+    orig_mb = total_original / (1024 * 1024)
+    comp_mb = total_compressed / (1024 * 1024)
+    savings = (1 - comp_mb / orig_mb) * 100 if orig_mb > 0 else 0
+    print(f"  {orig_mb:.1f} MB -> {comp_mb:.1f} MB ({savings:.1f}% reduction)")
+
+
+# =============================================================================
+# Fix cover metadata
+# =============================================================================
+
+def fix_cover(epub_path: Path) -> None:
+    """Fix EPUB cover/thumbnail metadata."""
+    if not epub_path.exists():
+        print(f"Error: File not found: {epub_path}", file=sys.stderr)
+        sys.exit(1)
+
+    opf_path = find_opf_path(epub_path)
+    if not opf_path:
+        print(f"  Error: Could not find OPF file", file=sys.stderr)
+        return
+
+    print(f"Fixing cover: {epub_path.name}")
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path = Path(temp_dir)
+
+        with zipfile.ZipFile(epub_path, "r") as zf:
+            zf.extractall(temp_path)
+
+        opf_full = temp_path / opf_path
+        tree = etree.parse(str(opf_full))
+        root = tree.getroot()
+
+        ns = {"opf": "http://www.idpf.org/2007/opf"}
+        metadata = root.find("opf:metadata", ns)
+        manifest = root.find("opf:manifest", ns)
+
+        if metadata is None or manifest is None:
+            print("  Error: Invalid OPF structure", file=sys.stderr)
+            return
+
+        # Find cover image ID
+        cover_id = None
+        for item in manifest.findall("opf:item", ns):
+            props = item.get("properties", "")
+            if "cover-image" in props:
+                cover_id = item.get("id")
+                break
+
+        if not cover_id:
+            # Fallback: look for 'cover' in id
+            for item in manifest.findall("opf:item", ns):
+                item_id = item.get("id", "")
+                href = item.get("href", "")
+                if "cover" in item_id.lower() and any(ext in href.lower() for ext in [".jpg", ".jpeg", ".png"]):
+                    cover_id = item_id
+                    break
+
+        if not cover_id:
+            print("  Warning: Could not find cover image")
+            return
+
+        # Check for existing cover meta
+        modified = False
+        cover_meta = None
+        for meta in metadata.findall("opf:meta", ns):
+            if meta.get("name") == "cover":
+                cover_meta = meta
+                break
+
+        if cover_meta is None:
+            print(f"  Adding cover metadata: {cover_id}")
+            cover_meta = etree.SubElement(metadata, "{http://www.idpf.org/2007/opf}meta")
+            cover_meta.set("name", "cover")
+            cover_meta.set("content", cover_id)
+            modified = True
+        elif cover_meta.get("content") != cover_id:
+            print(f"  Fixing cover metadata: {cover_meta.get('content')} -> {cover_id}")
+            cover_meta.set("content", cover_id)
+            modified = True
+        else:
+            print("  Cover metadata already correct")
+
+        if modified:
+            tree.write(str(opf_full), encoding="utf-8", xml_declaration=True)
+            repack_epub(temp_path, epub_path)
+
+
+# =============================================================================
+# Metadata operations
+# =============================================================================
+
+def show_metadata(epub_path: Path) -> None:
+    """Display EPUB metadata."""
+    opf_path = find_opf_path(epub_path)
+    if not opf_path:
+        print("  Error: Could not find OPF file", file=sys.stderr)
+        return
+
+    with zipfile.ZipFile(epub_path, "r") as zf:
+        opf_data = zf.read(opf_path)
+
+    root = etree.fromstring(opf_data)
+    ns = {"opf": "http://www.idpf.org/2007/opf", "dc": "http://purl.org/dc/elements/1.1/"}
+
+    title = root.find(".//dc:title", ns)
+    author = root.find(".//dc:creator", ns)
+    publisher = root.find(".//dc:publisher", ns)
+
+    print(f"  Title:     {title.text if title is not None else '(none)'}")
+    print(f"  Author:    {author.text if author is not None else '(none)'}")
+    print(f"  Publisher: {publisher.text if publisher is not None else '(none)'}")
+
+
+def update_metadata(epub_path: Path, new_title: str | None = None,
+                    new_author: str | None = None, new_publisher: str | None = None) -> None:
+    """Update EPUB metadata."""
+    if not epub_path.exists():
+        print(f"Error: File not found: {epub_path}", file=sys.stderr)
+        sys.exit(1)
+
+    opf_path = find_opf_path(epub_path)
+    if not opf_path:
+        print("  Error: Could not find OPF file", file=sys.stderr)
+        return
+
+    print(f"Updating metadata: {epub_path.name}")
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path = Path(temp_dir)
+
+        with zipfile.ZipFile(epub_path, "r") as zf:
+            zf.extractall(temp_path)
+
+        opf_full = temp_path / opf_path
+        parser = etree.XMLParser(remove_blank_text=False)
+        tree = etree.parse(str(opf_full), parser)
+        root = tree.getroot()
+
+        ns = {"opf": "http://www.idpf.org/2007/opf", "dc": "http://purl.org/dc/elements/1.1/"}
+        modified = False
+
+        if new_title:
+            elem = root.find(".//dc:title", ns)
+            if elem is not None and elem.text != new_title:
+                print(f"  Title: '{elem.text}' -> '{new_title}'")
+                elem.text = new_title
+                modified = True
+
+        if new_author:
+            elem = root.find(".//dc:creator", ns)
+            if elem is not None and elem.text != new_author:
+                print(f"  Author: '{elem.text}' -> '{new_author}'")
+                elem.text = new_author
+                # Update sort name
+                author_id = elem.get("id")
+                if author_id:
+                    parts = new_author.strip().split()
+                    sort_name = f"{parts[-1]}, {' '.join(parts[:-1])}" if len(parts) > 1 else new_author
+                    for meta in root.findall(".//opf:meta", ns):
+                        if meta.get("refines") == f"#{author_id}" and meta.get("property") == "file-as":
+                            meta.text = sort_name
+                            print(f"  Sort author: '{sort_name}'")
+                            break
+                modified = True
+
+        if new_publisher:
+            elem = root.find(".//dc:publisher", ns)
+            if elem is not None:
+                if elem.text != new_publisher:
+                    print(f"  Publisher: '{elem.text}' -> '{new_publisher}'")
+                    elem.text = new_publisher
+                    modified = True
+            else:
+                metadata = root.find(".//opf:metadata", ns)
+                if metadata is not None:
+                    pub = etree.SubElement(metadata, "{http://purl.org/dc/elements/1.1/}publisher")
+                    pub.text = new_publisher
+                    print(f"  Publisher: (none) -> '{new_publisher}'")
+                    modified = True
+
+        if modified:
+            tree.write(str(opf_full), encoding="utf-8", xml_declaration=True)
+            repack_epub(temp_path, epub_path)
+        else:
+            print("  No changes made")
+
+
+# =============================================================================
+# Rename files
+# =============================================================================
+
+def rename_epub(epub_path: Path) -> Path | None:
+    """Rename EPUB to standardized format."""
+    original_name = epub_path.name
+    new_name = original_name
+
+    # Remove author prefix (before dash)
+    new_name = re.sub(r"^[^-]+-\s*", "", new_name)
+
+    # Standardize volume format: "Volume 2" or "Vol. 2" -> "02"
+    new_name = re.sub(
+        r"\b(?:Volume|Vol\.?)\s*(\d+)\b",
+        lambda m: f"{int(m.group(1)):02d}",
+        new_name,
+        flags=re.IGNORECASE
+    )
+
+    # Remove parenthetical text
+    new_name = re.sub(r"\s*\([^)]*\)", "", new_name)
+
+    # Remove hash suffix
+    new_name = re.sub(r"\s+[a-f0-9]{8}\.epub$", ".epub", new_name, flags=re.IGNORECASE)
+
+    # Clean whitespace
+    new_name = re.sub(r"\s+", " ", new_name).strip()
+
+    if new_name != original_name:
+        new_path = epub_path.parent / new_name
+        if new_path.exists():
+            print(f"  Skipped: target exists: {new_name}")
+            return None
+        epub_path.rename(new_path)
+        print(f"  Renamed: {original_name}")
+        print(f"       -> {new_name}")
+        return new_path
+    else:
+        print(f"  No change: {original_name}")
+        return epub_path
+
+
+# =============================================================================
+# Remove iTunes metadata
+# =============================================================================
+
+def remove_itunes_meta(epub_path: Path) -> None:
+    """Remove iTunesMetadata.plist from EPUB."""
+    if not epub_path.exists():
+        print(f"Error: File not found: {epub_path}", file=sys.stderr)
+        sys.exit(1)
+
+    with zipfile.ZipFile(epub_path, "r") as zf:
+        if "iTunesMetadata.plist" not in zf.namelist():
+            print(f"  No iTunes metadata: {epub_path.name}")
+            return
+
+    print(f"Removing iTunes metadata: {epub_path.name}")
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path = Path(temp_dir)
+
+        with zipfile.ZipFile(epub_path, "r") as zf:
+            for item in zf.namelist():
+                if item != "iTunesMetadata.plist":
+                    zf.extract(item, temp_path)
+
+        # Write mimetype if it exists
+        mimetype_path = temp_path / "mimetype"
+        if not mimetype_path.exists():
+            mimetype_path.write_text("application/epub+zip")
+
+        repack_epub(temp_path, epub_path)
+
+
+# =============================================================================
+# Clean TOC
+# =============================================================================
+
+def clean_toc(epub_path: Path) -> None:
+    """Remove '...' and '>' entries from EPUB TOC."""
+    if not epub_path.exists():
+        print(f"Error: File not found: {epub_path}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Cleaning TOC: {epub_path.name}")
+
+    opf_path = find_opf_path(epub_path)
+    if not opf_path:
+        print("  Error: Could not find OPF file", file=sys.stderr)
+        return
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path = Path(temp_dir)
+
+        with zipfile.ZipFile(epub_path, "r") as zf:
+            zf.extractall(temp_path)
+
+        # Find NCX file
+        opf_full = temp_path / opf_path
+        opf_dir = opf_full.parent
+        tree = etree.parse(str(opf_full))
+        root = tree.getroot()
+
+        ns = {"opf": "http://www.idpf.org/2007/opf"}
+        ncx_item = root.find(".//opf:item[@media-type='application/x-dtbncx+xml']", ns)
+        if ncx_item is None:
+            print("  No NCX file found")
+            return
+
+        ncx_href = ncx_item.get("href")
+        ncx_path = opf_dir / ncx_href
+
+        if not ncx_path.exists():
+            print("  NCX file not found")
+            return
+
+        # Parse and clean NCX
+        ncx_tree = etree.parse(str(ncx_path))
+        ncx_root = ncx_tree.getroot()
+
+        ncx_ns = {"ncx": "http://www.daisy.org/z3986/2005/ncx/"}
+        modified = False
+
+        for nav_map in ncx_root.findall(".//ncx:navMap", ncx_ns):
+            parents = {c: p for p in nav_map.iter() for c in p}
+            for nav_point in nav_map.findall(".//ncx:navPoint", ncx_ns):
+                label = nav_point.find(".//ncx:text", ncx_ns)
+                if label is not None and label.text in ("...", ">"):
+                    parent = parents.get(nav_point)
+                    if parent is not None:
+                        parent.remove(nav_point)
+                        modified = True
+
+        if modified:
+            ncx_tree.write(str(ncx_path), encoding="utf-8", xml_declaration=True)
+            repack_epub(temp_path, epub_path)
+            print("  TOC cleaned")
+        else:
+            print("  No entries to clean")
+
+
+# =============================================================================
+# Main
+# =============================================================================
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="EPUB utilities: convert, compress, fix, metadata, rename, clean"
+    )
+
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("-c", "--convert", action="store_true",
+                       help="Convert CBZ to EPUB")
+    group.add_argument("-z", "--compress", action="store_true",
+                       help="Compress images in EPUB")
+    group.add_argument("-f", "--fix-cover", action="store_true",
+                       help="Fix cover/thumbnail metadata")
+    group.add_argument("-m", "--metadata", action="store_true",
+                       help="Show or edit metadata")
+    group.add_argument("-r", "--rename", action="store_true",
+                       help="Rename to standardized format")
+    group.add_argument("-i", "--remove-itunes", action="store_true",
+                       help="Remove iTunes metadata")
+    group.add_argument("-T", "--clean-toc", action="store_true",
+                       help="Clean '...' entries from TOC")
+
+    parser.add_argument("files", nargs="*",
+                        help="Input files (default: all matching files in current dir)")
+
+    # Convert options
+    parser.add_argument("--ltr", action="store_true",
+                        help="Left-to-right reading direction (default RTL)")
+    parser.add_argument("--add", action="store_true",
+                        help="Add blank page after cover")
+    parser.add_argument("-A", "--author", default="Unknown",
+                        help="Author for CBZ conversion")
+    parser.add_argument("-P", "--publisher", default="Unknown",
+                        help="Publisher for CBZ conversion")
+
+    # Compress options
+    parser.add_argument("-q", "--quality", type=int, default=85,
+                        help="JPEG quality 1-100 (default: 85)")
+    parser.add_argument("--max-dim", type=int, default=2400,
+                        help="Max image dimension in pixels (default: 2400)")
+
+    # Metadata options
+    parser.add_argument("-t", "--title", action="store_true",
+                        help="Set title to filename")
+    parser.add_argument("-a", "--set-author",
+                        help="Set author")
+    parser.add_argument("-p", "--set-publisher",
+                        help="Set publisher")
+
+    args = parser.parse_args()
+
+    def get_files(pattern: str) -> list[Path]:
+        if args.files:
+            return [Path(f) for f in args.files]
+        files = sorted(Path(".").glob(pattern))
+        if not files:
+            print(f"No {pattern} files found.", file=sys.stderr)
+            sys.exit(1)
+        return files
+
+    if args.convert:
+        files = get_files("*.cbz")
+        for f in files:
+            if len(files) > 1:
+                print(f"\n=== {f} ===")
+            convert_cbz_to_epub(f, author=args.author, publisher=args.publisher,
+                               add_blank_page=args.add, ltr=args.ltr)
+
+    elif args.compress:
+        files = get_files("*.epub")
+        for f in files:
+            if len(files) > 1:
+                print(f"\n=== {f} ===")
+            compress_epub(f, max_dimension=args.max_dim, quality=args.quality)
+
+    elif args.fix_cover:
+        files = get_files("*.epub")
+        for f in files:
+            if len(files) > 1:
+                print(f"\n=== {f} ===")
+            fix_cover(f)
+
+    elif args.metadata:
+        files = get_files("*.epub")
+        # Check if any modification flags are set
+        modify = args.title or args.set_author or args.set_publisher
+
+        for f in files:
+            print(f"File: {f}")
+            if modify:
+                title = f.stem if args.title else None
+                update_metadata(f, new_title=title, new_author=args.set_author,
+                              new_publisher=args.set_publisher)
+            else:
+                show_metadata(f)
+            print()
+
+    elif args.rename:
+        files = get_files("*.epub")
+        for f in files:
+            rename_epub(f)
+
+    elif args.remove_itunes:
+        files = get_files("*.epub")
+        for f in files:
+            remove_itunes_meta(f)
+
+    elif args.clean_toc:
+        files = get_files("*.epub")
+        for f in files:
+            clean_toc(f)
+
+
+if __name__ == "__main__":
+    main()
