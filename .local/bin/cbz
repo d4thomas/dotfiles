@@ -659,7 +659,7 @@ def main():
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-c", "--convert", action="store_true",
-                       help="Convert EPUB/PDF to CBZ (WebP by default)")
+                       help="Convert EPUB/PDF to CBZ (keeps original format unless --webp)")
     group.add_argument("-r", "--rename", action="store_true",
                        help="Rename images to 001, 002, ...")
     group.add_argument("-e", "--extract", type=int, metavar="N",
@@ -676,8 +676,6 @@ def main():
 
     parser.add_argument("--ltr", action="store_true",
                         help="Left-to-right reading order (default is RTL)")
-    parser.add_argument("--webp", action="store_true",
-                        help="Convert to WebP instead of keeping original format")
     parser.add_argument("-q", "--quality", type=int, default=85, metavar="Q",
                         help="WebP quality 1-100 (default: 85)")
     parser.add_argument("--lossless", action="store_true",
