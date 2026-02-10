@@ -8,8 +8,8 @@ Never use emojis or emoticons. Use bold, underline, and italics sparingly, and p
    # /// script
    # requires-python = ">=YYY"
    # dependencies = [
-   #     "YYY",
+   #     "XXX",
    # ]
    # ///
 
-   where YYY is the Python version and YYY are the dependencies.
+   where YYY is the Python version and XXX are the dependencies.
