@@ -59,6 +59,7 @@
   "problems.showCurrentInStatus": true,
   "explorer.autoReveal": false,
   "extensions.ignoreRecommendations": true,
+  "chat.agentsControl.enabled": "hidden",
 
   // Theme & Colors
   "workbench.preferredDarkColorTheme": "Monokai Pro",
