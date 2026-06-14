@@ -1,30 +1,59 @@
+# Container runtimes on MacOS (and Linux) with minimal setup
 brew "colima"
+# GNU File, Shell, and Text utilities
 brew "coreutils"
+# Pack, ship and run any application as a lightweight container
 brew "docker"
+# Isolated development environments using Docker
 brew "docker-compose"
+# Platform keystore credential helper for Docker
 brew "docker-credential-helper"
+# Modern, maintained replacement for ls
 brew "eza"
+# User-friendly command-line shell for UNIX-like operating systems
 brew "fish"
+# GitHub command-line tool
 brew "gh"
+# Git extension for versioning large files
 brew "git-lfs"
+# GNU Privacy Guard (OpenPGP)
 brew "gnupg"
+# Additional guest agents for Lima
 brew "lima-additional-guestagents"
+# Open-source, cross-platform JavaScript runtime environment
 brew "node"
+# Development kit for the Java programming language
 brew "openjdk"
+# Perform tasks asynchronously without external tools
 brew "zsh-async"
+# Pretty, minimal and fast ZSH prompt
 brew "pure"
+# Interpreted, interactive, object-oriented programming language
 brew "python@3.14"
+# Rsync for cloud storage
 brew "rclone"
+# Cross-shell prompt for astronauts
 brew "starship"
+# Terminal multiplexer
 brew "tmux"
+# CLI tool that moves files or folder to the trash
 brew "trash"
+# Command-line unarchiving tools supporting multiple formats
 brew "unar"
+# Extremely fast Python package installer and resolver, written in Rust
 brew "uv"
+# Internet file retriever
 brew "wget"
+# Fish-like fast/unobtrusive autosuggestions for zsh
 brew "zsh-autosuggestions"
+# Additional completion definitions for zsh
 brew "zsh-completions"
+# Zsh port of Fish shell's history search
 brew "zsh-history-substring-search"
+# Fish shell like syntax highlighting for zsh
 brew "zsh-syntax-highlighting"
 cask "font-symbols-only-nerd-font"
+# Terminal emulator that uses platform-native UI and GPU acceleration
 cask "ghostty"
+# Open-source code editor
 cask "visual-studio-code"
