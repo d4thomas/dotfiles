@@ -10,5 +10,5 @@ if command -v brew &> /dev/null; then
     if [ -f "$HOME/.config/brew/Brewfile" ]; then
         alias bbr="brew bundle --file=~/.config/brew/Brewfile --force"
     fi
-    alias bb="brew update; brew upgrade; brew cleanup --prune=all; bbd"
+    alias bb="brew update; brew upgrade -y; brew cleanup --prune=all; bbd"
 fi

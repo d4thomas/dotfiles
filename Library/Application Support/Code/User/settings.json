@@ -80,4 +80,8 @@
       }
     ]
 },
+"chat.titleBar.openInAgentsWindow.enabled": false,
+"extensions.supportAgentsWindow": {
+    "monokai.theme-monokai-pro-vscode": true
+},
 }

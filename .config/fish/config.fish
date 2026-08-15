@@ -49,7 +49,7 @@ if status is-interactive
     if test -f $HOME/.config/brew/Brewfile
         alias bbr "brew bundle --file=~/.config/brew/Brewfile --force"
     end
-    alias bb "brew update; brew upgrade; brew cleanup --prune=all; bbd"
+    alias bb "brew update; brew upgrade -y; brew cleanup --prune=all; bbd"
 
     # Find
     alias fdf "find . -path ./.git -prune -o -path './Library/Mobile Documents' -prune -o -print 2>/dev/null | grep -i"
