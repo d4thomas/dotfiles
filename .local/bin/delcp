@@ -747,7 +747,7 @@ def isLCPbook(inpath):
 
             if "id" in license and "encryption" in license and "profile" in license["encryption"]:
                 return True
-    except: 
+    except:
         return False
 
     return False
@@ -873,11 +873,120 @@ def guessFileType(tmpname):
     except:
         return "ppdf", "file/ppdf", open(tmpname, 'rb') 
 
-def decryptLCPbook(inpath, passphrases, parent_object):
+
+class FakeTemp:
+    def __init__(self, ext, base_fname):
+        self.name = base_fname + ext
+
+class FakeParent:
+    def __init__(self, base_fname):
+        self.base_fname = base_fname
+    def temporary_file(self, ext):
+        return FakeTemp(ext, self.base_fname)
+
+def downloadLCPbook(inpath, output_path):
+    """Download the encrypted publication from an LCP license and bundle with manifest/license."""
     res = tryParseAsLCPType(inpath)
     if res is None:
         raise LCPError("This is not an LCP-encrypted book")
     file_type, license = res
+
+    if file_type != "lcpl":
+        raise LCPError("Download requires a .lcpl license file, not " + file_type)
+
+    print("LCP: Found LCP license {0}".format(license["id"]))
+
+    # Find publication link.
+    publication_link = None
+    for link in license["links"]:
+        if link["rel"] == "publication":
+            publication_link = link
+            break
+
+    if not publication_link:
+        raise LCPError("No publication link found in license")
+
+    href = publication_link["href"]
+    mimetype = publication_link.get("type", "")
+
+    # Download to temp file.
+    tmpname = output_path + ".downloaded"
+    if not downloadFile(href, tmpname):
+        raise LCPError("Failed to download publication")
+
+    # Determine file type from mimetype or file contents.
+    if mimetype == "application/epub+zip":
+        detected_type = "epub"
+    elif mimetype in ("application/pdf+lcp", "application/pdf"):
+        try:
+            with ZipFile(open(tmpname, 'rb')):
+                detected_type = "lcpdf"
+        except:
+            detected_type = "ppdf"
+    else:
+        detected_type, _, _ = guessFileType(tmpname)
+
+    # Create output ZIP with license and manifest.
+    kwds = dict(compression=ZIP_DEFLATED, allowZip64=False)
+
+    with closing(ZipFile(open(output_path, 'wb'), 'w', **kwds)) as outfile:
+        # Write license.
+        outfile.writestr("META-INF/license.lcpl", json.dumps(license))
+
+        # Write manifest with download metadata.
+        manifest = {
+            "file_type": detected_type,
+            "mimetype": mimetype,
+            "original_publication_url": href,
+            "license_id": license["id"]
+        }
+        outfile.writestr("META-INF/manifest.json", json.dumps(manifest))
+
+        # Copy all files from downloaded file.
+        if detected_type == "ppdf":
+            # Plain PDF - read as binary.
+            with open(tmpname, 'rb') as f:
+                outfile.writestr("document.pdf.encrypted", f.read())
+        else:
+            # ZIP-based format.
+            with ZipFile(open(tmpname, 'rb')) as source:
+                for item in source.namelist():
+                    # Skip existing license/manifest.
+                    if item in ("META-INF/license.lcpl", "META-INF/manifest.json", "license.lcpl"):
+                        continue
+                    outfile.writestr(item, source.read(item))
+
+    # Clean up temp file.
+    os.remove(tmpname)
+    print("LCP: Successfully downloaded and bundled to {0}".format(output_path))
+    return output_path
+
+
+def decryptDownloadedLCPbook(inpath, passphrases, parent_object):
+    """Decrypt a previously downloaded LCP bundle."""
+    try:
+        with closing(ZipFile(open(inpath, 'rb'))) as bundle:
+            # Read license and manifest.
+            license = json.loads(bundle.read('META-INF/license.lcpl'))
+            manifest = json.loads(bundle.read('META-INF/manifest.json'))
+
+            file_type = manifest.get("file_type", "epub")
+            print("LCP: Processing downloaded bundle for {0}".format(license["id"]))
+
+            # Extract encryption.xml if available.
+            try:
+                encryption = bundle.read('META-INF/encryption.xml')
+            except KeyError:
+                encryption = None
+    except:
+        raise LCPError("Not a valid LCP download bundle")
+
+    return _performDecryption(license, encryption, file_type, inpath, passphrases, parent_object, is_bundle=True)
+
+
+def _performDecryption(license, encryption, file_type, file_path, passphrases, parent_object, is_bundle=False):
+    """Perform the actual decryption using provided license and encryption metadata."""
+
     print("LCP: Found LCP-encrypted book {0}".format(license["id"]))
 
     user_info_string1 = returnUserInfoStringForLicense(license, None)
@@ -1005,41 +1114,22 @@ def decryptLCPbook(inpath, passphrases, parent_object):
     if decrypted_content_key is None:
         raise LCPError("Decrypted content key is None")
 
-    if file_type == "lcpl":
-        for link in license["links"]:
-            if link["rel"] == "publication":
-                href = link["href"]
-                tmpname = parent_object.temporary_file(".tmp").name
-                if not downloadFile(href, tmpname):
-                    print("LcpDedrm: aborting")
-                    return None
-                if "type" in link:
-                    if link["type"] == "application/epub+zip":
-                        file = ZipFile(open(tmpname, 'rb'))
-                        file_type = "epub"
-                    elif link["type"] in ("application/pdf+lcp", "application/pdf"):
-                        try:
-                            file = ZipFile(open(tmpname, 'rb'))
-                            file_type = "lcpdf"
-                        except:
-                            file = open(tmpname, 'rb')
-                            file_type = "ppdf" 
-                            mimetype = "file/ppdf"
-                    else:
-                        print("Unsupported link type {}".format(link["type"]))
-                        return None
-                else:
-                    print("Untyped publication link?")
-                    file_type, mimetype, file = guessFileType(tmpname)
+    # Open the file.
+    if file_type == "ppdf" and not is_bundle:
+        file = open(file_path, 'rb')
+    elif is_bundle:
+        file = ZipFile(open(file_path, 'rb'))
     else:
-        file = ZipFile(open(inpath, 'rb'))
+        file = ZipFile(open(file_path, 'rb'))
 
     if file_type == "lcpdf":
         mimetype = "application/pdf"
-        encryption = None
     elif file_type == "epub":
         mimetype = "application/epub+zip"
-        encryption = file.read('META-INF/encryption.xml')
+    elif file_type == "ppdf":
+        mimetype = "file/ppdf"
+    else:
+        mimetype = "application/epub+zip"
 
     decryptor = Decryptor(decrypted_content_key, encryption, file_type)
     kwds = dict(compression=ZIP_DEFLATED, allowZip64=False)
@@ -1077,7 +1167,13 @@ def decryptLCPbook(inpath, passphrases, parent_object):
             return outputname
 
     elif mimetype == "file/ppdf":
-        pdfdata = file.read()
+        if file_type == "ppdf" and not is_bundle:
+            pdfdata = file.read()
+        else:
+            try:
+                pdfdata = file.read("document.pdf.encrypted")
+            except KeyError:
+                pdfdata = file.read()
         outputname = parent_object.temporary_file(".pdf").name
         with open(outputname, 'wb') as f:
             f.write(decryptor.decrypt("", pdfdata)) 
@@ -1097,6 +1193,8 @@ def decryptLCPbook(inpath, passphrases, parent_object):
                 namelist.remove("mimetype")
             if "META-INF/license.lcpl" in namelist:
                 namelist.remove("META-INF/license.lcpl")
+            if "META-INF/manifest.json" in namelist:
+                namelist.remove("META-INF/manifest.json")
 
             for path in (["mimetype"] + namelist):
                 data = file.read(path)
@@ -1136,23 +1234,76 @@ def decryptLCPbook(inpath, passphrases, parent_object):
         return outputname
 
 
-class FakeTemp:
-    def __init__(self, ext, base_fname):
-        self.name = base_fname + ext
+def decryptLCPbook(inpath, passphrases, parent_object):
+    res = tryParseAsLCPType(inpath)
+    if res is None:
+        raise LCPError("This is not an LCP-encrypted book")
+    file_type, license = res
 
-class FakeParent:
-    def __init__(self, base_fname):
-        self.base_fname = base_fname
-    def temporary_file(self, ext):
-        return FakeTemp(ext, self.base_fname)
+    # Check if this is a downloaded bundle.
+    try:
+        with closing(ZipFile(open(inpath, 'rb'))) as test_bundle:
+            if "META-INF/manifest.json" in test_bundle.namelist():
+                return decryptDownloadedLCPbook(inpath, passphrases, parent_object)
+    except:
+        pass
+
+    encryption = None
+
+    if file_type == "lcpl":
+        for link in license["links"]:
+            if link["rel"] == "publication":
+                href = link["href"]
+                tmpname = parent_object.temporary_file(".tmp").name
+                if not downloadFile(href, tmpname):
+                    print("LcpDedrm: aborting")
+                    return None
+                try:
+                    file_type, mimetype, file = guessFileType(tmpname)
+                except LCPError:
+                    link_type = link.get("type")
+                    if link_type in ("application/pdf+lcp", "application/pdf"):
+                        file = open(tmpname, 'rb')
+                        file_type = "ppdf"
+                        mimetype = "file/ppdf"
+                    else:
+                        raise
+
+        if file_type == "lcpdf":
+            mimetype = "application/pdf"
+            encryption = None
+        elif file_type == "epub":
+            mimetype = "application/epub+zip"
+            encryption = file.read('META-INF/encryption.xml')
+        else:
+            file.close()
+    else:
+        file = ZipFile(open(inpath, 'rb'))
+
+        if file_type == "lcpdf":
+            mimetype = "application/pdf"
+            encryption = None
+        elif file_type == "epub":
+            mimetype = "application/epub+zip"
+            encryption = file.read('META-INF/encryption.xml')
+
+    source_path = tmpname if res[0] == "lcpl" else inpath
+    try:
+        return _performDecryption(license, encryption, file_type, source_path, passphrases, parent_object)
+    finally:
+        if res[0] == "lcpl" and os.path.exists(tmpname):
+            os.remove(tmpname)
+
 
 def main():
     parser = argparse.ArgumentParser(
         description="Decrypt Readium LCP-protected ePubs and PDFs."
     )
-    parser.add_argument("input_file", help="Path to input .lcpl or .lcp")
-    parser.add_argument("passphrase", help="Passphrase to unlock the LCP license")
+    parser.add_argument("input_file", help="Path to input .lcpl, downloaded bundle, or LCP-protected file")
+    parser.add_argument("passphrase", nargs="?", help="Passphrase to unlock the LCP license (not needed for --download)")
     parser.add_argument("-o", "--output", help="Optional custom output file path (without extension)")
+    parser.add_argument("--download", action="store_true", help="Only download the book without decryption")
+    parser.add_argument("--decrypt", action="store_true", help="Only decrypt a previously downloaded bundle")
 
     args = parser.parse_args()
 
@@ -1169,9 +1320,22 @@ def main():
     parent = FakeParent(base_name)
 
     try:
-        decryptLCPbook(input_path, [args.passphrase], parent)
+        if args.download:
+            output_file = args.output if args.output else base_name + ".lcpbundle"
+            downloadLCPbook(input_path, output_file)
+            print(f"Download complete: {output_file}")
+        elif args.decrypt:
+            if not args.passphrase:
+                print("Error: Passphrase required for decryption", file=sys.stderr)
+                sys.exit(1)
+            decryptLCPbook(input_path, [args.passphrase], parent)
+        else:
+            if not args.passphrase:
+                print("Error: Passphrase required for decryption", file=sys.stderr)
+                sys.exit(1)
+            decryptLCPbook(input_path, [args.passphrase], parent)
     except LCPError as e:
-        print(f"Decryption failed: {e}", file=sys.stderr)
+        print(f"LCP error: {e}", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
         print(f"Unexpected error: {e}", file=sys.stderr)

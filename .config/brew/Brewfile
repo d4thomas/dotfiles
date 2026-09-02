@@ -63,6 +63,8 @@ cask "adguard-vpn"
 cask "font-symbols-only-nerd-font"
 # Terminal emulator that uses platform-native UI and GPU acceleration
 cask "ghostty"
+# AI-first productivity assistant for Microsoft 365
+cask "microsoft-365-copilot"
 # Spreadsheet software
 cask "microsoft-excel"
 # Email client
