@@ -9,11 +9,6 @@ alias grep="grep --color=always"
 # Less
 alias less="less -R"
 
-# Rclone
-if command -v rclone &> /dev/null; then
-    alias rcopy="rclone copy --transfers 8 --fast-list -P"
-fi
-
 # VS Code
 if command -v code &> /dev/null; then
     alias code="open -b com.microsoft.VSCode"

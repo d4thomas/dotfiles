@@ -34,8 +34,6 @@ brew "zsh-async"
 brew "pure"
 # Interpreted, interactive, object-oriented programming language
 brew "python@3.14"
-# Rsync for cloud storage
-brew "rclone"
 # Cross-shell prompt for astronauts
 brew "starship"
 # Terminal multiplexer
