@@ -38,3 +38,5 @@ brew "zsh-syntax-highlighting"
 cask "betterdisplay"
 # Terminal emulator that uses platform-native UI and GPU acceleration
 cask "ghostty"
+# Open-source code editor
+cask "visual-studio-code"
