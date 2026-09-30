@@ -1,8 +1,4 @@
 {
-  // Language Specific
-  "javascript.inlayHints.parameterNames.enabled": "all",
-  "typescript.inlayHints.parameterNames.enabled": "all",
-
   // Security & Trust
   "security.workspace.trust.enabled": false,
   "security.workspace.trust.untrustedFiles": "open",
@@ -47,7 +43,6 @@
   "telemetry.telemetryLevel": "off",
 
   // Extensions
-  "claudeCode.preferredLocation": "panel",
   "github.copilot.enable": {
     "*": false,
     "plaintext": false,
