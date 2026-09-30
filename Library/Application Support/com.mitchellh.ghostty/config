@@ -29,6 +29,7 @@ window-width = 125
 window-height = 45
 confirm-close-surface = false
 clipboard-paste-protection = false
+command = /opt/homebrew/bin/fish -l
 
 keybind = super+alt+shift+up=new_split:up
 keybind = super+alt+shift+down=new_split:down

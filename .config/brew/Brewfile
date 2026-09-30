@@ -2,6 +2,8 @@
 brew "coreutils"
 # Modern, maintained replacement for ls
 brew "eza"
+# User-friendly command-line shell for UNIX-like operating systems
+brew "fish"
 # GitHub command-line tool
 brew "gh"
 # Git extension for versioning large files
@@ -32,3 +34,7 @@ brew "zsh-completions"
 brew "zsh-history-substring-search"
 # Fish shell like syntax highlighting for zsh
 brew "zsh-syntax-highlighting"
+# Display management tool
+cask "betterdisplay"
+# Terminal emulator that uses platform-native UI and GPU acceleration
+cask "ghostty"
