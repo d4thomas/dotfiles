@@ -36,5 +36,6 @@ brew "zsh-history-substring-search"
 brew "zsh-syntax-highlighting"
 # Display management tool
 cask "betterdisplay"
+cask "font-symbols-only-nerd-font"
 # Open-source code editor
 cask "visual-studio-code"
