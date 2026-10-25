@@ -1,0 +1,84 @@
+#!/usr/bin/env uv run --script
+# /// script
+# dependencies = [
+#     "pypdf",
+# ]
+# ///
+
+import argparse
+import copy
+from pypdf import PdfReader, PdfWriter
+from pypdf.generic import RectangleObject
+
+
+def split_manga_spreads(input_pdf: str, output_pdf: str):
+  reader = PdfReader(input_pdf)
+  writer = PdfWriter()
+
+  print(
+      f"Processing '{input_pdf}' ({len(reader.pages)} total pages found)..."
+  )
+
+  for i, page in enumerate(reader.pages):
+    left = float(page.mediabox.left)
+    bottom = float(page.mediabox.bottom)
+    right = float(page.mediabox.right)
+    top = float(page.mediabox.top)
+
+    width = right - left
+    height = top - bottom
+
+    # Check if the page is landscape (double-spread)
+    if width > height:
+      print(f"-> Splitting landscape spread on page {i + 1}")
+      mid = left + (width / 2.0)
+
+      # Manga reads right-to-left, so the Right half comes first
+      page_right = copy.deepcopy(page)
+      page_right.mediabox = RectangleObject((mid, bottom, right, top))
+      page_right.cropbox = RectangleObject((mid, bottom, right, top))
+      writer.add_page(page_right)
+
+      # Then the Left half comes second
+      page_left = copy.deepcopy(page)
+      page_left.mediabox = RectangleObject((left, bottom, mid, top))
+      page_left.cropbox = RectangleObject((left, bottom, mid, top))
+      writer.add_page(page_left)
+    else:
+      # Portrait page (single page), keep as-is
+      writer.add_page(page)
+
+  with open(output_pdf, "wb") as f:
+    writer.write(f)
+
+  print(f"Done! Successfully saved processed manga PDF to: {output_pdf}")
+
+
+if __name__ == "__main__":
+  parser = argparse.ArgumentParser(
+      description=(
+          "Split landscape double-spread PDF pages for manga (Right-to-Left"
+          " order)."
+      )
+  )
+  parser.add_argument("input", help="Path to the input manga PDF file")
+  parser.add_argument(
+      "output",
+      nargs="?",
+      help="Path to the output PDF file (optional, defaults to [input]_split.pdf)",
+  )
+
+  args = parser.parse_args()
+
+  input_file = args.input
+  output_file = (
+      args.output
+      if args.output
+      else (
+          input_file.rsplit(".", 1)[0] + "_split.pdf"
+          if "." in input_file
+          else input_file + "_split.pdf"
+      )
+  )
+
+  split_manga_spreads(input_file, output_file)
