@@ -1,0 +1,66 @@
+#!/usr/bin/env uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "pymupdf",
+# ]
+# ///
+
+import argparse
+import pathlib
+import pymupdf
+
+def rasterize_and_flatten_directory(directory_path: str, dpi: int = 300):
+    dir_path = pathlib.Path(directory_path)
+    pdf_files = list(dir_path.glob("*.pdf"))
+    
+    if not pdf_files:
+        print(f"No PDF files found in '{dir_path.absolute()}'")
+        return
+
+    print(f"Found {len(pdf_files)} PDF file(s). Processing...")
+
+    for file_path in pdf_files:
+        print(f"\nProcessing: {file_path.name}")
+        tmp_path = file_path.with_suffix(".tmp.pdf")
+        
+        try:
+            src_doc = pymupdf.open(file_path)
+            out_doc = pymupdf.open()
+
+            total_pages = len(src_doc)
+            for i, page in enumerate(src_doc):
+                pix = page.get_pixmap(dpi=dpi)
+                img_bytes = pix.tobytes("png")
+                
+                new_page = out_doc.new_page(width=page.rect.width, height=page.rect.height)
+                new_page.insert_image(new_page.rect, stream=img_bytes)
+                print(f"  Processed page {i+1}/{total_pages}", end="\r")
+
+            print(f"\n  Saving flattened file...")
+            out_doc.save(
+                str(tmp_path),
+                garbage=3,
+                deflate=True,
+                use_objstms=True
+            )
+            
+            src_doc.close()
+            out_doc.close()
+
+            # Safely replace the original file with the flattened version
+            tmp_path.replace(file_path)
+            print(f"  Successfully overwritten: {file_path.name}")
+
+        except Exception as e:
+            print(f"\n  Error processing {file_path.name}: {e}")
+            if tmp_path.exists():
+                tmp_path.unlink()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Batch rasterize and flatten all PDFs in a directory losslessly, overwriting originals.")
+    parser.add_argument("dir", nargs="?", default=".", help="Directory containing PDF files (default: current directory)")
+    parser.add_argument("--dpi", type=int, default=300, help="Rendering resolution (default: 300)")
+    args = parser.parse_args()
+    
+    rasterize_and_flatten_directory(args.dir, dpi=args.dpi)
